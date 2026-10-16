@@ -5,6 +5,15 @@ Digital (https://github.com/hneemann/Digital) before building it on
 breadboards. Everything here was developed and verified while building the
 Output Register module; the same workflow applies to the next modules.
 
+| file          | what it is                                                        |
+|---------------|-------------------------------------------------------------------|
+| digrom.py     | EEPROM writer/reader/exporter for .dig circuits (presets, hex/bin) |
+| dignetlist.py | Netlist extraction from a .dig with real Digital pin geometry     |
+| kicadnets.py  | Reference netlist extraction from Ben's KiCad .net (pin maps in header) |
+| DigSim.java   | Headless simulator source (set/edge/toggle/steps/watch/dump/render) |
+| digsim        | Wrapper: locates Digital.jar + JDK, compiles and runs DigSim       |
+| README.md     | This file: workflow and usage                                     |
+
 ## The workflow
 
 1. Wire the module in Digital from Ben's schematic (schematics/*.png,
