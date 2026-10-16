@@ -31,7 +31,7 @@
           <string>U51</string>
         </entry>
       </elementAttributes>
-      <pos x="440" y="1240"/>
+      <pos x="460" y="1240"/>
     </visualElement>
     <visualElement>
       <elementName>28c16.dig</elementName>
@@ -101,7 +101,7 @@
           <rotation rotation="2"/>
         </entry>
       </elementAttributes>
-      <pos x="1140" y="-360"/>
+      <pos x="1140" y="-340"/>
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
@@ -111,7 +111,7 @@
           <rotation reference="../../../../visualElement[12]/elementAttributes/entry/rotation"/>
         </entry>
       </elementAttributes>
-      <pos x="1140" y="-320"/>
+      <pos x="1140" y="-300"/>
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
@@ -121,7 +121,7 @@
           <rotation reference="../../../../visualElement[12]/elementAttributes/entry/rotation"/>
         </entry>
       </elementAttributes>
-      <pos x="1140" y="-280"/>
+      <pos x="1140" y="-260"/>
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
