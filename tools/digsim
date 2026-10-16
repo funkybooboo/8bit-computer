@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# digsim - headless Digital circuit simulator (wrapper for DigSim.java).
+#
+# Locates Digital.jar and a JDK, compiles DigSim.java on demand into the user
+# cache, and runs it. See DigSim.java for the available options, or:
+#   tools/digsim --dig "digital/Output Register.dig" --list
+#
+# Override locations with DIGITAL_JAR and JAVA_HOME if autodetection fails.
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -z ${DIGITAL_JAR:-} ]]; then
+  if command -v digital >/dev/null 2>&1; then
+    w="$(readlink -f "$(command -v digital)")"
+    DIGITAL_JAR="$(grep -oE '[^ "]*Digital\.jar' "$w" 2>/dev/null | head -n1 || true)"
+  fi
+fi
+if [[ -z ${DIGITAL_JAR:-} ]] && [[ -d /nix/store ]]; then
+  DIGITAL_JAR="$(ls -d /nix/store/*digital*/share/java/Digital.jar 2>/dev/null | head -n1 || true)"
+fi
+if [[ -z ${DIGITAL_JAR:-} || ! -f $DIGITAL_JAR ]]; then
+  echo "digsim: Digital.jar not found - set DIGITAL_JAR" >&2
+  exit 1
+fi
+
+javac_bin=""
+java_bin=""
+if [[ -n ${JAVA_HOME:-} && -x $JAVA_HOME/bin/javac ]]; then
+  javac_bin=$JAVA_HOME/bin/javac
+elif command -v javac >/dev/null 2>&1; then
+  javac_bin="$(command -v javac)"
+else
+  # fall back to the JDK referenced by the nix digital wrapper script
+  w="$(readlink -f "$(command -v digital)")"
+  jdir="$(grep -oE '"([^"]*)/bin/java"' "$w" 2>/dev/null | head -n1 | tr -d '"' | xargs dirname 2>/dev/null || true)"
+  if [[ -n ${jdir:-} && -x $jdir/javac ]]; then
+    javac_bin=$jdir/javac
+  fi
+fi
+if [[ -z $javac_bin ]]; then
+  echo "digsim: javac not found - set JAVA_HOME (a full JDK, not just a JRE)" >&2
+  exit 1
+fi
+java_bin="${javac_bin%/javac}/java"
+
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/digsim"
+mkdir -p "$cache"
+if [[ ! -f $cache/DigSim.class || "$here/DigSim.java" -nt $cache/DigSim.class ]]; then
+  "$javac_bin" -cp "$DIGITAL_JAR" -d "$cache" "$here/DigSim.java"
+fi
+exec "$java_bin" -cp "$cache:$DIGITAL_JAR" DigSim "$@"
