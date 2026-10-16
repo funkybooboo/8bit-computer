@@ -31,3 +31,20 @@ Status: only "Output Register.dig" has been through the full
 verify/program/simulate workflow (see the root README). The others are wired
 but not yet verified or complete; run ../tools/dignetlist.py and compare
 against ../tools/kicadnets.py output before debugging their behavior.
+
+## Running in the GUI (play button)
+
+- Start/stop: the toolbar play button (Run menu -> Run) or the space bar.
+- While running, click a 1-bit In element to toggle it (all BUS bits, OI,
+  CLK, CLR\_hat, SW\_7). Clicking the MUX\_CLK Clock element toggles it manually.
+- Real-time clocks run by themselves once started: MUX\_CLK has
+  runRealTime set, at its Frequency attribute (default 1 Hz). Set Frequency
+  to 500+ Hz (double-click the element in edit mode) for a smooth
+  multiplexed display; at 1 Hz the digits light one per second in rotation.
+- Output Register cheat sheet: BUS\_0..7 = value bits (bit i = 2^i), OI = 1
+  to let the latch capture the bus, then click CLK once (rising edge latches;
+  click again to return low). SW\_7: 1 = decimal, 0 = hex. CLR\_hat: keep 1,
+  pulse 0 to zero the latch.
+- F6 opens a live value table; the graph tool plots signals over time; F7
+  runs to a Break element; Run menu -> micro step (G) for gate-level
+  stepping. Headless scripted equivalents: ../tools/digsim.
