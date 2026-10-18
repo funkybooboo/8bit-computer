@@ -65,6 +65,7 @@ public class DigSim {
     private final Model model;
     private final Map<String, ObservableValue> inputs = new LinkedHashMap<>();
     private final Map<String, ObservableValue> posMap = new HashMap<>();
+    private final List<Net> nets = new ArrayList<>();
     private final List<VisualElement> elements;
     private boolean render = false;
 
@@ -82,9 +83,11 @@ public class DigSim {
         Field f = ModelCreator.class.getDeclaredField("netList");
         f.setAccessible(true);
         NetList nl = (NetList) f.get(mc);
-        for (Net n : nl)
+        for (Net n : nl) {
+            nets.add(n);
             for (Pin p : n.getPins())
                 posMap.put(p.getPos().x + "," + p.getPos().y, p.getValue());
+        }
 
         elements = new ArrayList<>(circuit.getElements());
         model.init();
@@ -176,6 +179,25 @@ public class DigSim {
                 }
         }
         throw new RuntimeException("pin not found: " + el + "." + pin);
+    }
+
+    /** Prints Digital's own nets (from ModelCreator.netList) with pin names, positions, directions and values. */
+    void dumpNets() {
+        for (Net n : nets) {
+            StringBuilder sb = new StringBuilder("net [");
+            boolean first = true;
+            for (Pin p : n.getPins()) {
+                if (!first) sb.append("; ");
+                first = false;
+                ObservableValue v = p.getValue();
+                sb.append(p.getName()).append('@').append(p.getPos().x).append(',').append(p.getPos().y)
+                        .append('/').append(p.getDirection())
+                        .append('=').append(v == null ? "-" : Long.toString(v.getValueHighZIsZero()))
+                        .append(v != null && v.isHighZ() ? "Z" : "");
+            }
+            sb.append(']');
+            System.out.println(sb);
+        }
     }
 
     void dump(String filter) {
@@ -330,6 +352,9 @@ public class DigSim {
                     break;
                 case "--render":
                     sim.render = true;
+                    break;
+                case "--nets":
+                    sim.dumpNets();
                     break;
                 case "--watch":
                     sim.watch(args[++i]);

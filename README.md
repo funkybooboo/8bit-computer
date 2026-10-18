@@ -17,17 +17,31 @@ before reproducing it on real breadboards.
 
 ## Module status
 
+All ten component circuits are wired and their wiring has been verified
+pin by pin against Ben's KiCad netlist (kicad/8bit-computer.net) with the
+tools/ netlist extractor. Functional simulation status per module is below;
+the headless simulator cannot exercise several modules because of bugs in
+Digital 0.31's DIL chip library (details and workarounds in
+digital/README.md, "Known Digital 0.31 simulation bugs").
+
 | module             | digital/ circuit          | wired from                 | state                                        |
 |--------------------|---------------------------|----------------------------|----------------------------------------------|
-| Clock              | (pending)                 | schematics/clock.png       | not started in Digital                        |
-| A register         | "A Register.dig"          | schematics/a-register.png  | wired, not yet verified                      |
-| B register         | "B Register.dig"           | schematics/b-register.png   | wired, not yet verified                      |
-| Instruction reg.   | "Instruction Register.dig"| schematics/ir.png          | wired, not yet verified                      |
-| ALU                | "Arithmetic Logic Unit.dig" | schematics/alu.png         | wired, not yet verified                      |
-| RAM + MAR          | (pending)                 | schematics/ram.png, mar.png| not started in Digital                        |
-| Program counter    | "Program Counter.dig"      | schematics/pc.png          | wired, not yet verified                      |
+| Clock              | "Clock.dig"               | schematics/clock.png       | wiring verified vs KiCad; realtime clock element verified; gated CLK output depends on the STEP_MODE switch (GUI test) |
+| A register          | "A Register.dig"          | schematics/a-register.png  | wiring verified vs KiCad; load/hold verified (register core); full-module sim blocked by the 74245 library bug |
+| B register          | "B Register.dig"          | schematics/b-register.png  | wiring verified vs KiCad (adds BO\_hat output-enable input); sim blocked by the 74245 library bug |
+| Instruction reg.   | "Instruction Register.dig"| schematics/ir.png          | wiring verified vs KiCad; sim blocked by the 74245 library bug |
+| ALU                | "Arithmetic Logic Unit.dig" | schematics/alu.png       | done: wiring verified vs KiCad; simulation verified (ADD/SUB, carry, CF/ZF flags, output enable) |
+| RAM                | "Random Access Memory.dig" | schematics/ram.png        | wiring verified vs KiCad; sim blocked by 74245/74157 library bugs |
+| MAR                | "Memory Address Register.dig" | schematics/mar.png     | wiring verified vs KiCad; sim blocked by a 74157 library bug |
+| Program counter    | "Program Counter.dig"      | schematics/pc.png          | done: wiring verified vs KiCad; simulation verified (count/hold, output enable) |
 | Output register    | "Output Register.dig"      | schematics/output.png      | done: wiring verified vs KiCad, ROM programmed, simulation passing |
-| Control logic      | "CPU Control Logic.dig"   | schematics/control.png     | done: wiring verified vs KiCad, both ROMs programmed, simulation passing |
+| Control logic      | "Control Logic.dig"        | schematics/control.png     | done: wiring verified vs KiCad, both ROMs programmed, simulation passing |
+| Computer           | "Computer.dig"             | all of the above           | in progress: the put-it-all-together composite |
+
+Wiring verification is pin-exact; the only intentional deviations from
+Ben's board are listed in digital/README.md (BO\_hat on the B register,
+separate Ground symbols on chip enables, equivalent XOR gate pairing in the
+ALU, and the Clock element standing in for the 555s).
 
 ## The workflow
 
@@ -46,7 +60,14 @@ turned out to be 100% correct and the only fault was an unprogrammed 28C16.
 The Control Logic module followed: wiring again correct (two benign A7/7400
 symbol notes in digital/README.md), both microcode ROMs programmed, and all
 instructions (incl. JC/JZ flag behavior and the 6-cycle step-counter
-wraparound) verified by headless simulation.
+wraparound) verified by headless simulation. After that, the remaining eight
+modules (Clock, A/B registers, instruction register, ALU, program counter,
+MAR, RAM) were wired and their netlists verified the same way - all pin-
+exact - and the ALU and program counter were simulation-verified end to end.
+The other register/RAM modules are blocked in headless simulation by Digital
+0.31 DIL-library model bugs (see digital/README.md), not by wiring faults:
+their register cores were verified by simulating the latch logic with the
+bus transceiver removed.
 
 ## Credits
 

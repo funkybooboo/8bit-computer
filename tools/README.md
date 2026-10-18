@@ -102,7 +102,10 @@ state during toggles; '.' = disabled display), `--watch LABEL.pin` or
 `--pins [FILTER]` (print every element's pins with their real positions -
 useful when a wire endpoint looks unconnected; wire-connected input pins of
 embedded DIL chips show no value there, use --watch on In/Out/LED pins
-instead).
+instead), `--nets` (print Digital's own nets from ModelCreator.netList -
+every pin of every net with name, position, direction and value, including
+the flattened internals of embedded DIL chips; the tool that exposed the
+Digital 0.31 74173/74245/74157 library bugs listed in ../digital/README.md).
 `--toggle` also prints a `display(mux full cycle)` summary merging what each
 display showed across a full multiplex cycle.
 
