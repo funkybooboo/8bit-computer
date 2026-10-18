@@ -194,6 +194,24 @@ public class DigSim {
         }
     }
 
+    /** Prints each element's pins with their real positions (and value if a net is attached). */
+    void pins(String filter) {
+        for (VisualElement ve : elements) {
+            String label = ve.getElementAttributes().getLabel();
+            String name = label.isEmpty() ? ve.getElementName() : label + " (" + ve.getElementName() + ")";
+            if (filter != null && !name.toLowerCase().contains(filter.toLowerCase()))
+                continue;
+            StringBuilder sb = new StringBuilder(String.format("%-16s", name));
+            for (Pin p : ve.getPins()) {
+                ObservableValue v = posMap.get(p.getPos().x + "," + p.getPos().y);
+                sb.append(' ').append(p.getName()).append('@')
+                        .append(p.getPos().x).append(',').append(p.getPos().y)
+                        .append('=').append(v == null ? "-" : v.getValueHighZIsZero());
+            }
+            System.out.println(sb);
+        }
+    }
+
     /**
      * Renders all Seven-Seg elements left-to-right. '.' = display disabled,
      * a letter/digit = enabled pattern, ' ' = enabled but blank.
@@ -321,6 +339,15 @@ public class DigSim {
                     if (i + 1 < args.length && !args[i + 1].startsWith("--"))
                         filter = args[++i];
                     sim.dump(filter);
+                    break;
+                }
+                case "--pins": {
+                    String filter = null;
+                    if (i + 1 < args.length && !args[i + 1].startsWith("--"))
+                        filter = args[++i];
+                    if (sim == null)
+                        sim = new DigSim(dig);
+                    sim.pins(filter);
                     break;
                 }
                 default:

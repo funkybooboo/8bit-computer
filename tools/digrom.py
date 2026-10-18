@@ -97,8 +97,98 @@ def output_display(swap_banks=False):
     return bytes(rom)
 
 
+# ---------------------------------------------------------------------------
+# Control-logic microcode (Ben Eater's 16-bit control word split across two
+# 28C16s, U47 + U52). Bit weights verified against the KiCad netlist (ROM
+# data pins -> U49/U53 inverter gates -> control nets):
+#
+#   ROM1 U47: bit 7=HLT 6=MI 5=RI 4=RO 3=IO 2=II 1=AI 0=AO
+#   ROM2 U52: bit 7=EO 6=SU 5=BI 4=OI 3=CE 2=CO 1=J  0=FI
+#
+# Address, both ROMs: step counter (74161 Q0/Q1/Q2) -> A0-A2, IR4..IR7
+# (opcode) -> A3-A6, CF -> A8, ZF -> A9. A10 is grounded. A7 is the
+# "which ROM" bit on Ben's board (U47 A7=GND, U52 A7=VCC), so the images
+# are replicated across A7 and A10 and are correct for any A7 wiring
+# (the Digital build ties both A7 pins to VDD).
+#
+# Instruction set (opcode = IR nibble):
+#   0 NOP   1 LDA   2 ADD   3 SUB   4 STA   5 LDI   6 JMP   7 JC
+#   8 JZ    9-D undefined   E OUT   F HLT
+#
+# Microcode (T0/T1 fetch identical for all instructions; every instruction
+# takes 6 cycles because the 74138 O5/T5 line resets the step counter):
+#   T0: MI|CO          T1: RO|II|CE
+#   LDA: T2 MI|IO            T3 RO|AI
+#   ADD: T2 MI|IO            T3 RO|BI          T4 EO|AI|FI
+#   SUB: T2 MI|IO            T3 RO|BI          T4 EO|AI|SU|FI
+#   STA: T2 MI|IO            T3 AO|RI
+#   LDI: T2 IO|AI
+#   JMP: T2 IO|J
+#   JC : T2 IO|J (only if CF=1)
+#   JZ : T2 IO|J (only if ZF=1)
+#   OUT: T2 AO|OI
+#   HLT: T2 HLT
+# The ROM1 image was verified instruction by instruction against the
+# 8bitsim reference (ngdrascal/8bitsim memory-images/MicroInstructions.hex).
+# ---------------------------------------------------------------------------
+
+# ROM1 (U47) signal bits
+HLT, MI, RI, RO, IO, II, AI, AO = 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
+# ROM2 (U52) signal bits
+EO, SU, BI, OI, CE, CO, J, FI = 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
+
+# opcode -> list of (step, rom1 signals, rom2 signals); the T0/T1 fetch is
+# added by _control_images() for every opcode.
+_OPCODE_MICROCODE = {
+    0x1: [(2, MI | IO, 0), (3, RO | AI, 0)],                                # LDA
+    0x2: [(2, MI | IO, 0), (3, RO, BI), (4, AI, EO | FI)],                  # ADD
+    0x3: [(2, MI | IO, 0), (3, RO, BI), (4, AI, EO | SU | FI)],            # SUB
+    0x4: [(2, MI | IO, 0), (3, RI | AO, 0)],                                # STA
+    0x5: [(2, IO | AI, 0)],                                                 # LDI
+    0x6: [(2, IO, J)],                                                      # JMP
+    0xE: [(2, AO, OI)],                                                     # OUT
+    0xF: [(2, HLT, 0)],                                                     # HLT
+}
+
+
+def _control_images():
+    """Returns (rom1, rom2) as 2048-byte images for U47/U52."""
+    r1 = bytearray(2048)
+    r2 = bytearray(2048)
+    for opcode in range(16):
+        for cf in (0, 1):
+            for zf in (0, 1):
+                microsteps = [(0, MI, CO), (1, RO | II, CE)]
+                microsteps += _OPCODE_MICROCODE.get(opcode, [])
+                if opcode == 0x7 and cf:  # JC: jump only when CF (A8) set
+                    microsteps.append((2, IO, J))
+                if opcode == 0x8 and zf:  # JZ: jump only when ZF (A9) set
+                    microsteps.append((2, IO, J))
+                for st, w1, w2 in microsteps:
+                    # replicate across A7 (the which-ROM bit) and A10 (grounded)
+                    for a7 in (0, 1):
+                        for a10 in (0, 1):
+                            a = (st | (opcode << 3) | (a7 << 7)
+                                 | (cf << 8) | (zf << 9) | (a10 << 10))
+                            r1[a] = w1
+                            r2[a] = w2
+    return bytes(r1), bytes(r2)
+
+
+def control_rom1(**_kw):
+    """U47: HLT/MI/RI/RO/IO/II/AI/AO half of the control word."""
+    return _control_images()[0]
+
+
+def control_rom2(**_kw):
+    """U52: EO/SU/BI/OI/CE/CO/J/FI half of the control word."""
+    return _control_images()[1]
+
+
 PRESETS = {
     "output-display": output_display,
+    "control-rom1": control_rom1,
+    "control-rom2": control_rom2,
 }
 
 

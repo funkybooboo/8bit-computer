@@ -45,9 +45,10 @@ Digital round-trips it on re-save - verified). `write` does a surgical text
 edit (keeps your file formatting), then re-reads and round-trip checks the
 result before atomically replacing the file.
 
-New ROMs (e.g. the control-logic microcode when that module gets built) go
-into the `PRESETS` dict in digrom.py - each preset is a function returning
-bytes - and get archived to ../roms/ via `export`.
+New ROMs go into the `PRESETS` dict in digrom.py - each preset is a function
+returning bytes - and get archived to ../roms/ via `export`. Existing presets:
+`output-display`, `control-rom1`, `control-rom2` (the control-logic
+microcode; see ../roms/README.md for the address/data encoding).
 
 Segment encoding used by Ben's display ROMs (verified against his KiCad
 netlist):
@@ -97,7 +98,11 @@ Options (executed in command line order): `--set NAME=VALUE` (0x/0b/decimal;
 auto-steps), `--edge NAME` (0->1->0 pulse), `--toggle NAME:N` (N half-cycles
 with a step after each), `--steps N`, `--render` (print the Seven-Seg display
 state during toggles; '.' = disabled display), `--watch LABEL.pin` or
-`--watch x,y` (print a pin value), `--dump [FILTER]` (print all pin values).
+`--watch x,y` (print a pin value), `--dump [FILTER]` (print all pin values),
+`--pins [FILTER]` (print every element's pins with their real positions -
+useful when a wire endpoint looks unconnected; wire-connected input pins of
+embedded DIL chips show no value there, use --watch on In/Out/LED pins
+instead).
 `--toggle` also prints a `display(mux full cycle)` summary merging what each
 display showed across a full multiplex cycle.
 

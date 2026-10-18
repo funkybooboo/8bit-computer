@@ -9,9 +9,10 @@ project (../kicad/) as the pin-exact reference.
 | A Register.dig               | A register        | a-register.png      | a-register.sch   |
 | B Register.dig               | B register        | b-register.png      | b-register.sch   |
 | Instruction Register.dig     | Instruction reg.  | ir.png              | inst-register.sch|
-| ALU.dig                      | ALU               | alu.png             | alu.sch         |
+| Arithmetic Logic Unit.dig     | ALU               | alu.png             | alu.sch         |
 | Program Counter.dig          | Program counter   | pc.png              | program-counter.sch |
 | Output Register.dig          | Output register   | output.png          | output.sch      |
+| CPU Control Logic.dig        | Control logic     | control.png         | control.sch     |
 
 Conventions:
 
@@ -27,10 +28,20 @@ Conventions:
   attribute and is archived in ../roms/ - regenerate/re-inject with
   ../tools/digrom.py.
 
-Status: only "Output Register.dig" has been through the full
-verify/program/simulate workflow (see the root README). The others are wired
+Status: "Output Register.dig" and "CPU Control Logic.dig" have been through
+the full verify/program/simulate workflow (see the root README); the control
+logic's two microcode ROMs are programmed with Ben's instruction set and every
+instruction's microsequence is simulation-verified. The others are wired
 but not yet verified or complete; run ../tools/dignetlist.py and compare
 against ../tools/kicadnets.py output before debugging their behavior.
+
+Control logic notes (vs the KiCad reference):
+
+- Both ROMs' A7 pins are tied to VDD here; Ben's board grounds U47's A7 (the
+  "which ROM" bit). Harmless: the ROM images are replicated across A7.
+- Ben's KiCad 74LS00 symbol wires gates 3/4 as inputs 9,10->8 and 12,13->11,
+  which does not match a real 7400 (8,9->10 and 11,12->13). The circuit is
+  wired functionally: RESET -> inverter -> ~CLR -> inverter -> CLR.
 
 ## Running in the GUI (play button)
 

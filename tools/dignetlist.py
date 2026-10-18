@@ -100,7 +100,10 @@ def load_lib_chip(libdir, name):
         if e.find("string").text == "Width":
             width = int(list(e)[1].text)
     for ve in root.find("visualElements"):
-        if ve.find("elementName").text not in ("In", "Out"):
+        # "Clock" elements inside a chip definition are its clock input pin
+        # (e.g. 74161.dig: Label "CLK", pinNumber 2) - they carry a pinNumber
+        # like In/Out elements do.
+        if ve.find("elementName").text not in ("In", "Out", "Clock"):
             continue
         attrs = {}
         ae = ve.find("elementAttributes")

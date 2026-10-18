@@ -23,11 +23,11 @@ before reproducing it on real breadboards.
 | A register         | "A Register.dig"          | schematics/a-register.png  | wired, not yet verified                      |
 | B register         | "B Register.dig"           | schematics/b-register.png   | wired, not yet verified                      |
 | Instruction reg.   | "Instruction Register.dig"| schematics/ir.png          | wired, not yet verified                      |
-| ALU                | "ALU.dig"                  | schematics/alu.png         | wired, not yet verified                      |
+| ALU                | "Arithmetic Logic Unit.dig" | schematics/alu.png         | wired, not yet verified                      |
 | RAM + MAR          | (pending)                 | schematics/ram.png, mar.png| not started in Digital                        |
 | Program counter    | "Program Counter.dig"      | schematics/pc.png          | wired, not yet verified                      |
 | Output register    | "Output Register.dig"      | schematics/output.png      | done: wiring verified vs KiCad, ROM programmed, simulation passing |
-| Control logic      | (pending)                 | schematics/control.png     | not started (needs microcode EEPROMs)        |
+| Control logic      | "CPU Control Logic.dig"   | schematics/control.png     | done: wiring verified vs KiCad, both ROMs programmed, simulation passing |
 
 ## The workflow
 
@@ -43,6 +43,10 @@ Every module goes through the same loop (tooling in [tools/](tools/README.md)):
 
 The Output Register module was driven through all four steps: its wiring
 turned out to be 100% correct and the only fault was an unprogrammed 28C16.
+The Control Logic module followed: wiring again correct (two benign A7/7400
+symbol notes in digital/README.md), both microcode ROMs programmed, and all
+instructions (incl. JC/JZ flag behavior and the 6-cycle step-counter
+wraparound) verified by headless simulation.
 
 ## Credits
 
