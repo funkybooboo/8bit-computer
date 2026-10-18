@@ -7,6 +7,10 @@
       <elementName>74245.dig</elementName>
       <elementAttributes>
         <entry>
+          <string>Label</string>
+          <string>U13</string>
+        </entry>
+        <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
         </entry>
@@ -17,6 +21,10 @@
       <elementName>74173.dig</elementName>
       <elementAttributes>
         <entry>
+          <string>Label</string>
+          <string>U14</string>
+        </entry>
+        <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
         </entry>
@@ -26,6 +34,10 @@
     <visualElement>
       <elementName>74173.dig</elementName>
       <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>U15</string>
+        </entry>
         <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
@@ -160,6 +172,15 @@
           <string>rotation</string>
           <rotation rotation="3"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>0</red>
+            <green>51</green>
+            <blue>255</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
       </elementAttributes>
       <pos x="1100" y="1400"/>
     </visualElement>
@@ -169,6 +190,10 @@
         <entry>
           <string>rotation</string>
           <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[16]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1140" y="1400"/>
@@ -180,6 +205,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[17]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[16]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1180" y="1400"/>
     </visualElement>
@@ -189,6 +218,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[17]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[16]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1220" y="1400"/>
@@ -200,6 +233,15 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[17]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>255</red>
+            <green>255</green>
+            <blue>0</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
       </elementAttributes>
       <pos x="1260" y="1400"/>
     </visualElement>
@@ -209,6 +251,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[17]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[20]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1300" y="1400"/>
@@ -220,6 +266,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[17]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[20]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1340" y="1400"/>
     </visualElement>
@@ -229,6 +279,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[17]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[20]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1380" y="1400"/>
@@ -242,7 +296,7 @@
         </entry>
         <entry>
           <string>Label</string>
-          <string>I1\_hat</string>
+          <string>II\_hat</string>
         </entry>
       </elementAttributes>
       <pos x="1660" y="400"/>
@@ -270,7 +324,7 @@
         </entry>
         <entry>
           <string>Label</string>
-          <string>I0\_hat</string>
+          <string>IO\_hat</string>
         </entry>
       </elementAttributes>
       <pos x="1620" y="760"/>
@@ -304,10 +358,6 @@
   <wires>
     <wire>
       <p1 x="740" y="960"/>
-      <p2 x="940" y="960"/>
-    </wire>
-    <wire>
-      <p1 x="940" y="960"/>
       <p2 x="1460" y="960"/>
     </wire>
     <wire>
@@ -328,10 +378,10 @@
     </wire>
     <wire>
       <p1 x="860" y="1220"/>
-      <p2 x="1300" y="1220"/>
+      <p2 x="1180" y="1220"/>
     </wire>
     <wire>
-      <p1 x="1300" y="1220"/>
+      <p1 x="1180" y="1220"/>
       <p2 x="1520" y="1220"/>
     </wire>
     <wire>
@@ -345,10 +395,6 @@
     <wire>
       <p1 x="580" y="200"/>
       <p2 x="1040" y="200"/>
-    </wire>
-    <wire>
-      <p1 x="920" y="1100"/>
-      <p2 x="1180" y="1100"/>
     </wire>
     <wire>
       <p1 x="380" y="400"/>
@@ -388,26 +434,30 @@
     </wire>
     <wire>
       <p1 x="780" y="980"/>
-      <p2 x="960" y="980"/>
-    </wire>
-    <wire>
-      <p1 x="960" y="980"/>
       <p2 x="1500" y="980"/>
     </wire>
     <wire>
       <p1 x="820" y="1300"/>
-      <p2 x="1380" y="1300"/>
+      <p2 x="1100" y="1300"/>
     </wire>
     <wire>
-      <p1 x="1380" y="1300"/>
+      <p1 x="1100" y="1300"/>
       <p2 x="1520" y="1300"/>
     </wire>
     <wire>
       <p1 x="660" y="920"/>
-      <p2 x="900" y="920"/>
+      <p2 x="1260" y="920"/>
     </wire>
     <wire>
-      <p1 x="900" y="920"/>
+      <p1 x="1300" y="920"/>
+      <p2 x="1340" y="920"/>
+    </wire>
+    <wire>
+      <p1 x="1260" y="920"/>
+      <p2 x="1300" y="920"/>
+    </wire>
+    <wire>
+      <p1 x="1340" y="920"/>
       <p2 x="1380" y="920"/>
     </wire>
     <wire>
@@ -416,10 +466,10 @@
     </wire>
     <wire>
       <p1 x="880" y="1180"/>
-      <p2 x="1260" y="1180"/>
+      <p2 x="1220" y="1180"/>
     </wire>
     <wire>
-      <p1 x="1260" y="1180"/>
+      <p1 x="1220" y="1180"/>
       <p2 x="1520" y="1180"/>
     </wire>
     <wire>
@@ -429,10 +479,6 @@
     <wire>
       <p1 x="620" y="160"/>
       <p2 x="1080" y="160"/>
-    </wire>
-    <wire>
-      <p1 x="940" y="1060"/>
-      <p2 x="1140" y="1060"/>
     </wire>
     <wire>
       <p1 x="400" y="-40"/>
@@ -504,18 +550,14 @@
     </wire>
     <wire>
       <p1 x="840" y="1260"/>
-      <p2 x="1340" y="1260"/>
+      <p2 x="1140" y="1260"/>
     </wire>
     <wire>
-      <p1 x="1340" y="1260"/>
+      <p1 x="1140" y="1260"/>
       <p2 x="1520" y="1260"/>
     </wire>
     <wire>
       <p1 x="700" y="940"/>
-      <p2 x="920" y="940"/>
-    </wire>
-    <wire>
-      <p1 x="920" y="940"/>
       <p2 x="1420" y="940"/>
     </wire>
     <wire>
@@ -533,10 +575,6 @@
     <wire>
       <p1 x="880" y="880"/>
       <p2 x="1120" y="880"/>
-    </wire>
-    <wire>
-      <p1 x="900" y="1140"/>
-      <p2 x="1220" y="1140"/>
     </wire>
     <wire>
       <p1 x="820" y="820"/>
@@ -571,14 +609,6 @@
       <p2 x="460" y="440"/>
     </wire>
     <wire>
-      <p1 x="960" y="1020"/>
-      <p2 x="1100" y="1020"/>
-    </wire>
-    <wire>
-      <p1 x="960" y="980"/>
-      <p2 x="960" y="1020"/>
-    </wire>
-    <wire>
       <p1 x="960" y="340"/>
       <p2 x="960" y="480"/>
     </wire>
@@ -595,10 +625,6 @@
       <p2 x="580" y="680"/>
     </wire>
     <wire>
-      <p1 x="900" y="920"/>
-      <p2 x="900" y="1140"/>
-    </wire>
-    <wire>
       <p1 x="1540" y="600"/>
       <p2 x="1540" y="640"/>
     </wire>
@@ -607,7 +633,7 @@
       <p2 x="1540" y="480"/>
     </wire>
     <wire>
-      <p1 x="1220" y="1140"/>
+      <p1 x="1220" y="1180"/>
       <p2 x="1220" y="1400"/>
     </wire>
     <wire>
@@ -647,7 +673,7 @@
       <p2 x="460" y="620"/>
     </wire>
     <wire>
-      <p1 x="1100" y="1020"/>
+      <p1 x="1100" y="1300"/>
       <p2 x="1100" y="1400"/>
     </wire>
     <wire>
@@ -679,16 +705,12 @@
       <p2 x="1300" y="680"/>
     </wire>
     <wire>
-      <p1 x="1300" y="1220"/>
+      <p1 x="1300" y="920"/>
       <p2 x="1300" y="1400"/>
     </wire>
     <wire>
       <p1 x="1620" y="300"/>
       <p2 x="1620" y="640"/>
-    </wire>
-    <wire>
-      <p1 x="920" y="940"/>
-      <p2 x="920" y="1100"/>
     </wire>
     <wire>
       <p1 x="920" y="440"/>
@@ -723,7 +745,7 @@
       <p2 x="860" y="1220"/>
     </wire>
     <wire>
-      <p1 x="1180" y="1100"/>
+      <p1 x="1180" y="1220"/>
       <p2 x="1180" y="1400"/>
     </wire>
     <wire>
@@ -751,7 +773,7 @@
       <p2 x="1380" y="480"/>
     </wire>
     <wire>
-      <p1 x="1380" y="1300"/>
+      <p1 x="1380" y="920"/>
       <p2 x="1380" y="1400"/>
     </wire>
     <wire>
@@ -775,10 +797,6 @@
       <p2 x="620" y="680"/>
     </wire>
     <wire>
-      <p1 x="940" y="960"/>
-      <p2 x="940" y="1060"/>
-    </wire>
-    <wire>
       <p1 x="1580" y="600"/>
       <p2 x="1580" y="680"/>
     </wire>
@@ -787,7 +805,7 @@
       <p2 x="1580" y="480"/>
     </wire>
     <wire>
-      <p1 x="1260" y="1180"/>
+      <p1 x="1260" y="920"/>
       <p2 x="1260" y="1400"/>
     </wire>
     <wire>
@@ -831,7 +849,7 @@
       <p2 x="1460" y="480"/>
     </wire>
     <wire>
-      <p1 x="1140" y="1060"/>
+      <p1 x="1140" y="1260"/>
       <p2 x="1140" y="1400"/>
     </wire>
     <wire>
@@ -859,7 +877,7 @@
       <p2 x="1340" y="680"/>
     </wire>
     <wire>
-      <p1 x="1340" y="1260"/>
+      <p1 x="1340" y="920"/>
       <p2 x="1340" y="1400"/>
     </wire>
     <wire>

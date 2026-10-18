@@ -30,6 +30,15 @@
           <string>rotation</string>
           <rotation rotation="1"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>51</red>
+            <green>255</green>
+            <blue>0</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
       </elementAttributes>
       <pos x="720" y="-80"/>
     </visualElement>
@@ -39,6 +48,10 @@
         <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[3]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="760" y="-80"/>
@@ -50,6 +63,10 @@
           <string>rotation</string>
           <rotation rotation="1"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[3]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="800" y="-80"/>
     </visualElement>
@@ -59,6 +76,10 @@
         <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[3]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="840" y="-80"/>

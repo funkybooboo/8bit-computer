@@ -84,6 +84,30 @@ def shutil_which_digital():
     return None
 
 
+def rotation_of(ve, idx, rots, root_vis):
+    """Rotation value of visual element `idx`, resolving XStream references
+    (<rotation reference="..."/>) which point at another element's entry."""
+    if idx in rots:
+        return rots[idx]
+    ae = ve.find("elementAttributes")
+    val = 0
+    if ae is not None:
+        for e in ae:
+            if e.find("string").text == "rotation":
+                v = list(e)[1]
+                ref = v.get("reference")
+                if ref is not None:
+                    m = re.search(r"visualElement\[(\d+)\]", ref)
+                    if m:
+                        target = int(m.group(1)) - 1
+                        val = rotation_of(root_vis[target], target, rots, root_vis)
+                elif v.get("rotation") is not None:
+                    val = int(v.get("rotation"))
+                break
+    rots[idx] = val
+    return val
+
+
 def load_lib_chip(libdir, name):
     """Parse a library .dig chip: return (pinCount, widthUnits, {pinNum: pinName})."""
     if name in _lib_cache:
@@ -121,30 +145,48 @@ def load_lib_chip(libdir, name):
 
 
 def dil_pin_pos(x, y, npins, width_units, pinnum):
-    """Absolute position of DIL pin `pinnum` on a chip placed at (x, y)."""
+    """Unrotated position of DIL pin `pinnum` on a chip placed at (x, y)."""
     if pinnum <= npins // 2:
         return (x, y + PITCH * (pinnum - 1))
     return (x + 20 * (width_units + 1), y + PITCH * (npins - pinnum))
 
 
+def rot_pos(x, y, dx, dy, r):
+    """Apply Digital's element rotation (r quarter turns) to an unrotated
+    offset (dx, dy) relative to an element at (x, y).
+
+    Matches Digital's VisualElement.getTransform() -> TransformRotate(pos, r):
+    rot=1: (x+dy, y-dx)   rot=2: (x-dx, y-dy)   rot=3: (x-dy, y+dx)
+    """
+    if r == 1:
+        return (x + dy, y - dx)
+    if r == 2:
+        return (x - dx, y - dy)
+    if r == 3:
+        return (x - dy, y + dx)
+    return (x + dx, y + dy)
+
+
 def element_pins(el, libdir):
     """Yield (pinName, absPos, direction) for one visual element."""
     name, x, y, attrs = el["name"], el["x"], el["y"], el["attrs"]
+    r = int(attrs.get("rotation", 0))
     if name.endswith(".dig"):
         npins, width, pins = load_lib_chip(libdir, name)
         for num, label in sorted(pins.items()):
-            yield label, dil_pin_pos(x, y, npins, width, num), "io"
+            dx, dy = dil_pin_pos(0, 0, npins, width, num)
+            yield label, rot_pos(x, y, dx, dy, r), "io"
         return
     if name == "Seven-Seg":
         common = "cc" if attrs.get("commonCathode") == "true" else ("ca" if attrs.get("commonAnode") == "true" else None)
         top = ["a", "b", "c", "d"]
         bottom = ["e", "f", "g", "dp"]
-        for i, s in enumerate(top):
-            yield s, (x + 20 * i, y), "in"
-        for i, s in enumerate(bottom):
-            yield s, (x + 20 * i, y + SEG_H), "in"
+        offs = [(20 * i, 0) for i in range(4)] + [(20 * i, SEG_H) for i in range(4)]
+        names = top + bottom
+        for (dx, dy), s in zip(offs, names):
+            yield s, rot_pos(x, y, dx, dy, r), "in"
         if common:
-            yield common, (x + 80, y + SEG_H), "in"
+            yield common, rot_pos(x, y, 80, SEG_H, r), "in"
         return
     if name in ("In", "Out", "Clock", "Ground", "VDD", "NotConnected", "Tunnel"):
         yield name, (x, y), "io"
@@ -162,6 +204,8 @@ def main():
     libdir = find_library(args.lib)
 
     root = ET.parse(args.dig).getroot()
+    root_vis = root.find("visualElements")
+    rots = {}
     els = []
     for i, ve in enumerate(root.find("visualElements")):
         name = ve.find("elementName").text
@@ -169,7 +213,10 @@ def main():
         ae = ve.find("elementAttributes")
         if ae is not None:
             for e in ae:
-                attrs[e.find("string").text] = list(e)[1].text
+                v = list(e)[1]
+                # non-string values (e.g. <rotation rotation="1"/>) carry no text
+                attrs[e.find("string").text] = v.get("rotation") if v.get("rotation") is not None else v.text
+        attrs["rotation"] = rotation_of(ve, i, rots, root_vis)
         p = ve.find("pos")
         els.append({"idx": i, "name": name, "x": int(p.get("x")), "y": int(p.get("y")), "attrs": attrs})
     wires = []

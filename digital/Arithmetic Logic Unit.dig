@@ -153,12 +153,32 @@
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
-      <elementAttributes/>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>102</red>
+            <green>255</green>
+            <blue>0</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
       <pos x="-880" y="480"/>
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
-      <elementAttributes/>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>102</red>
+            <green>255</green>
+            <blue>0</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
       <pos x="-880" y="520"/>
     </visualElement>
     <visualElement>

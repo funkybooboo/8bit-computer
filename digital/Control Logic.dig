@@ -185,22 +185,47 @@
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
-      <elementAttributes/>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>102</red>
+            <green>255</green>
+            <blue>0</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
+      </elementAttributes>
       <pos x="560" y="-180"/>
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
-      <elementAttributes/>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[8]/elementAttributes/entry/awt-color"/>
+        </entry>
+      </elementAttributes>
       <pos x="560" y="-140"/>
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
-      <elementAttributes/>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[8]/elementAttributes/entry/awt-color"/>
+        </entry>
+      </elementAttributes>
       <pos x="560" y="-100"/>
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
-      <elementAttributes/>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[8]/elementAttributes/entry/awt-color"/>
+        </entry>
+      </elementAttributes>
       <pos x="560" y="-60"/>
     </visualElement>
     <visualElement>
@@ -240,6 +265,15 @@
           <string>rotation</string>
           <rotation rotation="3"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color>
+            <red>0</red>
+            <green>102</green>
+            <blue>204</blue>
+            <alpha>255</alpha>
+          </awt-color>
+        </entry>
       </elementAttributes>
       <pos x="1160" y="2000"/>
     </visualElement>
@@ -249,6 +283,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1080" y="2000"/>
@@ -260,6 +298,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1200" y="2000"/>
     </visualElement>
@@ -269,6 +311,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1120" y="2000"/>
@@ -280,6 +326,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1320" y="2000"/>
     </visualElement>
@@ -289,6 +339,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1240" y="2000"/>
@@ -300,6 +354,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1360" y="2000"/>
     </visualElement>
@@ -309,6 +367,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1280" y="2000"/>
@@ -320,6 +382,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1480" y="2000"/>
     </visualElement>
@@ -329,6 +395,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1400" y="2000"/>
@@ -340,6 +410,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1520" y="2000"/>
     </visualElement>
@@ -349,6 +423,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1440" y="2000"/>
@@ -360,6 +438,10 @@
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1640" y="2000"/>
     </visualElement>
@@ -369,6 +451,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1560" y="2000"/>
@@ -380,6 +466,10 @@
           <string>rotation</string>
           <rotation rotation="3"/>
         </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
+        </entry>
       </elementAttributes>
       <pos x="1680" y="2000"/>
     </visualElement>
@@ -389,6 +479,10 @@
         <entry>
           <string>rotation</string>
           <rotation reference="../../../../visualElement[15]/elementAttributes/entry/rotation"/>
+        </entry>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[15]/elementAttributes/entry[2]/awt-color"/>
         </entry>
       </elementAttributes>
       <pos x="1600" y="2000"/>
@@ -690,7 +784,12 @@
     </visualElement>
     <visualElement>
       <elementName>LED</elementName>
-      <elementAttributes/>
+      <elementAttributes>
+        <entry>
+          <string>Color</string>
+          <awt-color reference="../../../../visualElement[8]/elementAttributes/entry/awt-color"/>
+        </entry>
+      </elementAttributes>
       <pos x="560" y="-220"/>
     </visualElement>
     <visualElement>
@@ -722,16 +821,6 @@
       <elementName>VDD</elementName>
       <elementAttributes/>
       <pos x="720" y="1240"/>
-    </visualElement>
-    <visualElement>
-      <elementName>In</elementName>
-      <elementAttributes>
-        <entry>
-          <string>Label</string>
-          <string>RESET</string>
-        </entry>
-      </elementAttributes>
-      <pos x="600" y="1620"/>
     </visualElement>
     <visualElement>
       <elementName>Ground</elementName>
@@ -817,6 +906,26 @@
       <elementName>VDD</elementName>
       <elementAttributes/>
       <pos x="720" y="640"/>
+    </visualElement>
+    <visualElement>
+      <elementName>SwitchDT</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>RESET</string>
+        </entry>
+      </elementAttributes>
+      <pos x="600" y="1680"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Ground</elementName>
+      <elementAttributes/>
+      <pos x="680" y="1700"/>
+    </visualElement>
+    <visualElement>
+      <elementName>VDD</elementName>
+      <elementAttributes/>
+      <pos x="680" y="1680"/>
     </visualElement>
   </visualElements>
   <wires>
@@ -949,6 +1058,14 @@
       <p2 x="2380" y="1680"/>
     </wire>
     <wire>
+      <p1 x="580" y="1680"/>
+      <p2 x="600" y="1680"/>
+    </wire>
+    <wire>
+      <p1 x="640" y="1680"/>
+      <p2 x="680" y="1680"/>
+    </wire>
+    <wire>
       <p1 x="1560" y="660"/>
       <p2 x="1700" y="660"/>
     </wire>
@@ -1079,6 +1196,10 @@
     <wire>
       <p1 x="1120" y="1700"/>
       <p2 x="1700" y="1700"/>
+    </wire>
+    <wire>
+      <p1 x="640" y="1700"/>
+      <p2 x="680" y="1700"/>
     </wire>
     <wire>
       <p1 x="1780" y="1060"/>
@@ -1413,7 +1534,7 @@
       <p2 x="740" y="980"/>
     </wire>
     <wire>
-      <p1 x="600" y="1620"/>
+      <p1 x="580" y="1620"/>
       <p2 x="700" y="1620"/>
     </wire>
     <wire>
@@ -1923,6 +2044,10 @@
     <wire>
       <p1 x="1860" y="660"/>
       <p2 x="1860" y="880"/>
+    </wire>
+    <wire>
+      <p1 x="580" y="1620"/>
+      <p2 x="580" y="1680"/>
     </wire>
     <wire>
       <p1 x="1480" y="1880"/>

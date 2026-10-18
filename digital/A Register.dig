@@ -7,6 +7,10 @@
       <elementName>74245.dig</elementName>
       <elementAttributes>
         <entry>
+          <string>Label</string>
+          <string>U7</string>
+        </entry>
+        <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
         </entry>
@@ -17,6 +21,10 @@
       <elementName>74173.dig</elementName>
       <elementAttributes>
         <entry>
+          <string>Label</string>
+          <string>U8</string>
+        </entry>
+        <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
         </entry>
@@ -26,6 +34,10 @@
     <visualElement>
       <elementName>74173.dig</elementName>
       <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>U9</string>
+        </entry>
         <entry>
           <string>rotation</string>
           <rotation rotation="1"/>
@@ -282,7 +294,7 @@
         </entry>
         <entry>
           <string>Label</string>
-          <string>A1\_hat</string>
+          <string>AI\_hat</string>
         </entry>
       </elementAttributes>
       <pos x="1660" y="400"/>
@@ -310,7 +322,7 @@
         </entry>
         <entry>
           <string>Label</string>
-          <string>A0\_hat</string>
+          <string>AO\_hat</string>
         </entry>
       </elementAttributes>
       <pos x="1620" y="740"/>

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>2</version>
+  <attributes/>
+  <visualElements>
+    <visualElement>
+      <elementName>A Register.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="1700" y="140"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Arithmetic Logic Unit.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="1640" y="960"/>
+    </visualElement>
+    <visualElement>
+      <elementName>B Register.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="1700" y="2120"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Output Register.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="1660" y="3020"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Program Counter.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="2220" y="-280"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Clock.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="400" y="-340"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Memory Address Register.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="420" y="60"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Random Access Memory.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="0" y="700"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Instruction Register.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="260" y="1900"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Control Logic.dig</elementName>
+      <elementAttributes>
+        <entry>
+          <string>shapeType</string>
+          <shapeType>MINIMIZED</shapeType>
+        </entry>
+      </elementAttributes>
+      <pos x="-240" y="2940"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_7</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1160" y="4180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_6</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1200" y="4180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_5</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1240" y="4180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_4</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1280" y="4180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_3</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1320" y="4180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_2</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1360" y="4180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_1</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1400" y="4180"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>rotation</string>
+          <rotation rotation="3"/>
+        </entry>
+        <entry>
+          <string>Label</string>
+          <string>BUS\_0</string>
+        </entry>
+      </elementAttributes>
+      <pos x="1440" y="4180"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="1200" y="-560"/>
+      <p2 x="1200" y="4180"/>
+    </wire>
+    <wire>
+      <p1 x="1280" y="-560"/>
+      <p2 x="1280" y="4180"/>
+    </wire>
+    <wire>
+      <p1 x="1360" y="-560"/>
+      <p2 x="1360" y="4180"/>
+    </wire>
+    <wire>
+      <p1 x="1440" y="-560"/>
+      <p2 x="1440" y="4180"/>
+    </wire>
+    <wire>
+      <p1 x="1160" y="-560"/>
+      <p2 x="1160" y="4180"/>
+    </wire>
+    <wire>
+      <p1 x="1240" y="-560"/>
+      <p2 x="1240" y="4180"/>
+    </wire>
+    <wire>
+      <p1 x="1320" y="-560"/>
+      <p2 x="1320" y="4180"/>
+    </wire>
+    <wire>
+      <p1 x="1400" y="-560"/>
+      <p2 x="1400" y="4180"/>
+    </wire>
+  </wires>
+  <measurementOrdering/>
+</circuit>
