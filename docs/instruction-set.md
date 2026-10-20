@@ -60,8 +60,8 @@ into A, and why larger constants must be built with ADD.
 | 1110        | E   | OUT      | -       | display <- A                  | -     |
 | 1111        | F   | HLT      | -       | stop the clock                | -     |
 
-Opcodes 9-D are **this project's additions** (see [modifications.md](modifications.md),
-"Free: microcode only" - filled with microcode only, no wiring changes; the original Ben
+Opcodes 9-D are **this project's additions** (see [additions.md](additions.md),
+"Added: five opcodes" - filled with microcode only, no wiring changes; the original Ben
 Eater set is 0-8, E, F). An older ROM image burns those opcodes as NOPs.
 
 ### Per-instruction notes

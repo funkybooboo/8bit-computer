@@ -6,7 +6,7 @@ more than this machine's entire 16 bytes. That is not a tuning problem;
 the ISA and memory are the problem. But there is a credible, staged path:
 a subset C compiler running on the host, emitting this repo's assembly
 language, targeting an upgraded machine whose upgrades are exactly the
-ones listed in [modifications.md](modifications.md), "New chips". The compiler itself needs no
+ones listed in [additions.md](additions.md), "New chips". The compiler itself needs no
 new hardware at all and can be started now.
 
 ## What C needs, checked against what we have
@@ -14,15 +14,15 @@ new hardware at all and can be started now.
 | C needs | the standard's requirement | this machine | the gap |
 |---------|---------------------------|--------------|---------|
 | char    | 8 bits                    | 8 bits       | none |
-| int     | at least 16 bits          | 8-bit ALU    | doable as byte pairs - needs ADC (carry-in chaining; see modifications.md, "New chips") |
+| int     | at least 16 bits          | 8-bit ALU    | doable as byte pairs - needs ADC (carry-in chaining; see additions.md, "New chips") |
 | pointers| addresses that can be computed | operands are 4-bit constants baked into instructions | indirect addressing - the structural gap |
 | memory  | code + globals + stack; the smallest real programs are hundreds of bytes | 16 bytes, shared | 2 orders of magnitude |
-| stack   | every call, every local   | none - no SP, no CALL/RET, no push/pop | SP + CALL/RET (modifications.md, "New chips") |
+| stack   | every call, every local   | none - no SP, no CALL/RET, no push/pop | SP + CALL/RET (additions.md, "New chips") |
 | arithmetic | + - * / % all exist | + - in hardware, * / % as loops (mul/div/mod already written) | none, just slow |
 | bitwise | & \| ^ ~ << >>           | shifts: DBL does << in one instruction (CF = bit out); the rest: none | software emulation (rotate + carry + conditional); correct, ~100s of cycles per byte-op |
-| control flow | if / while / for / functions | JMP JC JZ (+ JNC JNZ free, modifications.md, "Free: microcode only") | functions = stack |
+| control flow | if / while / for / functions | JMP JC JZ (+ JNC JNZ added, additions.md, "Added: five opcodes") | functions = stack |
 | output  | putchar                   | OUT           | none |
-| input   | getchar                   | none at run time | the IN instruction (modifications.md, "New chips") |
+| input   | getchar                   | none at run time | the IN instruction (additions.md, "New chips") |
 
 The compiler itself runs on the host - cross-compilation, like every
 8-bit microcomputer of the era. This machine will never self-host a
@@ -45,7 +45,7 @@ Small-C dialect (the 1980 compiler that made C practical on 8080-class
 
 This is not a coincidence: an 8080 is 8-bit data with 16-bit addresses
 and a hardware stack pointer - and the machine in
-[modifications.md](modifications.md), "New chips", is exactly that shape. The upgrades C
+[additions.md](additions.md), "New chips", is exactly that shape. The upgrades C
 demands are the upgrades an 8080 has. History already ran this
 experiment: Small-C on 8080s is the proven minimum.
 
@@ -61,7 +61,7 @@ debugging.
 | level | what it is | C status |
 |-------|-----------|----------|
 | L0 (original) | 16 bytes, 11 instructions, assembler + verified programs | impossible |
-| L1 (free microcode) - DONE | JNC/JNZ/ADDI/SUBI/DBL (modifications.md, "Free: microcode only") + tools/sim.py, the cycle-accurate test bench | still impossible - 16 bytes is 16 bytes |
+| L1 (free microcode) - DONE | JNC/JNZ/ADDI/SUBI/DBL (additions.md, "Added: five opcodes") + tools/sim.py, the cycle-accurate test bench | still impossible - 16 bytes is 16 bytes |
 | L2 (wiring) - DONE, except memory | 8 microsteps (T2-T6 usable); the 64-byte item needs tier-3 parts | still impossible |
 | L3 (the C threshold - hardware project) | 2KB code ROM (a 28C16 - this repo already burns them) + 2KB SRAM; 16-bit MAR and PC; two-byte instructions; the third control ROM; SP + CALL/RET + push/pop; indirect load/store (MAR from a register pair); ADC | the machine can now express C's abstract machine |
 | L4 (software, weeks) | the subset-C cross compiler on the host, emitting this repo's assembly; asm.py as the backend, sim.py as the test bench | C programs compile, run, and can be hand-checked against the gallery |

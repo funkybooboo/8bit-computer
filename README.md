@@ -42,7 +42,7 @@ hardware or Digital's ROM editor? The assembler builds it:
 | [docs/assembly-language.md](docs/assembly-language.md) | The assembly language and assembler |
 | [docs/programs.md](docs/programs.md) | The program gallery and the machine's limits |
 | [docs/tools.md](docs/tools.md) | The toolchain |
-| [docs/modifications.md](docs/modifications.md) | What can be changed, at what cost |
+| [docs/additions.md](docs/additions.md) | Additions to Ben Eater's computer: made and possible |
 | [docs/getting-to-c.md](docs/getting-to-c.md) | The staged path to running C |
 
 ## Credits

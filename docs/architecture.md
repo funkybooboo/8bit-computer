@@ -106,7 +106,7 @@ works:
 The only joke it makes is the memory: 16 bytes, because the MAR and PC
 are 4 bits (the RAM chips themselves are 64 words deep - the address
 path, not the silicon, is the limit; see
-[modifications.md](modifications.md)). Inside its memory it computes
+[additions.md](additions.md)). Inside its memory it computes
 real things: multiplication, division, gcd, pseudorandom sequences,
 self-modifying code ([programs.md](programs.md)). Give the same design
 a wider address path and it stops being a toy without changing its soul.

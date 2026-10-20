@@ -260,7 +260,7 @@ U34's output enables are grounded.
 
 16 bytes. The 74189s are 64 words deep but only A0..A3 are wired (the
 A0..A3 nets, shared with the MAR) - the address path, not the chips, is
-the 16-byte limit ([modifications.md](modifications.md)). Their outputs
+the 16-byte limit ([additions.md](additions.md)). Their outputs
 are inverted, so U28/U29 invert them back onto the RAM_DATA_0..7 nets
 (RAM LEDs + U30.A); U30 drives the bus while RO (U49.2Y). Data in: the
 U26/U27 muxes pick bus (B) or PROG_DATA dipswitches (A) into the RAM D

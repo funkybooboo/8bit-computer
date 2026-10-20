@@ -152,7 +152,7 @@ the program, then watch it work:
 
 The instruction set and the 16 bytes bound what is possible; these do
 not fit, for structural reasons (not just for lack of bytes). What would
-fix each one, and at what cost: [modifications.md](modifications.md);
+fix each one, and at what cost: [additions.md](additions.md);
 the full path to C programs: [getting-to-c.md](getting-to-c.md).
 
 - **Conway's Game of Life, even 1-D cellular automata (rule 90/110)** -

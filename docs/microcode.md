@@ -111,8 +111,8 @@ additions - the jump rows live in the "other half" of the ROM images (the
 halves addressed by CF=0/ZF=0, which the original microcode leaves empty),
 and the immediate/shift rows reuse the existing datapath (IO already drives
 the operand nibble onto the bus, AO already drives A). No wiring changed; a
-pre-addition ROM burn makes those opcodes NOPs. See [modifications.md](modifications.md),
-"Free: microcode only".
+pre-addition ROM burn makes those opcodes NOPs. See [additions.md](additions.md),
+"Added: five opcodes".
 
 ## Timing
 
@@ -124,9 +124,9 @@ plus one transient step 7, and instructions that finish early simply idle
 through the remaining cycles.
 
 The reset fires at T7 rather than T5, paying two idle cycles per
-instruction to leave T5/T6 usable as work steps (rationale:
-[modifications.md](modifications.md), "Wiring only"). ROM rows for steps
-5-7 are all zero. The T5/T6 panel LEDs wire from ~Y5/~Y6; T7 is transient
+instruction to leave T5/T6 usable as work steps (the addition and its
+rationale: [additions.md](additions.md), "Added: 8-cycle
+instructions"). ROM rows for steps 5-7 are all zero. The T5/T6 panel LEDs wire from ~Y5/~Y6; T7 is transient
 and gets no LED.
 
 You can watch this table run on the machine: single-step a program
