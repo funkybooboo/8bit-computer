@@ -41,32 +41,37 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from digrom import export_intel, export_logisim  # same image file formats
+from machine import OPCODES, read_image, write_image  # opcode numbers + image I/O
 
 # ---------------------------------------------------------------------------
-# instruction set table (matches the microcode in digrom.py / the ROMs)
+# instruction table: language-level facts about each mnemonic. The opcode
+# NUMBERS come from machine.py (the machine-level source of truth, shared
+# with the microcode); operand kinds and effects are language documentation.
 # ---------------------------------------------------------------------------
 
 OPERAND_NONE, OPERAND_ADDR, OPERAND_IMM = "none", "addr", "imm"
 
-MNEMONICS = {
-    "NOP": (0x0, OPERAND_NONE, "no operation"),
-    "LDA": (0x1, OPERAND_ADDR, "A <- M[operand]"),
-    "ADD": (0x2, OPERAND_ADDR, "A <- A + M[operand]; CF/ZF updated"),
-    "SUB": (0x3, OPERAND_ADDR, "A <- A - M[operand]; CF/ZF updated"),
-    "STA": (0x4, OPERAND_ADDR, "M[operand] <- A"),
-    "LDI": (0x5, OPERAND_IMM,  "A <- operand (0-15, zero-extended)"),
-    "JMP": (0x6, OPERAND_ADDR, "PC <- operand"),
-    "JC":  (0x7, OPERAND_ADDR, "PC <- operand if CF = 1"),
-    "JZ":  (0x8, OPERAND_ADDR, "PC <- operand if ZF = 1"),
-    "JNC": (0x9, OPERAND_ADDR, "PC <- operand if CF = 0"),
-    "JNZ": (0xA, OPERAND_ADDR, "PC <- operand if ZF = 0"),
-    "ADDI": (0xB, OPERAND_IMM, "A <- A + operand; CF/ZF updated"),
-    "SUBI": (0xC, OPERAND_IMM, "A <- A - operand; CF/ZF updated"),
-    "DBL": (0xD, OPERAND_NONE, "A <- 2*A (shift left; CF = bit shifted out)"),
-    "OUT": (0xE, OPERAND_NONE, "display <- A"),
-    "HLT": (0xF, OPERAND_NONE, "stop the clock"),
+_LANGUAGE = {  # mnemonic -> (operand kind, effect)
+    "NOP": (OPERAND_NONE, "no operation"),
+    "LDA": (OPERAND_ADDR, "A <- M[operand]"),
+    "ADD": (OPERAND_ADDR, "A <- A + M[operand]; CF/ZF updated"),
+    "SUB": (OPERAND_ADDR, "A <- A - M[operand]; CF/ZF updated"),
+    "STA": (OPERAND_ADDR, "M[operand] <- A"),
+    "LDI": (OPERAND_IMM,  "A <- operand (0-15, zero-extended)"),
+    "JMP": (OPERAND_ADDR, "PC <- operand"),
+    "JC":  (OPERAND_ADDR, "PC <- operand if CF = 1"),
+    "JZ":  (OPERAND_ADDR, "PC <- operand if ZF = 1"),
+    "JNC": (OPERAND_ADDR, "PC <- operand if CF = 0"),
+    "JNZ": (OPERAND_ADDR, "PC <- operand if ZF = 0"),
+    "ADDI": (OPERAND_IMM, "A <- A + operand; CF/ZF updated"),
+    "SUBI": (OPERAND_IMM, "A <- A - operand; CF/ZF updated"),
+    "DBL": (OPERAND_NONE, "A <- 2*A (shift left; CF = bit shifted out)"),
+    "OUT": (OPERAND_NONE, "display <- A"),
+    "HLT": (OPERAND_NONE, "stop the clock"),
 }
+assert set(_LANGUAGE) == set(OPCODES), "asm/machine opcode tables disagree"
+MNEMONICS = {name: (OPCODES[name], kind, effect)
+             for name, (kind, effect) in _LANGUAGE.items()}
 
 ADDR_MAX = 15  # MAR and PC are 4 bits -> RAM addresses 0-15
 IMM_MAX = 15   # the operand field is one nibble
@@ -326,51 +331,6 @@ def format_listing(rows, used, mem_size):
     return "\n".join(out) + "\n"
 
 
-def write_image(path, mem, fmt):
-    if fmt == "raw":
-        with open(path, "wb") as fh:
-            fh.write(bytes(mem))
-    else:
-        text = export_logisim(mem) if fmt == "logisim" else export_intel(mem)
-        with open(path, "w", encoding="utf-8") as fh:
-            fh.write(text)
-
-
-def read_image(path, size):
-    """Read a memory image: logisim .hex, Intel HEX or raw binary (sniffed)."""
-    with open(path, "rb") as fh:
-        blob = fh.read()
-    if blob.lstrip()[:1] == b":":  # Intel HEX
-        vals = []
-        for line in blob.decode("ascii", "replace").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            rec = bytes.fromhex(line[1:])
-            count, addr, rectype = rec[0], (rec[1] << 8) | rec[2], rec[3]
-            if rectype == 0x00:
-                for i in range(count):
-                    vals.append((addr + i, rec[4 + i]))
-            elif rectype == 0x01:
-                break
-            else:
-                raise SystemExit("asm: unsupported Intel HEX record type %d in %s" % (rectype, path))
-        if not vals:
-            raise SystemExit("asm: no data records in %s" % path)
-        mem = bytearray(size)
-        for a, v in vals:
-            if a < size:
-                mem[a] = v
-        return mem
-    text = blob.decode("utf-8", "replace")
-    stripped = text.lstrip()
-    if stripped.startswith("v2.0"):  # logisim/Digital format
-        body = text.split("\n", 1)[1] if "\n" in text else ""
-        vals = [int(t, 16) for t in re.split(r"[,\s]+", body.strip()) if t]
-        return bytearray((vals + [0] * size)[:size])
-    return bytearray((list(blob) + [0] * size)[:size])  # raw binary
-
-
 def disassemble(mem, path, decode_all):
     if not any(mem):
         print("; %s: image is all zero (empty RAM)" % path)
@@ -417,7 +377,10 @@ def main():
         raise SystemExit("asm: --mem-size must be positive")
 
     if args.dis:
-        mem = read_image(args.input, args.mem_size)
+        try:
+            mem = read_image(args.input, args.mem_size)
+        except ValueError as e:
+            raise SystemExit("asm: %s" % e)
         disassemble(mem, args.input, args.all)
         return
 

@@ -3,8 +3,10 @@
 How the machine turns a step counter, an opcode and two flags into the 16
 control lines that make every instruction work.
 
-The **source of truth** is the generator: the `control-rom1` / `control-rom2`
-presets in [../tools/digrom.py](../tools/digrom.py). The images are archived
+The **source of truth** is the generator: the MICROSTEPS table in
+[../tools/machine.py](../tools/machine.py), one line per instruction in
+a small notation ("/" separates microsteps, "," separates control lines,
+"if CF" makes a step conditional on a flag half). The images are archived
 in [../roms/](../roms/README.md) (logisim + Intel HEX) and injected into the
 circuits under the chip Labels U47/U52 (circuit-level `romContent`). The
 microcode was verified instruction by instruction against Ben Eater's
@@ -135,7 +137,6 @@ the rows above, one per microstep. Example programs:
 
 ## Regenerating and injecting the ROMs
 
-Both live in the toolchain documentation: [tools.md](tools.md),
-"digrom.py" (the presets in tools/digrom.py are the source of truth for
-the microcode itself; the archived images are in
-[../roms/](../roms/README.md)).
+Both live in the toolchain documentation: [tools.md](tools.md) - the
+microcode's source of truth is MICROSTEPS in tools/machine.py; the
+archived images are in [../roms/](../roms/README.md).

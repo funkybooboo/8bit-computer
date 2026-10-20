@@ -1,9 +1,22 @@
 # Tools
 
-The toolchain in [../tools/](../tools/): verifying wiring, programming
-EEPROMs, assembling programs, and running them without the machine. All
-of it was built and used against the real circuits; nothing here is
-speculative.
+The toolchain in [../tools/](../tools/). Digital is one way this machine
+gets built, not the machine itself, so the tools split by level:
+
+- **machine-level** - know nothing about Digital: `machine.py` (the
+  machine's own definitions), `asm.py` (the assembler), `sim.py` (the
+  cycle-accurate simulator). These work from any clone, no Digital, no
+  JDK.
+- **Digital-specific** - the bridge to the Digital build: `digrom.py`
+  (ROM data inside .dig circuits), `dignetlist.py` (netlists out of .dig
+  circuits), `DigSim.java`/`digsim` (headless Digital simulation).
+- **reference** - `kicadnets.py`, the netlist out of Ben's KiCad project:
+  the wiring reference for any build target, Digital or breadboard.
+
+The image files are the bridge between levels and targets: the
+assembler emits them (logisim hex / Intel HEX / raw), the simulator reads
+them back, EEPROM burners and Digital's ROM editor load them, and
+[../roms/](../roms/README.md) archives the machine's own ROM images.
 
 ## The workflow
 
@@ -11,11 +24,34 @@ speculative.
 2. **Verify the wiring**: `dignetlist.py` extracts the netlist from the
    .dig; `kicadnets.py` prints the reference netlist from Ben's KiCad
    project; compare pin by pin.
-3. **Program EEPROMs** with `digrom.py` (presets archived in
-   [../roms/](../roms/README.md)).
+3. **Program EEPROMs** with `digrom.py` (images archived in
+   [../roms/](../roms/README.md); contents defined in machine.py).
 4. **Run programs** with `asm.py` + `sim.py` - the machine itself is the
    last mile (load the image through the front panel,
    [hardware.md](hardware.md)).
+
+## machine.py - the machine itself, in code
+
+    python3 tools/machine.py     # print the instruction/microstep table
+
+Everything that is true of the machine no matter how it is built: the
+opcode numbers, the 16-bit control word, the microcode (the MICROSTEPS
+table - the source of truth for what each instruction does,
+[microcode.md](microcode.md)), the ROM contents (control ROMs, display
+ROM), and the image formats. The assembler, the simulator and the
+Digital tools all import from here, so they can never disagree about an
+opcode or a microstep. The microcode is written in a small notation, one
+line per instruction:
+
+    LDA:  "MI,IO / RO,AI"        # T2, T3 after the shared fetch
+    JC:   "IO,J if CF"            # only in the CF=1 halves of the images
+    ADDI: "IO,BI / EO,AI,FI"
+
+`/` separates microsteps (numbered from T2 - T0/T1 are the shared fetch),
+`,` separates control lines within a step, `if CF` / `if not ZF` make a
+step conditional on a flag half. Run the file to see the resulting table.
+
+## digrom.py - ROM data in .dig circuits
 
 ## digrom.py - EEPROM data in .dig circuits
 
@@ -31,13 +67,10 @@ format; Digital round-trips it on re-save). `write` does a surgical text
 edit (keeps the file's formatting), then re-reads and round-trip checks
 before atomically replacing the file.
 
-The microcode presets are `control-rom1` / `control-rom2` (source of
-truth for the microcode itself - the tables in
-[microcode.md](microcode.md) describe what they encode); the display
-preset is `output-display` (what it encodes:
-[hardware.md](hardware.md), "The display"). Changing the microcode: edit
-the preset, `export` to [../roms/](../roms/), `write` into
-Computer.dig, then `sim.py --selftest` and run the gallery through
+The data itself is machine-level: presets and images come from
+machine.py and [../roms/](../roms/README.md). Changing the microcode:
+edit MICROSTEPS in machine.py, `export` to [../roms/](../roms/), `write`
+into Computer.dig, then `sim.py --selftest` and run the gallery through
 `sim.py` before touching hardware.
 
 ## asm.py - assembler / disassembler
@@ -52,8 +85,8 @@ Two-pass assembler for the one-byte instruction format
 [assembly-language.md](assembly-language.md). Rejects anything the
 hardware cannot encode. The listing shows each byte in hex and in ones
 and zeros as the three hardware groups - RAM address | opcode | operand -
-which are also the dipswitch groups for program entry. Image formats
-reuse digrom.py's (logisim / intel / raw).
+which are also the dipswitch groups for program entry. Image formats are
+machine.py's (logisim / intel / raw).
 
 ## sim.py - cycle-accurate simulator
 

@@ -90,9 +90,9 @@ debug set.
 
 - The assembler could grow `.DW` (16-bit data) and `.FILL` - pointless
   until 16-bit data exists ([assembly-language.md](assembly-language.md)).
-- The microstep table in digrom.py is the microcode's source of truth
-  ([tools.md](tools.md)); a small "LDA: MI,IO / RO,AI" notation would
-  make experiments painless - not needed yet.
+- The microcode's source of truth is MICROSTEPS in tools/machine.py,
+  written in the "LDA: MI,IO / RO,AI" notation ([tools.md](tools.md)) -
+  experiments there are painless already.
 
 ## Not worth it (honest)
 

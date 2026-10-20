@@ -18,6 +18,8 @@ ROM editor; `-intel` variants are Intel HEX for EEPROM burners.
 
 What the images mean: the control ROMs are the microcode
 ([../docs/microcode.md](../docs/microcode.md)); the display ROM is the
-output module's digit patterns
-([../docs/hardware.md](../docs/hardware.md), output register). How to
-regenerate and re-inject them: [../docs/tools.md](../docs/tools.md).
+output module's digit patterns ([../docs/hardware.md](../docs/hardware.md),
+output register). The contents are defined in
+[../tools/machine.py](../tools/machine.py) (machine-level, no Digital
+involved); how to regenerate and re-inject them:
+[../docs/tools.md](../docs/tools.md).

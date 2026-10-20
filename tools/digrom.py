@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-digrom.py - read, write and export EEPROM (ROM) data of Digital .dig circuits.
+digrom.py - ROM data inside Digital .dig circuits, and the image bridges.
 
-Digital (https://github.com/hneemann/Digital) stores the ROM content of an
-embedded DIL chip (e.g. 28c16.dig) at the CIRCUIT level, in <attributes> under
-the key "romContent", keyed by the chip instance's Label:
+The Digital-specific half of the EEPROM story: Digital stores the ROM
+content of an embedded DIL chip (e.g. 28c16.dig) at the CIRCUIT level, in
+<attributes> under the key "romContent", keyed by the chip instance's
+Label:
 
     <attributes>
       <entry>
@@ -23,13 +24,20 @@ the key "romContent", keyed by the chip instance's Label:
     </attributes>
 
 The dataField value is a comma separated list of tokens: a single hex byte
-("7e") or a run length ("16*0" = 16 times 0x00). Addresses past the last token
-read as 0x00. This is Digital's own DataFieldConverter format; Digital 0.31
-round-trips it unchanged (verified: write via this tool, open + re-save in the
-Digital GUI, data survives).
+("7e") or a run length ("16*0" = 16 times 0x00). Addresses past the last
+token read as 0x00. This is Digital's own DataFieldConverter format;
+Digital 0.31 round-trips it unchanged (verified: write via this tool,
+open + re-save in the Digital GUI, data survives).
 
-The old pre-0.31 "storedRoms" format is understood when reading but is written
-as romList, because current Digital fails to build a model from the old format.
+The old pre-0.31 "storedRoms" format is understood when reading but is
+written as romList, because current Digital fails to build a model from
+the old format.
+
+What goes INTO the ROMs - the machine's EEPROM contents (the microcode,
+the display patterns) and the image formats (logisim / Intel HEX / raw) -
+is machine-level and lives in machine.py (used equally by the assembler
+and the simulator, no Digital involved). This tool moves that data
+between machine-level image files and .dig circuits.
 
 Commands:
   dump      Read and print ROM data stored in a .dig circuit.
@@ -39,16 +47,12 @@ Commands:
   export    Write a preset's (or a .dig's) ROM image to a file: logisim .hex,
             Intel HEX, or raw binary - for the Digital ROM editor's "load from
             file" option or for burning real EEPROMs.
-  presets   List the built-in data presets.
+  presets   List the built-in data presets (defined in machine.py).
 
 Examples:
-  digrom.py dump --dig "digital/Output Register.dig" --label U45 --words
-  digrom.py write --dig "digital/Output Register.dig" --label U45 --preset output-display
-  digrom.py write --dig c.dig --label U1 --hex myrom.hex --size 2048
-  digrom.py export --preset output-display --out display.hex --format logisim
-
-Preset notes live in the PRESETS dict below - add new presets there (e.g. the
-control-logic microcode ROMs when that module gets built).
+  digrom.py dump --dig digital/Computer.dig --label U45 --words
+  digrom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
+  digrom.py export --preset control-rom1 --out roms/control-rom1.hex
 """
 
 import argparse
@@ -58,154 +62,8 @@ import sys
 import tempfile
 import xml.etree.ElementTree as ET
 
-# ---------------------------------------------------------------------------
-# Segment encoding used by Ben Eater's display EEPROMs (verified against his
-# KiCad netlist: ROM I/O0->g, I/O1->f, I/O2->e, I/O3->d, I/O4->c, I/O5->b,
-# I/O6->a, I/O7->dp):
-#
-#   ROM bit:  7    6   5   4   3   2   1   0
-#   segment: dp    a   b   c   d   e   f   g
-# ---------------------------------------------------------------------------
-SEG_DIGITS = [0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b]
-SEG_HEX = SEG_DIGITS + [0x77, 0x1f, 0x4e, 0x3d, 0x4f, 0x47]  # A b C d E F
-SEG_BLANK = 0x00
-
-
-def output_display(swap_banks=False):
-    """Ben Eater output module: 4-digit multiplexed decimal/hex display ROM.
-
-    28C16 (2 KiB). Address = A10*1024 + A9*512 + A8*256 + value, where A8/A9
-    are the 7476 mux-counter outputs that also drive the 74139 select inputs,
-    so ROM page p lights the digit whose common cathode ~1Yp pulls low:
-      page 0 = ones digit (rightmost display), 1 = tens, 2 = hundreds,
-      3 = thousands (always blank for 8-bit values).
-    A10 is the front-panel mode switch: by default A10=1 -> decimal,
-    A10=0 -> hexadecimal; leading zeros blanked in both modes.
-    Pass swap_banks=True to swap which switch position gives which mode.
-    """
-    rom = [0] * 2048
-    dec_bank, hex_bank = (1024, 0) if not swap_banks else (0, 1024)
-    for v in range(256):
-        rom[dec_bank + 0 * 256 + v] = SEG_DIGITS[v % 10]
-        rom[dec_bank + 1 * 256 + v] = SEG_DIGITS[(v // 10) % 10] if v >= 10 else SEG_BLANK
-        rom[dec_bank + 2 * 256 + v] = SEG_DIGITS[(v // 100) % 10] if v >= 100 else SEG_BLANK
-        rom[dec_bank + 3 * 256 + v] = SEG_BLANK
-        rom[hex_bank + 0 * 256 + v] = SEG_HEX[v & 0xf]
-        rom[hex_bank + 1 * 256 + v] = SEG_HEX[v >> 4] if v >= 16 else SEG_BLANK
-        rom[hex_bank + 2 * 256 + v] = SEG_BLANK
-        rom[hex_bank + 3 * 256 + v] = SEG_BLANK
-    return bytes(rom)
-
-
-# ---------------------------------------------------------------------------
-# Control-logic microcode (Ben Eater's 16-bit control word split across two
-# 28C16s, U47 + U52). Bit weights verified against the KiCad netlist (ROM
-# data pins -> U49/U53 inverter gates -> control nets):
-#
-#   ROM1 U47: bit 7=HLT 6=MI 5=RI 4=RO 3=IO 2=II 1=AI 0=AO
-#   ROM2 U52: bit 7=EO 6=SU 5=BI 4=OI 3=CE 2=CO 1=J  0=FI
-#
-# Address, both ROMs: step counter (74161 Q0/Q1/Q2) -> A0-A2, IR4..IR7
-# (opcode) -> A3-A6, CF -> A8, ZF -> A9. A10 is grounded. A7 is the
-# "which ROM" bit on Ben's board (U47 A7=GND, U52 A7=VCC), so the images
-# are replicated across A7 and A10 and are correct for any A7 wiring
-# (the Digital build ties both A7 pins to VDD).
-#
-# Instruction set (opcode = IR nibble):
-#   0 NOP   1 LDA   2 ADD   3 SUB   4 STA   5 LDI   6 JMP   7 JC
-#   8 JZ    9 JNC   A JNZ   B ADDI  C SUBI  D DBL   E OUT   F HLT
-#
-# Microcode (T0/T1 fetch identical for all instructions; every instruction
-# takes 8 cycles because the 74138 O7/T7 line resets the step counter):
-#   T0: MI|CO          T1: RO|II|CE
-#   LDA : T2 MI|IO            T3 RO|AI
-#   ADD : T2 MI|IO            T3 RO|BI          T4 EO|AI|FI
-#   SUB : T2 MI|IO            T3 RO|BI          T4 EO|AI|SU|FI
-#   STA : T2 MI|IO            T3 AO|RI
-#   LDI : T2 IO|AI
-#   JMP : T2 IO|J
-#   JC  : T2 IO|J (only if CF=1)
-#   JZ  : T2 IO|J (only if ZF=1)
-#   JNC : T2 IO|J (only if CF=0)
-#   JNZ : T2 IO|J (only if ZF=0)
-#   ADDI: T2 IO|BI            T3 EO|AI|FI       (immediate operand)
-#   SUBI: T2 IO|BI            T3 EO|AI|SU|FI   (immediate operand)
-#   DBL : T2 AO|BI            T3 EO|AI|FI       (A <- 2*A: shift left, CF = bit out)
-#   OUT : T2 AO|OI
-#   HLT : T2 HLT
-# The ROM1 image was verified instruction by instruction against the
-# 8bitsim reference (ngdrascal/8bitsim memory-images/MicroInstructions.hex);
-# opcodes 9-D are this project's additions (see ../docs/ideas.md tier 1) and
-# are verified by tools/sim.py against the program gallery.
-# ---------------------------------------------------------------------------
-
-# ROM1 (U47) signal bits
-HLT, MI, RI, RO, IO, II, AI, AO = 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
-# ROM2 (U52) signal bits
-EO, SU, BI, OI, CE, CO, J, FI = 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
-
-# opcode -> list of (step, rom1 signals, rom2 signals); the T0/T1 fetch is
-# added by _control_images() for every opcode. JNC/JNZ are appended there
-# too (like JC/JZ) because they depend on the flag state.
-_OPCODE_MICROCODE = {
-    0x1: [(2, MI | IO, 0), (3, RO | AI, 0)],                                # LDA
-    0x2: [(2, MI | IO, 0), (3, RO, BI), (4, AI, EO | FI)],                  # ADD
-    0x3: [(2, MI | IO, 0), (3, RO, BI), (4, AI, EO | SU | FI)],            # SUB
-    0x4: [(2, MI | IO, 0), (3, RI | AO, 0)],                                # STA
-    0x5: [(2, IO | AI, 0)],                                                 # LDI
-    0x6: [(2, IO, J)],                                                      # JMP
-    0xB: [(2, IO, BI), (3, AI, EO | FI)],                                  # ADDI imm
-    0xC: [(2, IO, BI), (3, AI, EO | SU | FI)],                             # SUBI imm
-    0xD: [(2, AO, BI), (3, AI, EO | FI)],                                   # DBL
-    0xE: [(2, AO, OI)],                                                     # OUT
-    0xF: [(2, HLT, 0)],                                                     # HLT
-}
-
-
-def _control_images():
-    """Returns (rom1, rom2) as 2048-byte images for U47/U52."""
-    r1 = bytearray(2048)
-    r2 = bytearray(2048)
-    for opcode in range(16):
-        for cf in (0, 1):
-            for zf in (0, 1):
-                microsteps = [(0, MI, CO), (1, RO | II, CE)]
-                microsteps += _OPCODE_MICROCODE.get(opcode, [])
-                if opcode == 0x7 and cf:  # JC: jump only when CF (A8) set
-                    microsteps.append((2, IO, J))
-                if opcode == 0x8 and zf:  # JZ: jump only when ZF (A9) set
-                    microsteps.append((2, IO, J))
-                if opcode == 0x9 and not cf:   # JNC: jump only when CF (A8) clear
-                    microsteps.append((2, IO, J))
-                if opcode == 0xA and not zf:   # JNZ: jump only when ZF (A9) clear
-                    microsteps.append((2, IO, J))
-                for st, w1, w2 in microsteps:
-                    # replicate across A7 (the which-ROM bit) and A10 (grounded)
-                    for a7 in (0, 1):
-                        for a10 in (0, 1):
-                            a = (st | (opcode << 3) | (a7 << 7)
-                                 | (cf << 8) | (zf << 9) | (a10 << 10))
-                            r1[a] = w1
-                            r2[a] = w2
-    return bytes(r1), bytes(r2)
-
-
-def control_rom1(**_kw):
-    """U47: HLT/MI/RI/RO/IO/II/AI/AO half of the control word."""
-    return _control_images()[0]
-
-
-def control_rom2(**_kw):
-    """U52: EO/SU/BI/OI/CE/CO/J/FI half of the control word."""
-    return _control_images()[1]
-
-
-PRESETS = {
-    "output-display": output_display,
-    "control-rom1": control_rom1,
-    "control-rom2": control_rom2,
-}
-
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import machine  # the machine-level EEPROM contents and image formats
 
 # ---------------------------------------------------------------------------
 # dataField token format (Digital's DataFieldConverter)
@@ -418,27 +276,23 @@ def write_rom(path, label, data):
 
 
 # ---------------------------------------------------------------------------
-# data sources for `write` / `export`
+# data sources for `write` / `export` (machine-level data, Digital-neutral)
 # ---------------------------------------------------------------------------
 
 def load_data(args):
     n = args.size
     if args.preset:
-        if args.preset not in PRESETS:
+        if args.preset not in machine.PRESETS:
             raise SystemExit(
-                "digrom: unknown preset %r (have: %s)" % (args.preset, ", ".join(sorted(PRESETS)))
+                "digrom: unknown preset %r (have: %s)" % (args.preset, ", ".join(sorted(machine.PRESETS)))
             )
-        data = PRESETS[args.preset](swap_banks=getattr(args, "swap_banks", False))
+        data = machine.PRESETS[args.preset](swap_banks=getattr(args, "swap_banks", False))
         return data[:n] if n else data
     if args.data:
         vals = decode_tokens(args.data)
         return (vals + [0] * n)[:n] if n else vals
     if args.hexfile:
-        text = open(args.hexfile, encoding="utf-8", errors="replace").read()
-        if "v2.0 raw" in text:  # logisim format
-            text = text.split("\n", 1)[1]
-        vals = [int(t, 16) for t in re.split(r"[,\s]+", text.strip()) if t and not t.startswith(":")]
-        return (vals + [0] * n)[:n] if n else vals
+        return bytearray(machine.read_image(args.hexfile))
     if args.binfile:
         vals = list(open(args.binfile, "rb").read())
         return (vals + [0] * n)[:n] if n else vals
@@ -446,26 +300,8 @@ def load_data(args):
 
 
 # ---------------------------------------------------------------------------
-# export formats
+# commands
 # ---------------------------------------------------------------------------
-
-def export_logisim(data):
-    lines = ["v2.0 raw"]
-    for i in range(0, len(data), 8):
-        lines.append(" ".join("%x" % b for b in data[i : i + 8]))
-    return "\n".join(lines) + "\n"
-
-
-def export_intel(data):
-    out = []
-    for i in range(0, len(data), 16):
-        chunk = data[i : i + 16]
-        rec = [len(chunk), (i >> 8) & 0xFF, i & 0xFF, 0x00] + list(chunk)
-        ck = (-sum(rec)) & 0xFF
-        out.append(":" + "".join("%02X" % b for b in rec + [ck]))
-    out.append(":00000001FF")
-    return "\n".join(out) + "\n"
-
 
 def cmd_dump(args):
     roms = read_roms(args.dig)
@@ -508,18 +344,12 @@ def cmd_export(args):
         raise SystemExit("digrom: export needs a --preset/--hex/--bin/--data source, or --dig + --label")
     if args.size:
         data = (list(data) + [0] * args.size)[: args.size]
-    if args.format == "raw":
-        with open(args.out, "wb") as fh:
-            fh.write(bytes(data))
-    else:
-        text = {"logisim": export_logisim, "intel": export_intel}[args.format](data)
-        with open(args.out, "w", encoding="utf-8") as fh:
-            fh.write(text)
+    machine.write_image(args.out, data, args.format)
     print("digrom: exported %d bytes to %s (%s)" % (len(data), args.out, args.format))
 
 
 def cmd_presets(_args):
-    for name, fn in sorted(PRESETS.items()):
+    for name, fn in sorted(machine.PRESETS.items()):
         print("%s\n  %s\n" % (name, " ".join((fn.__doc__ or "").split())))
 
 
@@ -538,28 +368,29 @@ def main():
     w.add_argument("--dig", required=True)
     w.add_argument("--label", help="chip instance Label (e.g. U45)")
     w.add_argument("--preset")
-    w.add_argument("--data", help="literal dataField tokens, e.g. '7e,30,16*0'")
-    w.add_argument("--hexfile", "--hex", dest="hexfile", help="text file of hex bytes (logisim or plain)")
-    w.add_argument("--binfile", "--bin", dest="binfile", help="binary file")
-    w.add_argument("--size", type=int, help="force image size (pad/truncate), e.g. 2048")
-    w.add_argument("--swap-banks", action="store_true", help="preset option: swap mode banks")
+    w.add_argument("--swap-banks", action="store_true",
+                   help="output-display: swap which mode-switch position gives decimal vs hex")
+    w.add_argument("--data", help="literal dataField tokens, e.g. '7e,30,6d'")
+    w.add_argument("--hexfile", help="machine-level image file (logisim .hex or Intel HEX)")
+    w.add_argument("--binfile", help="raw binary file")
+    w.add_argument("--size", type=int, help="pad/truncate the image to this size")
     w.set_defaults(fn=cmd_write)
 
-    e = sub.add_parser("export", help="write a ROM image to logisim/intel/raw")
-    e.add_argument("--preset")
-    e.add_argument("--data")
-    e.add_argument("--hexfile", "--hex", dest="hexfile")
-    e.add_argument("--binfile", "--bin", dest="binfile")
-    e.add_argument("--dig")
-    e.add_argument("--label")
-    e.add_argument("--size", type=int, default=2048)
-    e.add_argument("--swap-banks", action="store_true", help="preset option: swap mode banks")
+    e = sub.add_parser("export", help="write a ROM image to a file")
     e.add_argument("--out", required=True)
     e.add_argument("--format", choices=["logisim", "intel", "raw"], default="logisim")
+    e.add_argument("--preset")
+    e.add_argument("--swap-banks", action="store_true")
+    e.add_argument("--data")
+    e.add_argument("--hexfile")
+    e.add_argument("--binfile")
+    e.add_argument("--dig", help="export from a .dig circuit instead of a preset")
+    e.add_argument("--label", help="the chip Label in the --dig circuit")
+    e.add_argument("--size", type=int)
     e.set_defaults(fn=cmd_export)
 
-    l = sub.add_parser("presets", help="list built-in presets")
-    l.set_defaults(fn=cmd_presets)
+    ps = sub.add_parser("presets", help="list the built-in presets (defined in machine.py)")
+    ps.set_defaults(fn=cmd_presets)
 
     args = p.parse_args()
     args.fn(args)

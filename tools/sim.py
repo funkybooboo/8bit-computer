@@ -46,30 +46,18 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import asm  # the assembler, for .asm inputs
-import digrom  # the control-ROM presets, for --selftest
+import machine  # the machine: control-word bits, microcode, image I/O
 
-# control word bits, split across the two ROMs (matches digrom.py)
-ROM1_BITS = {
-    "HLT": 0x80, "MI": 0x40, "RI": 0x20, "RO": 0x10,
-    "IO": 0x08, "II": 0x04, "AI": 0x02, "AO": 0x01,
-}
-ROM2_BITS = {
-    "EO": 0x80, "SU": 0x40, "BI": 0x20, "OI": 0x10,
-    "CE": 0x08, "CO": 0x04, "J": 0x02, "FI": 0x01,
-}
+# the control-word bits come from machine.py - one source of truth
+ROM1_BITS, ROM2_BITS = machine.ROM1_BITS, machine.ROM2_BITS
 MEM_SIZE = 16   # the MAR is 4 bits
 STEPS = 8       # step counter resets at T7 (see ../docs/microcode.md)
 
 
 def load_control_roms(rom1_path, rom2_path):
-    """Read the two control-ROM images (logisim .hex format)."""
-    def read(path):
-        with open(path, encoding="utf-8") as fh:
-            text = fh.read()
-        body = text.split("\n", 1)[1] if text.lstrip().startswith("v2.0") else text
-        vals = [int(t, 16) for t in body.replace(",", " ").split() if t]
-        return (vals + [0] * 2048)[:2048]
-    return read(rom1_path), read(rom2_path)
+    """Read the two control-ROM images (any image format machine.py sniffs)."""
+    return (bytes(machine.read_image(rom1_path, 2048)),
+            bytes(machine.read_image(rom2_path, 2048)))
 
 
 class Machine:
@@ -168,7 +156,7 @@ def load_program(path, mem_size):
     if path.endswith(".asm"):
         mem, _rows = asm.assemble(path, mem_size)
         return mem
-    return asm.read_image(path, mem_size)
+    return machine.read_image(path, mem_size)
 
 
 # ---------------------------------------------------------------------------
@@ -205,15 +193,15 @@ def run_one(path, rom1, rom2, max_cycles, trace, mem_size):
 
 
 # ---------------------------------------------------------------------------
-# selftest: the ROM images must match the digrom presets, and the fetch
+# selftest: the ROM images must match machine.py MICROSTEPS, and the fetch
 # rows / bus-drive rules must hold everywhere
 # ---------------------------------------------------------------------------
 
 def selftest(rom1_path, rom2_path):
     rom1, rom2 = load_control_roms(rom1_path, rom2_path)
-    p1, p2 = digrom._control_images()
-    assert bytes(rom1) == p1, "roms/control-rom1.hex does not match the digrom preset"
-    assert bytes(rom2) == p2, "roms/control-rom2.hex does not match the digrom preset"
+    p1, p2 = machine.control_images()
+    assert bytes(rom1) == p1, "roms/control-rom1.hex does not match the machine.py microcode"
+    assert bytes(rom2) == p2, "roms/control-rom2.hex does not match the machine.py microcode"
     for step in range(STEPS):
         for opcode in range(16):
             for cf in (0, 1):
@@ -232,7 +220,7 @@ def selftest(rom1_path, rom2_path):
                             (ROM1_BITS["MI"], ROM2_BITS["CO"]) if step == 0
                             else (ROM1_BITS["RO"] | ROM1_BITS["II"], ROM2_BITS["CE"])
                         ), "fetch rows differ at opcode %x" % opcode
-    print("sim: ROM images match the digrom presets; fetch and bus rules hold")
+    print("sim: ROM images match the machine.py microcode; fetch and bus rules hold")
     print("sim: selftest OK")
 
 
