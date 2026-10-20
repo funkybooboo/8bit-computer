@@ -18,9 +18,10 @@ Two structural facts bound everything below:
 - The 16-bit control word is fully allocated (HLT MI RI RO IO II AI AO /
   EO SU BI OI CE CO J FI) - every new control line needs a third control
   ROM ([microcode.md](microcode.md)).
-- The RAM chips are 64 words deep; the MAR, PC and the operand nibble are
-  4 bits - the address path, not the silicon, is the 16-byte limit
-  ([hardware.md](hardware.md), RAM module).
+- The RAM is 16 bytes of silicon (two 74189s, 16 words x 4 bits each -
+  there are no A4/A5 pins), and the instruction operand is a 4-bit
+  nibble - so more memory means new chips *and* a page scheme, not just
+  wires ([hardware.md](hardware.md), RAM module).
 
 ## Added: 8-cycle instructions
 
@@ -78,14 +79,43 @@ What a new ROM image alone can still buy (no wiring):
   switch (one wire) and the same two ROMs hold two complete
   instruction sets - e.g. a normal set and a debug set.
 
-## Wiring only
+## Wiring + RAM chips (no new control lines)
 
-- **64 bytes of RAM from the chips already on the board**: the 74189s
-  are 64 words deep and A4/A5 are simply not connected. The catch: the
-  MAR is 4 bits and the operand nibble only names 0-15, so the extra
-  space needs a page latch (one 74173 - but gating it needs a 17th
-  control line) or a wider instruction format. Blocked on the tier
-  below.
+**64 bytes of RAM, four pages of 16** - the plan, researched against
+the circuit (every "unused" pin claim verified in Computer.dig):
+
+- The RAM needs new silicon: the 74189s are 16 words x 4 bits each
+  (64 *bits* per chip - there are no A4/A5 pins to wire), so the
+  same-chips path is four banks of 16 bytes: six more 74189s plus one
+  74139 decoding RAM bits 4-5 onto the four banks' ~CS. The data,
+  write and bus paths (U26/U27 entry muxes, U31/U32 write pulse,
+  U28/U29 inverters, U30 transceiver) are shared by all banks as-is.
+  The one-chip path is a 2KB SRAM (6116) - the direction of "New
+  chips" item 4, which merges the data-in and data-out paths (the
+  6116's I/O pins are bidirectional) and reworks the module's plumbing.
+- The address path widens with no 17th control line: one more 74161 as
+  the PC's bits 4-5, chained off U35's unused RCO and never loaded
+  (jumps stay in their own page); one more 74173 as the MAR's bits 4-5
+  on the existing MI gate, latching from the bus (fetch addresses reach
+  all 64); CO extended onto bus bits 4-5 through the PC transceiver's
+  unused pins; program entry through U32's spare mux sections plus two
+  more PROG_ADDR dipswitch bits.
+- The 4-bit operand nibble already decides the semantics: **zero-page
+  data, in-page jumps, linear code**. The IR grounds the bus's high
+  nibble while driving the operand (the same wiring that zero-extends
+  immediates), so LDA/ADD/SUB/STA address page 0 forever; J loads only
+  PC bits 0-3, so a jump reaches its own 16-byte page; execution flows
+  linearly through all 64 bytes and wraps at 63. The classic
+  zero-page architecture - and every existing program (all <= 16
+  bytes, page 0) keeps its exact behavior.
+- What it buys: 48-60 bytes of code with 16 bytes of zero-page data -
+  nested loops fit, so the size-locked family (popcount, sqrt, sum 1..n,
+  exponentiation - [programs.md](programs.md) "Limits") becomes
+  writable. No microcode change: MI, CO, J, CE, RO, RI just drive
+  wider registers.
+- One silicon detail to check at build time: the banks share the Q
+  nets, so the 74189 variant must tri-state on ~CS (74LS189 does; a
+  plain 7489 is open-collector and wants pull-ups).
 
 ## New chips (in value order)
 

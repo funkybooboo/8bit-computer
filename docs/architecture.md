@@ -103,10 +103,9 @@ works:
 - a **control unit** built as microcode ROM - same idea as the x86's
   decode unit, small enough to hold in your head.
 
-The only joke it makes is the memory: 16 bytes, because the MAR and PC
-are 4 bits (the RAM chips themselves are 64 words deep - the address
-path, not the silicon, is the limit; see
-[additions.md](additions.md)). Inside its memory it computes
+The only joke it makes is the memory: 16 bytes - exactly what two
+16-word chips make, and the 4-bit operand only names 16 addresses
+anyway (what more memory really costs: [additions.md](additions.md)). Inside its memory it computes
 real things: multiplication, division, gcd, pseudorandom sequences,
 self-modifying code ([programs.md](programs.md)). Give the same design
 a wider address path and it stops being a toy without changing its soul.

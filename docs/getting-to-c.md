@@ -62,7 +62,7 @@ debugging.
 |-------|-----------|----------|
 | L0 (original) | 16 bytes, 11 instructions, assembler + verified programs | impossible |
 | L1 (free microcode) - DONE | JNC/JNZ/ADDI/SUBI/DBL (additions.md, "Added: five opcodes") + tools/sim.py, the cycle-accurate test bench | still impossible - 16 bytes is 16 bytes |
-| L2 (wiring) - DONE, except memory | 8 microsteps (T2-T6 usable); the 64-byte item needs tier-3 parts | still impossible |
+| L2 (wiring) - DONE | 8 microsteps (T2-T6 usable); the 64-byte RAM is its own tier just above ([additions.md](additions.md), "Wiring + RAM chips") | still impossible |
 | L3 (the C threshold - hardware project) | 2KB code ROM (a 28C16 - this repo already burns them) + 2KB SRAM; 16-bit MAR and PC; two-byte instructions; the third control ROM; SP + CALL/RET + push/pop; indirect load/store (MAR from a register pair); ADC | the machine can now express C's abstract machine |
 | L4 (software, weeks) | the subset-C cross compiler on the host, emitting this repo's assembly; asm.py as the backend, sim.py as the test bench | C programs compile, run, and can be hand-checked against the gallery |
 | L5 (polish) | IN (getchar), hardware bitwise (DBL already gives shift-left), structs | comfort, not capability |

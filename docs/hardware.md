@@ -41,7 +41,7 @@ while X's enable is active.
 | ALU | U23 | 7408 | AND: zero detect |
 | MAR | U33 | 74157 | mux: panel address vs bus into the MAR |
 | MAR | U34 | 74173 | the MAR: address latch |
-| RAM | U24, U25 | 74189 | RAM: low / high nibble (64x4 each, 16 addresses wired) |
+| RAM | U24, U25 | 74189 | RAM: low / high nibble (16x4 each - the pair is the 16 bytes) |
 | RAM | U26, U27 | 74157 | mux: panel data vs bus into the RAM |
 | RAM | U28, U29 | 7404 | invert the RAM's inverted outputs back to true data |
 | RAM | U30 | 74245 | RAM onto the bus |
@@ -258,9 +258,10 @@ U34's output enables are grounded.
 
 ### RAM (U24/U25 74189, U26/U27/U32 74157, U28/U29 7404, U30 74245, U31 7400, U32 74157)
 
-16 bytes. The 74189s are 64 words deep but only A0..A3 are wired (the
-A0..A3 nets, shared with the MAR) - the address path, not the chips, is
-the 16-byte limit ([additions.md](additions.md)). Their outputs
+16 bytes: each 74189 is 16 words x 4 bits (64 bits per chip - there
+are no A4/A5 pins), and the pair makes one 16-byte RAM, addressed by
+the A0..A3 nets, shared with the MAR. More memory means new silicon,
+not wiring ([additions.md](additions.md)). Their outputs
 are inverted, so U28/U29 invert them back onto the RAM_DATA_0..7 nets
 (RAM LEDs + U30.A); U30 drives the bus while RO (U49.2Y). Data in: the
 U26/U27 muxes pick bus (B) or PROG_DATA dipswitches (A) into the RAM D

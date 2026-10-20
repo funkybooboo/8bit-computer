@@ -16,7 +16,7 @@ the microcode that implements this instruction set is documented in
 | IR        | 8 bit  | instruction register: opcode nibble + operand nibble      |
 | MAR       | 4 bit  | memory address register -> 2^4 = 16 RAM addresses         |
 | PC        | 4 bit  | program counter                                           |
-| RAM       | 16 x 8 | 2x 74189 (64x4) with only address lines A0-A3 wired       |
+| RAM       | 16 x 8 | 2x 74189 (16x4 each) - the chips, not the wiring, cap it  |
 | output    | 8 bit  | register + multiplexed 7-segment display (decimal/hex)   |
 
 Program and data share the same 16 bytes (von Neumann, one address space).
