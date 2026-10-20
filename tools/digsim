@@ -3,7 +3,7 @@
 #
 # Locates Digital.jar and a JDK, compiles DigSim.java on demand into the user
 # cache, and runs it. See DigSim.java for the available options, or:
-#   tools/digsim --dig "digital/Output Register.dig" --list
+#   tools/digsim --dig digital/Computer.dig --list
 #
 # Override locations with DIGITAL_JAR and JAVA_HOME if autodetection fails.
 set -euo pipefail

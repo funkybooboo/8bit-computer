@@ -26,14 +26,14 @@ Multiple Ground / VDD symbols are separate nets electrically, but every one
 drives the same constant; they are reported as GND/VDD sources.
 
 Usage:
-  dignetlist.py --dig "digital/Output Register.dig" [--lib LIBDIR] [--quiet]
+  dignetlist.py --dig digital/Computer.dig [--lib LIBDIR] [--quiet]
 
 The Digital library directory is found via --lib, $DIGITAL_LIB, the `digital`
 executable's wrapper script (nix), or /nix/store/*digital*/share/java/lib.
 
-Workflow used for this project: dump this netlist, extract the reference
-netlist for the same module from Ben Eater's KiCad netlist (kicadnets.py),
-and compare pin by pin - that verified the Output Register wiring exactly.
+Workflow: dump this netlist, extract the reference netlist from Ben Eater's
+KiCad netlist (kicadnets.py), and compare pin by pin - that is the wiring
+verification of digital/Computer.dig against kicad/8bit-computer.net.
 """
 
 import argparse

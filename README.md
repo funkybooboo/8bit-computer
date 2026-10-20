@@ -10,12 +10,14 @@ example programs.
 
 ## Run a program in 30 seconds
 
-    tools/asm.py programs/powers.asm --out /tmp/p.hex
     tools/sim.py programs/powers.asm
 
-That assembles and runs "powers of two" on the same control-ROM images
-the hardware burns - 1, 2, 4, ..., 128, halting on the wrap. No hardware
-needed; everything works from this repo as cloned.
+That runs "powers of two" on the same control-ROM images the hardware
+burns - 1, 2, 4, ..., 128, halting on the wrap. No hardware needed;
+everything works from this repo as cloned. Need the image for the
+hardware or Digital's ROM editor? The assembler builds it:
+
+    tools/asm.py programs/powers.asm --out /tmp/p.hex
 
 ## What is where
 

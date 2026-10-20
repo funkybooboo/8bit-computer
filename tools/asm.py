@@ -13,7 +13,8 @@ Machine model (full reference: ../docs/instruction-set.md):
   - opcode:   0     1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
     mnemonic: NOP   LDA  ADD  SUB  STA  LDI  JMP  JC   JZ   JNC  JNZ  ADDI SUBI DBL  OUT  HLT
     (JNC/JNZ/ADDI/SUBI/DBL are this project's additions, see
-    ../docs/ideas.md tier 1; original Ben Eater set = the rest)
+    ../docs/modifications.md, "Free: microcode only"; the original
+    Ben Eater set is the rest)
 
 Assembly language (full reference: ../docs/assembly-language.md):
 

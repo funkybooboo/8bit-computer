@@ -51,8 +51,6 @@ line per instruction:
 `,` separates control lines within a step, `if CF` / `if not ZF` make a
 step conditional on a flag half. Run the file to see the resulting table.
 
-## digrom.py - ROM data in .dig circuits
-
 ## digrom.py - EEPROM data in .dig circuits
 
     tools/digrom.py presets
@@ -122,9 +120,10 @@ against the Digital 0.31 source.
 
 Prints every net containing the given component refs, as (ref, pin)
 pairs, from Ben's KiCad netlist. Chip pin maps (74LS273, 28C16, 74LS76,
-74LS139, 74LS08) are in the file's header comment - including Ben's
-KiCad symbol quirks (e.g. the 74LS00 rescue symbol's non-standard gate
-3/4 pin roles; compare the function, not the pin numbers, there).
+74LS139, 74LS08) are in the file's header comment. One KiCad symbol
+quirk to know when comparing: Ben's 74LS00 rescue symbol has
+non-standard gate 3/4 pin roles (documented, with the rest of the
+wiring notes, in [hardware.md](hardware.md)).
 
 ## digsim - headless Digital simulator
 

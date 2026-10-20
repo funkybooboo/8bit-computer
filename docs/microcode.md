@@ -13,7 +13,7 @@ microcode was verified instruction by instruction against Ben Eater's
 programmed EEPROM data, the 8bitsim reference image
 (ngdrascal/8bitsim, memory-images/MicroInstructions.hex), and headless
 simulation of every instruction including JC/JZ flag behavior and the
-6-cycle step-counter wraparound.
+8-cycle step-counter wraparound.
 
 ## Control word
 
@@ -137,6 +137,5 @@ the rows above, one per microstep. Example programs:
 
 ## Regenerating and injecting the ROMs
 
-Both live in the toolchain documentation: [tools.md](tools.md) - the
-microcode's source of truth is MICROSTEPS in tools/machine.py; the
-archived images are in [../roms/](../roms/README.md).
+The workflow (export to ../roms/, write into Computer.dig, re-verify):
+[tools.md](tools.md).

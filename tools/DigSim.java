@@ -22,12 +22,10 @@ import java.util.Map;
  * DigSim - headless simulator for Digital .dig circuits (tested with Digital 0.31).
  *
  * Actions are executed in command line order, so a whole scenario can be run in
- * one invocation, e.g. the Output Register module:
+ * one invocation, e.g. driving the computer's display multiplexing:
  *
- *   tools/digsim --dig "digital/Output Register.dig" --list
- *   tools/digsim --dig "digital/Output Register.dig" \
- *       --set 'CLR\_hat=1' --set 'OI=1' --set 'BUS\_1=1' --set 'BUS\_5=1' \
- *       --edge CLK --toggle 'MUX\_CLK:8' --render
+ *   tools/digsim --dig digital/Computer.dig --list
+ *   tools/digsim --dig digital/Computer.dig --toggle 'MUX\_CLK:8' --render
  *
  * Note that Digital stores labels containing an underscore with a backslash
  * escape (e.g. "BUS\_1"); --set/--edge/--toggle accept both the escaped form
