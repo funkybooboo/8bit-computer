@@ -86,11 +86,31 @@ into A, and why larger constants must be built with ADD.
   its end will run through NOPs and wrap around to address 0 - so every
   program should end in a loop or HLT.
 
-## Programming idioms
+## Programming idioms and examples
 
-- There is no INC/DEC instruction: increment with ADD on a stored constant
-  ([../programs/count.asm](../programs/count.asm) does exactly this).
+Every instruction of the set is exercised by the example gallery,
+[../programs/](../programs/README.md) - six programs, each with its
+expected display and what to watch on the front panel. Which program
+shows what:
+
+| idiom / instruction | shown by                                                  |
+|---------------------|-------------------------------------------------------------|
+| ADD on a `.DB` constant as an increment (no INC exists) | count.asm, memory.asm |
+| SUB counts down; 0 - 1 = 255 (underflow builds big values) | countdown.asm |
+| comparison without a compare instruction: SUB + JC as "jump if A >= B" | larger.asm |
+| equality: ZF=1 after SUB (or ADD wrapping to 0) | countdown.asm |
+| overflow detection: ADD sets CF on the wrap | overflow.asm |
+| wrap-around counting with no conditional | count.asm |
+| state kept in RAM (LDA/ADD/STA read-modify-write) | memory.asm, fib.asm |
+| NOP as pacing filler (6 idle cycles) | countdown.asm |
+| LDI's 0-15 limit worked around with `.DB` data + ADD/LDA | all of them |
+
 - Comparison: SUB sets ZF=1 iff equal, CF=1 iff A >= B (no borrow). Note
-  SUB clobbers A - keep a copy in RAM first (STA) if you need it.
+  SUB clobbers A - keep a copy in RAM first (STA) if you need it
+  (larger.asm re-loads the winner from RAM instead).
 - The ALU wraps modulo 256: 255 + 1 = 0, so counting loops need no
-  end-of-range test; the wrap sets ZF at the same time if you do want it.
+  end-of-range test; the wrap sets ZF at the same time if you do want it
+  (count.asm runs on this).
+- Since LDI can only load 0-15, larger constants are built with `.DB`
+  data bytes plus ADD (or LDA), or - for values near 255 - by subtracting
+  down from 0 (countdown.asm starts at 255 = 0 - 1).

@@ -106,6 +106,12 @@ counts steps 0..4; at step 5 the 74138 decoder's O5 line goes active, a
 plus one transient step 5, and instructions that finish early simply idle
 through the remaining cycles.
 
+You can watch this table run on the machine: single-step a program
+(STEP_MODE + STEP_PULSE, see [../digital/README.md](../digital/README.md),
+"Running in the GUI") and the T0..T4 and control-line LEDs light up exactly
+the rows above, one per microstep. Example programs:
+[../programs/](../programs/README.md).
+
 ## Regenerating and injecting the ROMs
 
 After editing the presets in tools/digrom.py:

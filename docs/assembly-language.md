@@ -87,6 +87,10 @@ exactly the dipswitch groups for program entry (and the opcode table in
 [instruction-set.md](instruction-set.md)). For `.DB` bytes the opcode and
 operand groups are simply the byte's two nibbles - data has no opcode.
 
+The full example gallery - six programs that together exercise every
+instruction, both flags and both wrap directions, each with its expected
+display - is [../programs/](../programs/README.md).
+
 ## Usage
 
     tools/asm.py programs/count.asm                       # listing to stdout
