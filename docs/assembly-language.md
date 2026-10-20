@@ -18,9 +18,11 @@ One statement per line; free-form whitespace:
     line       := [ label ":" ] [ statement ] [ ";" comment ]
     statement  := instruction | directive
     instruction:= mnemonic [ operand ]
-    directive  := ".DB" value { "," value }  |  ".ORG" address
-    operand    := number | label
-    number     := decimal | "0x" hex | "0b" binary
+    directive  := ".DB" value { "," value }
+               |  ".ORG" address
+               |  name ":" ".EQU" value
+    operand    := number | label | equ-name
+    number     := decimal | "0x" hex | "0b" binary | "'" char "'"
 
 - Mnemonics and directives are case-insensitive (`LDA`, `lda`); labels are
   case-sensitive identifiers: `[A-Za-z_][A-Za-z0-9_]*`.
@@ -35,9 +37,12 @@ One statement per line; free-form whitespace:
 | mnemonics               | operand means   | allowed range | why                     |
 |-------------------------|-----------------|---------------|--------------------------|
 | LDA, ADD, SUB, STA      | RAM address     | 0-15          | the MAR is 4 bits        |
-| LDI                     | immediate       | 0-15          | the operand is one nibble, loaded zero-extended into A |
-| JMP, JC, JZ             | target address  | 0-15          | the PC is 4 bits         |
-| NOP, OUT, HLT           | (none)          | -             | -                        |
+| LDI, ADDI, SUBI         | immediate       | 0-15          | the operand is one nibble, loaded zero-extended |
+| JMP, JC, JZ, JNC, JNZ   | target address  | 0-15          | the PC is 4 bits         |
+| NOP, DBL, OUT, HLT      | (none)          | -             | DBL ignores its operand nibble |
+
+(ADDI/SUBI/DBL/JNC/JNZ are this project's opcode additions - see
+[instruction-set.md](instruction-set.md).)
 
 Out-of-range operands are errors, not truncations: the operand field is one
 nibble, and larger constants must be built with ADD (see idioms in
@@ -50,16 +55,22 @@ by hand.
 ## Directives
 
 - `.DB value [, value ...]` - emit raw data bytes (constants, variables,
-  tables). Values may be numbers 0-255 or labels (label = its RAM address).
-  Any byte value is legal, including instruction encodings - the
-  undefined opcodes 9-D execute as NOPs, so `.DB 0x9F` is a legal, if
-  unusual, no-op byte (patch.asm goes further and builds an instruction
-  byte at run time with LDI + ADD).
+  tables). Values may be numbers 0-255, char literals or labels (label =
+  its RAM address). Any byte value is legal, including instruction
+  encodings - a data byte that is never jumped onto is inert (patch.asm
+  goes further and builds an instruction byte at run time with LDI +
+  ADD).
 - `.ORG address` - set the address of the next emitted byte. Forward-only;
   a label on an `.ORG` line lands at the moved-to address. The address must
   be a numeric literal (labels are not known yet when `.ORG` is processed).
   patch.asm uses it for a real need: placing a data byte at an exact
   address so a run-time-built instruction byte encodes correctly.
+- `name: .EQU value` - define a named constant. Usable anywhere a number
+  may appear (instruction operands, `.DB` values); the value must be a
+  numeric or char literal resolved immediately (labels are addresses,
+  `.EQU` names are values - they never occupy a RAM byte). min.asm and
+  decrement.asm use `.EQU` for their thresholds; the alternative is a
+  magic number in every instruction.
 
 ## Program model and limits
 
@@ -97,7 +108,7 @@ exactly the dipswitch groups for program entry (and the opcode table in
 [instruction-set.md](instruction-set.md)). For `.DB` bytes the opcode and
 operand groups are simply the byte's two nibbles - data has no opcode.
 
-The full example gallery - sixteen programs in three groups (foundations,
+The full example gallery - twenty-one programs in three groups (foundations,
 math, machine tricks) that together exercise every instruction, both
 flags, both wrap directions, self-modifying code and the practical limits
 of the machine, each with its expected display - is

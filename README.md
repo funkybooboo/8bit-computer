@@ -71,8 +71,9 @@ The Output Register module was driven through all four steps: its wiring
 turned out to be 100% correct and the only fault was an unprogrammed 28C16.
 The Control Logic module followed: wiring again correct (two benign A7/7400
 symbol notes in digital/README.md), both microcode ROMs programmed, and all
-instructions (incl. JC/JZ flag behavior and the 6-cycle step-counter
-wraparound) verified by headless simulation. After that, the remaining eight
+instructions (incl. JC/JZ flag behavior and the step-counter wraparound)
+verified by headless simulation (6 cycles per instruction then; the
+machine now runs 8 - see docs/microcode.md, "Timing"). After that, the remaining eight
 modules (Clock, A/B registers, instruction register, ALU, program counter,
 MAR, RAM) were wired and their netlists verified the same way - all pin-
 exact - and the ALU and program counter were simulation-verified end to end.

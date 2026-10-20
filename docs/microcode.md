@@ -93,9 +93,24 @@ no control lines):
 | JMP   | T2   | IO         | J           | PC <- operand                  |
 | JC    | T2   | IO         | J           | PC <- operand, only where CF=1 |
 | JZ    | T2   | IO         | J           | PC <- operand, only where ZF=1 |
+| JNC   | T2   | IO         | J           | PC <- operand, only where CF=0 |
+| JNZ   | T2   | IO         | J           | PC <- operand, only where ZF=0 |
+| ADDI  | T2   | IO         | BI          | B <- operand (zero-extended)  |
+|       | T3   | AI         | EO, FI      | A <- A + B, flags              |
+| SUBI  | T2   | IO         | BI          | B <- operand (zero-extended)  |
+|       | T3   | AI         | EO, SU, FI  | A <- A - B, flags              |
+| DBL   | T2   | AO         | BI          | B <- A                         |
+|       | T3   | AI         | EO, FI      | A <- A + B = 2*A, flags        |
 | OUT   | T2   | AO, OI     | -           | display <- A                   |
 | HLT   | T2   | HLT        | -           | stop the clock                  |
-| 9-D   | -    | -          | -           | (fetch only; act as NOP)       |
+
+NOP is fetch only. Opcodes 9-D (JNC/JNZ/ADDI/SUBI/DBL) are this project's
+additions - the jump rows live in the "other half" of the ROM images (the
+halves addressed by CF=0/ZF=0, which the original microcode leaves empty),
+and the immediate/shift rows reuse the existing datapath (IO already drives
+the operand nibble onto the bus, AO already drives A). No wiring changed; a
+pre-addition ROM burn makes those opcodes NOPs. See [ideas.md](ideas.md)
+tier 1.
 
 ## Timing
 

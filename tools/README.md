@@ -9,7 +9,8 @@ per-module .dig files are gone - git history has them).
 | file          | what it is                                                        |
 |---------------|-------------------------------------------------------------------|
 | digrom.py     | EEPROM writer/reader/exporter for .dig circuits (presets, hex/bin) |
-| asm.py       | Assembler/disassembler for the machine's instruction set (labels, .DB/.ORG, bits listing) |
+| asm.py        | Assembler/disassembler (labels, .DB/.ORG/.EQU, char literals, bits listing) |
+| sim.py        | Cycle-accurate simulator: runs the real control-ROM microcode |
 | dignetlist.py | Netlist extraction from a .dig with real Digital pin geometry     |
 | kicadnets.py  | Reference netlist extraction from Ben's KiCad .net (pin maps in header) |
 | DigSim.java   | Headless simulator source (set/edge/toggle/steps/watch/dump/render) |
@@ -63,10 +64,29 @@ microcode; see ../roms/README.md for the address/data encoding).
     tools/asm.py --dis p.hex                                         # disassemble an image
 
 Two-pass assembler for the machine's one-byte instruction format
-([opcode:4][operand:4]): labels, `.DB`/`.ORG` directives, `;` comments,
-numeric literals (decimal / 0x / 0b). Rejects everything the hardware cannot
-encode: operands outside 0-15 (the operand field is one nibble), programs
-larger than the 16-byte RAM, duplicate/undefined/shadowing labels.
+([opcode:4][operand:4]): labels, `.DB`/`.ORG`/`.EQU` directives, `;`
+comments, literals (decimal / 0x / 0b / 'c' char). Rejects everything the
+hardware cannot encode: operands outside 0-15 (the operand field is one
+nibble), programs larger than the 16-byte RAM, duplicate/undefined/
+shadowing names. Mnemonics cover the full 16-opcode set including this
+project's additions (JNC/JNZ/ADDI/SUBI/DBL - see
+../docs/instruction-set.md).
+
+## sim.py - cycle-accurate simulator
+
+    tools/sim.py programs/powers.asm            # run: OUT stream + summary
+    tools/sim.py programs/rotate.asm --max-cycles 5000
+    tools/sim.py programs/count.asm --trace 40  # per-cycle trace (stderr)
+    tools/sim.py --selftest                     # verify the ROM images
+
+Loads the control-ROM images from ../roms/ (the same images the hardware
+burns and Computer.dig carries) and executes the microcode itself: fetch,
+flags, bus drivers, register latches - no per-instruction special cases.
+So it verifies the microcode and the ROM files, not just programs:
+run it after any preset change in digrom.py (and re-inject into the .dig
+before running anything on the machine). Accepts .asm sources or
+.hex/.bin images; stdout carries the OUT stream, the summary and any
+trace go to stderr; exit status tells halt vs. cycle cap.
 
 The listing shows each byte in hex and in straight ones and zeros as the
 three hardware groups - RAM address | opcode | operand - which are also the

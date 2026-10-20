@@ -13,49 +13,57 @@ with a 4-bit operand, no indirect addressing, flags only from ADD/SUB, no
 shifts or bitwise ops, no runtime input, no stack - and a control word
 whose 16 bits are all allocated.
 
-## Tier 1: free - the five unused opcode slots (microcode only)
+## Tier 1: free - the five unused opcode slots (microcode only) - DONE
 
-Opcodes 1001-1101 (9-D) currently decode to nothing after fetch - five
-wasted slots. All five can be filled with no wiring at all, because the
-control ROMs are already addressed by the flags (CF = A8, ZF = A9) and the
-operand path already reaches the bus (IO drives the operand nibble
-zero-extended onto it):
+Opcodes 1001-1101 (9-D) were fetch-only NOPs - five wasted slots. All five
+are now filled with no wiring at all, because the control ROMs are already
+addressed by the flags (CF = A8, ZF = A9) and the operand path already
+reaches the bus (IO drives the operand nibble zero-extended onto it):
 
-| opcode | proposed  | microsteps                             | what it unlocks |
-|--------|-----------|----------------------------------------|-----------------|
-| 1001 9 | JNC addr  | T2 IO\|J, written into the CF=0 half   | jump if NOT carry - inverted conditionals |
-| 1010 A | JNZ addr  | T2 IO\|J, written into the ZF=0 half   | jump if NOT zero |
-| 1011 B | ADDI imm  | T2 IO\|BI, T3 EO\|AI\|FI               | immediate operands without a RAM cell |
-| 1100 C | SUBI imm  | T2 IO\|BI, T3 EO\|SU\|AI\|FI           | - " - |
-| 1101 D | TAB       | T2 AO\|BI                              | copy A to B - a second working register |
+| opcode | insn      | microsteps                             | what it buys |
+|--------|-----------|----------------------------------------|--------------|
+| 1001 9 | JNC addr  | T2 IO\|J, written into the CF=0 half   | jump if NOT carry - "strictly less" after a SUB |
+| 1010 A | JNZ addr  | T2 IO\|J, written into the ZF=0 half   | jump if NOT zero - loop exits without a spare jump |
+| 1011 B | ADDI imm  | T2 IO\|BI, T3 EO\|AI\|FI               | add a constant without a RAM cell |
+| 1100 C | SUBI imm  | T2 IO\|BI, T3 EO\|SU\|AI\|FI           | subtract / compare against a constant, no cell |
+| 1101 D | DBL       | T2 AO\|BI, T3 EO\|AI\|FI              | double A = shift left 1, CF = bit shifted out |
 
 Why each is free:
 
 - **JNC / JNZ**: JC's jump bytes exist only in the flag=1 half of the ROM
-  image; the flag=0 half for the same step is empty. Writing the same
+  image; the flag=0 half for the same step was empty. Writing the same
   T2 (IO|J) bytes into the *other* half is a jump on the inverted
-  condition. (Both halves already exist in the image - the addressing
+  condition. (Both halves already existed in the image - the addressing
   sees to that.)
 - **ADDI / SUBI**: the operand nibble is already drivable onto the bus
   (that is LDI's trick), and B loads from the bus - so an immediate can
   feed the ALU directly: IO|BI loads the zero-extended operand into B,
-  then the normal ADD T3 runs. No `.DB` cell needed for constants.
-- **TAB**: AO puts A on the bus and BI loads B from it. B finally becomes
-  loadable from something other than RAM - a scratch register.
+  then the normal ADD/SUB T3 runs. No `.DB` cell needed for constants.
+- **DBL**: AO puts A on the bus, BI loads B from it, then the ADD T3
+  computes A + B = 2*A with CF catching the bit shifted out - a
+  shift-left built from two existing micro-ops.
 
-What they buy in practice: inverted conditionals (no more "burn 6 cycles
-when the flag is the wrong polarity"), constants without spending RAM
-bytes (countdown.asm and mul.asm lose their `one` cell), and two-operand
-code (B as a temp). Cost: edit the microstep table in
-[../tools/digrom.py](../tools/digrom.py), re-export the ROM images,
-re-inject them, add the mnemonics to [../tools/asm.py](../tools/asm.py),
-update the docs. Timing stays 6 cycles; nothing existing breaks (9-D are
-NOPs today).
+A correction to the first draft of this table (kept as a lesson): it
+proposed TAB ("copy A to B, a second working register") as slot D. That
+instruction is **inert**: ADD/SUB always reload B from RAM at their T3
+(RO|BI), so nothing would ever read the stored B - a TAB would sit there
+until the next ADD/SUB overwrote it. A real second working register needs
+an instruction that reads B without the RAM reload ("A <- A + B" fits the
+same two microstep budget) - that is the candidate if slot D is ever
+re-purposed; DBL was chosen instead because a shift is a whole capability
+class, not just a register move.
 
-Free-adjacent (one wire): ROM address A10 is grounded and the images are
-replicated across it. Wire A10 to a switch and the same two ROMs hold two
-complete, switchable instruction sets - e.g. a normal set and a debug set
-that OUTs different registers. The replication already exists.
+Applied: microstep table in digrom.py, images re-exported to
+[../roms/](../roms/), injected into Computer.dig (verified == presets),
+mnemonics in asm.py, docs updated, and five new gallery programs
+(step, decrement, powers, min, rol) verified with tools/sim.py. Timing
+unchanged (all five fit in T2/T3); nothing existing breaks.
+
+Free-adjacent (one wire, still undone): ROM address A10 is grounded and
+the images are replicated across it. Wire A10 to a switch and the same two
+ROMs hold two complete, switchable instruction sets - e.g. a normal set
+and a debug set that OUTs different registers. The replication already
+exists.
 
 ## Tier 2: wiring only (no new chips)
 
@@ -121,19 +129,22 @@ that OUTs different registers. The replication already exists.
 
 ## Tier 4: software only (no hardware at all)
 
-- **tools/sim.py**: promote the ISA-level reference interpreter (the
-  throwaway that verified all 16 gallery programs) into the toolkit.
-  Runs any program in microseconds, handles self-modifying code, and is
-  the test bench a compiler needs
-  ([getting-to-c.md](getting-to-c.md)).
-- **The Digital 0.31 74245 patch**: the known library bug that stops
-  Computer.dig from simulating its shared bus - patching a local
-  74245.dig means programs actually run in the GUI at all.
-- **Assembler**: .EQU named constants, character literals, .DW / .FILL
-  data directives, more listing options. All local to asm.py.
-- **A microcode DSL**: the microstep table in digrom.py is the source of
-  truth; a tiny "LDA: MI,IO / RO,AI" notation would make tier-1
-  experiments painless.
+- **tools/sim.py**: DONE - the cycle-accurate simulator. It loads the
+  control-ROM images from roms/ and runs the microcode itself (fetch
+  included, self-modifying code included), so it verifies the microcode,
+  the ROM files and every program without the machine. All 21 gallery
+  programs pass it, cross-checked against an independent ISA-level
+  reference. The compiler test bench of
+  [getting-to-c.md](getting-to-c.md) exists.
+- **The Digital 0.31 74245 patch**: still pending - the known library bug
+  that stops Computer.dig from simulating its shared bus. sim.py covers
+  the ISA-level truth; a GUI-level run needs this patch.
+- **Assembler**: DONE - .EQU named constants and 'c' char literals added,
+  along with the tier-1 mnemonics. More (.DW for 16-bit values, .FILL)
+  can wait until 16-bit data exists.
+- **A microcode DSL**: the microstep table in digrom.py stays the source
+  of truth; a tiny "LDA: MI,IO / RO,AI" notation would make future
+  experiments painless - not needed yet.
 
 ## Not worth it (honest)
 
@@ -149,9 +160,10 @@ that OUTs different registers. The replication already exists.
 
 ## Suggested order
 
-1. Tier-1 opcodes + assembler update - days, zero wiring, immediately
-   better programs.
-2. tools/sim.py + the 74245 patch - the test bench.
+1. DONE - tier-1 opcodes + assembler update (zero wiring, better
+   programs, five new gallery programs).
+2. PARTLY DONE - tools/sim.py exists (the test bench); the 74245 patch
+   is still pending.
 3. The IN instruction (needs ROM3 + one 74245) - the machine becomes
    interactive.
 4. Memory + addressing + stack - the big one; its plan is

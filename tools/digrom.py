@@ -113,23 +113,30 @@ def output_display(swap_banks=False):
 #
 # Instruction set (opcode = IR nibble):
 #   0 NOP   1 LDA   2 ADD   3 SUB   4 STA   5 LDI   6 JMP   7 JC
-#   8 JZ    9-D undefined   E OUT   F HLT
+#   8 JZ    9 JNC   A JNZ   B ADDI  C SUBI  D DBL   E OUT   F HLT
 #
 # Microcode (T0/T1 fetch identical for all instructions; every instruction
-# takes 6 cycles because the 74138 O5/T5 line resets the step counter):
+# takes 8 cycles because the 74138 O7/T7 line resets the step counter):
 #   T0: MI|CO          T1: RO|II|CE
-#   LDA: T2 MI|IO            T3 RO|AI
-#   ADD: T2 MI|IO            T3 RO|BI          T4 EO|AI|FI
-#   SUB: T2 MI|IO            T3 RO|BI          T4 EO|AI|SU|FI
-#   STA: T2 MI|IO            T3 AO|RI
-#   LDI: T2 IO|AI
-#   JMP: T2 IO|J
-#   JC : T2 IO|J (only if CF=1)
-#   JZ : T2 IO|J (only if ZF=1)
-#   OUT: T2 AO|OI
-#   HLT: T2 HLT
+#   LDA : T2 MI|IO            T3 RO|AI
+#   ADD : T2 MI|IO            T3 RO|BI          T4 EO|AI|FI
+#   SUB : T2 MI|IO            T3 RO|BI          T4 EO|AI|SU|FI
+#   STA : T2 MI|IO            T3 AO|RI
+#   LDI : T2 IO|AI
+#   JMP : T2 IO|J
+#   JC  : T2 IO|J (only if CF=1)
+#   JZ  : T2 IO|J (only if ZF=1)
+#   JNC : T2 IO|J (only if CF=0)
+#   JNZ : T2 IO|J (only if ZF=0)
+#   ADDI: T2 IO|BI            T3 EO|AI|FI       (immediate operand)
+#   SUBI: T2 IO|BI            T3 EO|AI|SU|FI   (immediate operand)
+#   DBL : T2 AO|BI            T3 EO|AI|FI       (A <- 2*A: shift left, CF = bit out)
+#   OUT : T2 AO|OI
+#   HLT : T2 HLT
 # The ROM1 image was verified instruction by instruction against the
-# 8bitsim reference (ngdrascal/8bitsim memory-images/MicroInstructions.hex).
+# 8bitsim reference (ngdrascal/8bitsim memory-images/MicroInstructions.hex);
+# opcodes 9-D are this project's additions (see ../docs/ideas.md tier 1) and
+# are verified by tools/sim.py against the program gallery.
 # ---------------------------------------------------------------------------
 
 # ROM1 (U47) signal bits
@@ -138,7 +145,8 @@ HLT, MI, RI, RO, IO, II, AI, AO = 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 EO, SU, BI, OI, CE, CO, J, FI = 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 
 # opcode -> list of (step, rom1 signals, rom2 signals); the T0/T1 fetch is
-# added by _control_images() for every opcode.
+# added by _control_images() for every opcode. JNC/JNZ are appended there
+# too (like JC/JZ) because they depend on the flag state.
 _OPCODE_MICROCODE = {
     0x1: [(2, MI | IO, 0), (3, RO | AI, 0)],                                # LDA
     0x2: [(2, MI | IO, 0), (3, RO, BI), (4, AI, EO | FI)],                  # ADD
@@ -146,6 +154,9 @@ _OPCODE_MICROCODE = {
     0x4: [(2, MI | IO, 0), (3, RI | AO, 0)],                                # STA
     0x5: [(2, IO | AI, 0)],                                                 # LDI
     0x6: [(2, IO, J)],                                                      # JMP
+    0xB: [(2, IO, BI), (3, AI, EO | FI)],                                  # ADDI imm
+    0xC: [(2, IO, BI), (3, AI, EO | SU | FI)],                             # SUBI imm
+    0xD: [(2, AO, BI), (3, AI, EO | FI)],                                   # DBL
     0xE: [(2, AO, OI)],                                                     # OUT
     0xF: [(2, HLT, 0)],                                                     # HLT
 }
@@ -163,6 +174,10 @@ def _control_images():
                 if opcode == 0x7 and cf:  # JC: jump only when CF (A8) set
                     microsteps.append((2, IO, J))
                 if opcode == 0x8 and zf:  # JZ: jump only when ZF (A9) set
+                    microsteps.append((2, IO, J))
+                if opcode == 0x9 and not cf:   # JNC: jump only when CF (A8) clear
+                    microsteps.append((2, IO, J))
+                if opcode == 0xA and not zf:   # JNZ: jump only when ZF (A9) clear
                     microsteps.append((2, IO, J))
                 for st, w1, w2 in microsteps:
                     # replicate across A7 (the which-ROM bit) and A10 (grounded)

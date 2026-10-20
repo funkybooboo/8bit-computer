@@ -19,7 +19,7 @@ new hardware at all and can be started now.
 | memory  | code + globals + stack; the smallest real programs are hundreds of bytes | 16 bytes, shared | 2 orders of magnitude |
 | stack   | every call, every local   | none - no SP, no CALL/RET, no push/pop | SP + CALL/RET (ideas.md tier 3) |
 | arithmetic | + - * / % all exist | + - in hardware, * / % as loops (mul/div/mod already written) | none, just slow |
-| bitwise | & \| ^ ~ << >>           | none          | software emulation (rotate + carry + conditional); correct, ~100s of cycles per byte-op |
+| bitwise | & \| ^ ~ << >>           | shifts: DBL does << in one instruction (CF = bit out); the rest: none | software emulation (rotate + carry + conditional); correct, ~100s of cycles per byte-op |
 | control flow | if / while / for / functions | JMP JC JZ (+ JNC JNZ free, ideas.md tier 1) | functions = stack |
 | output  | putchar                   | OUT           | none |
 | input   | getchar                   | none at run time | the IN instruction (ideas.md tier 3) |
@@ -60,12 +60,12 @@ debugging.
 
 | level | what it is | C status |
 |-------|-----------|----------|
-| L0 (today) | 16 bytes, 11 instructions, assembler + 16 verified programs | impossible |
-| L1 (free microcode, days) | ideas.md tier 1: JNC/JNZ/ADDI/SUBI/TAB | still impossible - 16 bytes is 16 bytes |
-| L2 (wiring) | 64 bytes, 8 microsteps | still impossible |
+| L0 (original) | 16 bytes, 11 instructions, assembler + verified programs | impossible |
+| L1 (free microcode) - DONE | JNC/JNZ/ADDI/SUBI/DBL (ideas.md tier 1) + tools/sim.py, the cycle-accurate test bench | still impossible - 16 bytes is 16 bytes |
+| L2 (wiring) - DONE, except memory | 8 microsteps (T2-T6 usable); the 64-byte item needs tier-3 parts | still impossible |
 | L3 (the C threshold - hardware project) | 2KB code ROM (a 28C16 - this repo already burns them) + 2KB SRAM; 16-bit MAR and PC; two-byte instructions; the third control ROM; SP + CALL/RET + push/pop; indirect load/store (MAR from a register pair); ADC | the machine can now express C's abstract machine |
 | L4 (software, weeks) | the subset-C cross compiler on the host, emitting this repo's assembly; asm.py as the backend, sim.py as the test bench | C programs compile, run, and can be hand-checked against the gallery |
-| L5 (polish) | IN (getchar), hardware shifts/bitwise, structs | comfort, not capability |
+| L5 (polish) | IN (getchar), hardware bitwise (DBL already gives shift-left), structs | comfort, not capability |
 
 L3 is the long pole: it reworks the machine's spine - every address path,
 the instruction format, the step budget, the control word. Practically
@@ -75,16 +75,15 @@ computer. L4 does not need L3 to *start* (next section).
 
 ## What can start now, with zero new hardware
 
-1. **tools/sim.py** - promote the ISA-level reference interpreter that
-   already verified all 16 gallery programs into the toolkit. It runs
-   any program in microseconds, handles self-modifying code, and is the
-   compiler's test bench. Days.
-2. **The ideas.md tier-1 opcodes + assembler update** - a better compiler
-   target the same day, for free.
-3. **The Digital 0.31 74245 patch** - otherwise even hand-written
-   programs cannot run in the GUI (the known library bug).
-4. **Write the compiler against sim.py + asm.py, with the L3 ISA defined
-   on paper first.** The compiler is the biggest software piece of the
+1. DONE - **tools/sim.py** exists: the cycle-accurate simulator runs any
+   program (self-modifying code included) off the real control-ROM images
+   and is the compiler's test bench.
+2. DONE - **the ideas.md tier-1 opcodes + assembler update**: the
+   compiler target now has inverted jumps and immediates, for free.
+3. PENDING - **the Digital 0.31 74245 patch** - otherwise even
+   hand-written programs cannot run in the GUI (the known library bug).
+4. NEXT - **write the compiler against sim.py + asm.py, with the L3 ISA
+   defined on paper first.** The compiler is the biggest software piece of the
    project and needs no hardware; doing it first also produces, as a
    side effect, the exact demand list the hardware must satisfy
    (data-driven hardware design: the compiler tells you what L3 must

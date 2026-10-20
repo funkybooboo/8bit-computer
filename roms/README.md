@@ -47,17 +47,22 @@ A7 and A10 and are correct regardless of how A7 is wired (the Digital build
 ties both A7 pins to VDD).
 
 Instruction set (opcode = instruction's high nibble) and microcode - all
-instructions share the fetch T0: MI|CO, T1: RO|II|CE, and take 6 cycles (the
-74138 T5 line asynchronously resets the step counter):
+instructions share the fetch T0: MI|CO, T1: RO|II|CE, and take 8 cycles (the
+74138 T7 line asynchronously resets the step counter; it used to be T5 /
+6 cycles):
 
     0 NOP    1 LDA: T2 MI|IO, T3 RO|AI
     2 ADD: T2 MI|IO, T3 RO|BI, T4 EO|AI|FI
     3 SUB: T2 MI|IO, T3 RO|BI, T4 EO|AI|SU|FI
     4 STA: T2 MI|IO, T3 AO|RI      5 LDI: T2 IO|AI
     6 JMP: T2 IO|J     7 JC: T2 IO|J if CF     8 JZ: T2 IO|J if ZF
-    9-D undefined (fetch only)
-    E OUT: T2 AO|OI     F HLT: T2 HLT
+    9 JNC: T2 IO|J if CF=0     A JNZ: T2 IO|J if ZF=0
+    B ADDI: T2 IO|BI, T3 EO|AI|FI      C SUBI: T2 IO|BI, T3 EO|AI|SU|FI
+    D DBL: T2 AO|BI, T3 EO|AI|FI      E OUT: T2 AO|OI     F HLT: T2 HLT
 
-The rom1 image matches the 8bitsim reference (ngdrascal/8bitsim,
-memory-images/MicroInstructions.hex) instruction by instruction in its used
-address half.
+Opcodes 9-D are this project's additions (../docs/ideas.md tier 1): the
+jump rows live in the previously-empty flag=0 halves of the images, the
+immediate/shift rows reuse the existing datapath. Opcodes 0-8/E/F match
+the 8bitsim reference (ngdrascal/8bitsim, memory-images/MicroInstructions.hex)
+instruction by instruction in its used address half. The additions are
+verified by tools/sim.py against the program gallery.

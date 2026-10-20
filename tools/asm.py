@@ -7,18 +7,22 @@ Machine model (full reference: ../docs/instruction-set.md):
 
   - every instruction is ONE byte: [opcode:4][operand:4]
   - RAM is 16 x 8 bits (MAR and PC are 4 bits); program and data share it
-  - the operand nibble is a RAM address (LDA/ADD/SUB/STA/JMP/JC/JZ, range
-    0-15) or a 4-bit immediate loaded zero-extended into A (LDI, 0-15)
-  - opcode:   0     1    2    3    4    5    6    7    8    E    F
-    mnemonic: NOP   LDA  ADD  SUB  STA  LDI  JMP  JC   JZ   OUT  HLT
-    opcodes 9-D are unimplemented and act as NOPs
+  - the operand nibble is a RAM address (LDA/ADD/SUB/STA/JMP/JC/JZ/JNC/JNZ,
+    range 0-15) or a 4-bit immediate loaded zero-extended (LDI/ADDI/SUBI,
+    0-15); DBL ignores its operand nibble
+  - opcode:   0     1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
+    mnemonic: NOP   LDA  ADD  SUB  STA  LDI  JMP  JC   JZ   JNC  JNZ  ADDI SUBI DBL  OUT  HLT
+    (JNC/JNZ/ADDI/SUBI/DBL are this project's additions, see
+    ../docs/ideas.md tier 1; original Ben Eater set = the rest)
 
 Assembly language (full reference: ../docs/assembly-language.md):
 
   - one statement per line:  [label:] mnemonic [operand] [; comment]
   - directives:  .DB val[,val...]   (emit raw data bytes)
                 .ORG addr          (set the next address, forward only)
-  - numbers: decimal, 0x1F, 0b1010; labels are identifiers
+                name: .EQU val     (named constant, usable as any operand)
+  - numbers: decimal, 0x1F, 0b1010, 'A' (ASCII char literal); labels are
+    identifiers
   - mnemonics and directives are case-insensitive, labels are not
   - every instruction assembles to exactly one byte; the assembler rejects
     anything the hardware cannot encode (operand out of 0-15, program
@@ -55,6 +59,11 @@ MNEMONICS = {
     "JMP": (0x6, OPERAND_ADDR, "PC <- operand"),
     "JC":  (0x7, OPERAND_ADDR, "PC <- operand if CF = 1"),
     "JZ":  (0x8, OPERAND_ADDR, "PC <- operand if ZF = 1"),
+    "JNC": (0x9, OPERAND_ADDR, "PC <- operand if CF = 0"),
+    "JNZ": (0xA, OPERAND_ADDR, "PC <- operand if ZF = 0"),
+    "ADDI": (0xB, OPERAND_IMM, "A <- A + operand; CF/ZF updated"),
+    "SUBI": (0xC, OPERAND_IMM, "A <- A - operand; CF/ZF updated"),
+    "DBL": (0xD, OPERAND_NONE, "A <- 2*A (shift left; CF = bit shifted out)"),
     "OUT": (0xE, OPERAND_NONE, "display <- A"),
     "HLT": (0xF, OPERAND_NONE, "stop the clock"),
 }
@@ -94,6 +103,9 @@ def parse_number(tok):
             return None
     if tok.isdigit():
         return int(tok, 10)
+    if len(tok) == 3 and tok[0] == tok[2] == "'":  # 'A' char literal
+        v = ord(tok[1])
+        return v if 0 < v < 128 else None
     return None
 
 
@@ -126,7 +138,7 @@ def parse_line(path, lineno, raw):
         if not m:
             raise SourceError(path, lineno, "cannot parse %r (label syntax is 'name:')" % text)
         label, rest = m.group(1), m.group(2).strip()
-    if label is not None and label.upper() in list(MNEMONICS) + ["DB", "ORG"]:
+    if label is not None and label.upper() in list(MNEMONICS) + ["DB", "ORG", "EQU"]:
         raise SourceError(path, lineno, "label %r shadows an instruction name; pick another" % label)
     if not rest:
         return Stmt(lineno, label, "labelonly", None, text)
@@ -147,6 +159,12 @@ def parse_line(path, lineno, raw):
         if not arg:
             raise SourceError(path, lineno, ".ORG requires an address")
         return Stmt(lineno, label, "org", arg, text)
+    if head == ".EQU":
+        if label is None:
+            raise SourceError(path, lineno, ".EQU needs a name: use 'name: .EQU value'")
+        if not arg:
+            raise SourceError(path, lineno, ".EQU requires a value")
+        return Stmt(lineno, label, "equ", arg, text)
     raise SourceError(
         path, lineno,
         "unknown instruction or directive %r (see docs/instruction-set.md)" % parts[0],
@@ -158,10 +176,21 @@ def parse_line(path, lineno, raw):
 # ---------------------------------------------------------------------------
 
 def first_pass(path, stmts, mem_size):
-    """Assign an address to every statement; collect labels."""
-    labels = {}
+    """Assign an address to every statement; collect labels and .EQU constants."""
+    labels, equs = {}, {}
     addr = 0
     for st in stmts:
+        if st.kind == "equ":
+            v = parse_number(st.payload.strip())
+            if v is None:
+                raise SourceError(path, st.lineno, ".EQU needs a numeric or char value (labels are not known yet)")
+            if not 0 <= v <= 255:
+                raise SourceError(path, st.lineno, ".EQU value %d is out of range 0-255" % v)
+            if st.label in labels or st.label in equs:
+                raise SourceError(path, st.lineno, "duplicate name %r" % st.label)
+            equs[st.label] = v
+            st.addr = addr
+            continue
         if st.kind == "org":
             v = parse_number(st.payload.strip())
             if v is None:
@@ -174,17 +203,19 @@ def first_pass(path, stmts, mem_size):
         if st.label is not None:
             if st.label in labels:
                 raise SourceError(path, st.lineno, "duplicate label %r (first defined for address %d)" % (st.label, labels[st.label]))
+            if st.label in equs:
+                raise SourceError(path, st.lineno, "name %r is already a .EQU constant" % st.label)
             labels[st.label] = addr
         size = 1 if st.kind == "insn" else (len(st.payload) if st.kind == "db" else 0)
         if addr + size > mem_size:
             raise SourceError(path, st.lineno, "program does not fit in %d bytes of RAM (statement would end at %d)" % (mem_size, addr + size))
         st.addr = addr
         addr += size
-    return labels
+    return labels, equs
 
 
-def resolve(tok, labels, path, lineno):
-    """operand token -> int (numeric literal or label address)."""
+def resolve(tok, labels, equs, path, lineno):
+    """operand token -> int (numeric literal, .EQU constant or label address)."""
     tok = tok.strip()
     if not tok:
         raise SourceError(path, lineno, "missing operand")
@@ -192,13 +223,15 @@ def resolve(tok, labels, path, lineno):
     if v is not None:
         return v
     if IDENT_RE.match(tok):
-        if tok not in labels:
-            raise SourceError(path, lineno, "undefined label %r" % tok)
-        return labels[tok]
-    raise SourceError(path, lineno, "cannot parse operand %r (decimal, 0xNN, 0bNNNN or a label)" % tok)
+        if tok in equs:
+            return equs[tok]
+        if tok in labels:
+            return labels[tok]
+        raise SourceError(path, lineno, "undefined name %r (label or .EQU constant)" % tok)
+    raise SourceError(path, lineno, "cannot parse operand %r (decimal, 0xNN, 0bNNNN, 'c' or a name)" % tok)
 
 
-def second_pass(path, stmts, labels, mem_size):
+def second_pass(path, stmts, labels, equs, mem_size):
     """Resolve operands, encode, return (memory image, listing rows)."""
     mem = bytearray(mem_size)
     rows = []  # (addr, byte-or-None, text)
@@ -210,7 +243,7 @@ def second_pass(path, stmts, labels, mem_size):
                 mem[st.addr] = opcode << 4
                 rows.append((st.addr, mem[st.addr], st.text))
                 continue
-            val = resolve(arg, labels, path, st.lineno)
+            val = resolve(arg, labels, equs, path, st.lineno)
             limit = ADDR_MAX if kind is OPERAND_ADDR else IMM_MAX
             if val > limit:
                 kindword = "RAM address" if kind is OPERAND_ADDR else "immediate"
@@ -224,12 +257,12 @@ def second_pass(path, stmts, labels, mem_size):
             rows.append((st.addr, mem[st.addr], st.text))
         elif st.kind == "db":
             for i, tok in enumerate(st.payload):
-                v = resolve(tok, labels, path, st.lineno)
+                v = resolve(tok, labels, equs, path, st.lineno)
                 if not 0 <= v <= 255:
                     raise SourceError(path, st.lineno, ".DB value %d is out of range 0-255" % v)
                 mem[st.addr + i] = v
                 rows.append((st.addr + i, v, st.text if i == 0 else ""))
-        else:  # "org" / "labelonly": no byte emitted
+        else:  # "org" / "labelonly" / "equ": no byte emitted
             rows.append((st.addr, None, st.text))
     return mem, rows
 
@@ -255,8 +288,8 @@ def assemble(path, mem_size):
             print(e, file=sys.stderr)
         raise SystemExit("asm: %d parse error(s)" % len(errors))
     try:
-        labels = first_pass(path, stmts, mem_size)
-        return second_pass(path, stmts, labels, mem_size)
+        labels, equs = first_pass(path, stmts, mem_size)
+        return second_pass(path, stmts, labels, equs, mem_size)
     except SourceError as e:
         raise SystemExit("asm: %s" % e)
 
