@@ -8,6 +8,7 @@ Output Register module; the same workflow applies to the next modules.
 | file          | what it is                                                        |
 |---------------|-------------------------------------------------------------------|
 | digrom.py     | EEPROM writer/reader/exporter for .dig circuits (presets, hex/bin) |
+| asm.py       | Assembler/disassembler for the machine's instruction set (labels, .DB/.ORG, bits listing) |
 | dignetlist.py | Netlist extraction from a .dig with real Digital pin geometry     |
 | kicadnets.py  | Reference netlist extraction from Ben's KiCad .net (pin maps in header) |
 | DigSim.java   | Headless simulator source (set/edge/toggle/steps/watch/dump/render) |
@@ -49,6 +50,28 @@ New ROMs go into the `PRESETS` dict in digrom.py - each preset is a function
 returning bytes - and get archived to ../roms/ via `export`. Existing presets:
 `output-display`, `control-rom1`, `control-rom2` (the control-logic
 microcode; see ../roms/README.md for the address/data encoding).
+
+## asm.py - assembler / disassembler
+
+    tools/asm.py programs/count.asm                                  # listing to stdout
+    tools/asm.py programs/count.asm --out p.hex --lst p.lst           # image + listing file
+    tools/asm.py programs/count.asm --out p.bin --format raw
+    tools/asm.py --dis p.hex                                         # disassemble an image
+
+Two-pass assembler for the machine's one-byte instruction format
+([opcode:4][operand:4]): labels, `.DB`/`.ORG` directives, `;` comments,
+numeric literals (decimal / 0x / 0b). Rejects everything the hardware cannot
+encode: operands outside 0-15 (the operand field is one nibble), programs
+larger than the 16-byte RAM, duplicate/undefined/shadowing labels.
+
+The listing shows each byte in hex and in straight ones and zeros as the
+three hardware groups - RAM address | opcode | operand - which are also the
+dipswitch groups for program entry. Image formats reuse digrom.py's
+(logisim / intel / raw). The disassembler decodes linearly; data and
+undefined opcodes print as `.DB 0xNN`.
+
+Language reference: ../docs/assembly-language.md; instruction set:
+../docs/instruction-set.md; programs: ../programs/.
 
 Segment encoding used by Ben's display ROMs (verified against his KiCad
 netlist):

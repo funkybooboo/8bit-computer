@@ -13,7 +13,13 @@ before reproducing it on real breadboards.
 | [schematics/](schematics/README.md) | Ben Eater's original module schematics (PNG, from eater.net) |
 | [kicad/](kicad/README.md)         | Ben Eater's KiCad project (rev B, 2018): the reference design |
 | [roms/](roms/README.md)           | Archived EEPROM images (also stored inline in the .dig files) |
-| [tools/](tools/README.md)         | Toolkit: netlist verification, EEPROM writer, headless simulator |
+| [tools/](tools/README.md)         | Toolkit: netlist verification, EEPROM writer, headless simulator, assembler |
+| [docs/](docs/README.md)           | Written documentation: instruction set, microcode, assembly language |
+| [programs/](programs/README.md)   | Assembly programs (sources; assembled images/listings are gitignored build artifacts) |
+
+Software index: the machine's instruction set and microcode are documented
+in [docs/](docs/), and assembly programs for it live in
+[programs/](programs/) (assembled with [tools/asm.py](tools/README.md)).
 
 ## Module status
 
@@ -54,6 +60,8 @@ Every module goes through the same loop (tooling in [tools/](tools/README.md)):
 3. **Program EEPROMs** with `tools/digrom.py` (presets archived in roms/).
 4. **Simulate headless** with `tools/digsim` - inputs, clocks, and rendered
    seven-segment displays, without opening the GUI.
+5. **Write software** in the assembly language (`tools/asm.py`, see
+   [docs/](docs/)) and run it - see [programs/](programs/).
 
 The Output Register module was driven through all four steps: its wiring
 turned out to be 100% correct and the only fault was an unprogrammed 28C16.
