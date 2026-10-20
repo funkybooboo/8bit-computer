@@ -3,7 +3,8 @@
 Helpers for building Ben Eater's 8-bit computer (https://eater.net/8bit) in
 Digital (https://github.com/hneemann/Digital) before building it on
 breadboards. Everything here was developed and verified while building the
-Output Register module; the same workflow applies to the next modules.
+modules; all circuits now live in one file, digital/Computer.dig (the
+per-module .dig files are gone - git history has them).
 
 | file          | what it is                                                        |
 |---------------|-------------------------------------------------------------------|
@@ -15,12 +16,12 @@ Output Register module; the same workflow applies to the next modules.
 | digsim        | Wrapper: locates Digital.jar + JDK, compiles and runs DigSim       |
 | README.md     | This file: workflow and usage                                     |
 
-## The workflow
+## The workflow (how every module was built and verified)
 
 1. Wire the module in Digital from Ben's schematic (schematics/*.png,
    kicad/*.sch).
 2. **Verify the wiring** before debugging behavior:
-   - `dignetlist.py` extracts the netlist from your .dig (real Digital pin
+   - `dignetlist.py` extracts the netlist from the .dig (real Digital pin
      geometry, auto-loaded from Digital's installed library).
    - `kicadnets.py` prints the reference netlist from Ben's KiCad project
      (kicad/8bit-computer.net).
@@ -30,13 +31,16 @@ Output Register module; the same workflow applies to the next modules.
    in the .dig and archived in ../roms/).
 4. **Simulate headless** with `digsim` - set inputs, clock, mux-toggle and
    render the seven-segment display without opening the GUI:
-   `tools/digsim --dig "digital/Output Register.dig" --list`
+   `tools/digsim --dig digital/Computer.dig --list`
+   (the shared bus of the merged circuit is not reliable in Digital 0.31 -
+   see ../digital/README.md, "Known Digital 0.31 simulation bugs" - but the
+   ROM/netlist tooling works on it as-is).
 
 ## digrom.py - EEPROM data in .dig circuits
 
     tools/digrom.py presets
-    tools/digrom.py dump  --dig "digital/Output Register.dig" --label U45 --words
-    tools/digrom.py write --dig "digital/Output Register.dig" --label U45 --preset output-display
+    tools/digrom.py dump  --dig digital/Computer.dig --label U45 --words
+    tools/digrom.py write --dig digital/Computer.dig --label U45 --preset output-display
     tools/digrom.py write --dig c.dig --label U1 --hexfile myrom.hex --size 2048
     tools/digrom.py export --preset output-display --out rom.hex --format logisim
 
@@ -85,7 +89,7 @@ netlist):
 
 ## dignetlist.py - netlist extraction and wiring check
 
-    tools/dignetlist.py --dig "digital/Output Register.dig"
+    tools/dignetlist.py --dig digital/Computer.dig
 
 Prints every element, every pin, and the members of the net each pin is on
 (e.g. `A8 -> ['U37.1~Q', 'U37.2~CLK', 'U38.1A', 'U45.A8']`). Also warns about
@@ -112,10 +116,14 @@ project.
 
 ## digsim - headless simulator
 
-    tools/digsim --dig "digital/Output Register.dig" --list
-    tools/digsim --dig "digital/Output Register.dig" \
-        --set 'CLR\_hat=1' --set 'OI=1' --set 'BUS\_1=1' --set 'BUS\_5=1' \
-        --set 'SW\_7=1' --edge CLK --toggle 'MUX\_CLK:8'
+    tools/digsim --dig digital/Computer.dig --list
+    tools/digsim --dig digital/Computer.dig --toggle 'MUX\_CLK:8' --render
+
+(The second example multiplexes the front-panel display, which does not
+touch the shared bus; the merged circuit's In test elements are gone - use
+`--list` to see what is settable. From the standalone-module era, a module
+example looked like: `--set 'CLR\_hat=1' --set 'OI=1' --set 'BUS\_1=1' --edge
+CLK --toggle 'MUX\_CLK:8'`.)
 
 Options (executed in command line order): `--set NAME=VALUE` (0x/0b/decimal;
 auto-steps), `--edge NAME` (0->1->0 pulse), `--toggle NAME:N` (N half-cycles

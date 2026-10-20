@@ -9,7 +9,7 @@ before reproducing it on real breadboards.
 
 | directory     | contents                                                       |
 |---------------|----------------------------------------------------------------|
-| [digital/](digital/README.md)     | The circuits being built: one .dig file per computer module |
+| [digital/](digital/README.md)     | The whole computer in one Digital circuit: Computer.dig |
 | [schematics/](schematics/README.md) | Ben Eater's original module schematics (PNG, from eater.net) |
 | [kicad/](kicad/README.md)         | Ben Eater's KiCad project (rev B, 2018): the reference design |
 | [roms/](roms/README.md)           | Archived EEPROM images (also stored inline in the .dig files) |
@@ -21,33 +21,37 @@ Software index: the machine's instruction set and microcode are documented
 in [docs/](docs/), and assembly programs for it live in
 [programs/](programs/) (assembled with [tools/asm.py](tools/README.md)).
 
-## Module status
+## Build status
 
-All ten component circuits are wired and their wiring has been verified
+All ten component circuits were wired and their wiring verified
 pin by pin against Ben's KiCad netlist (kicad/8bit-computer.net) with the
-tools/ netlist extractor. Functional simulation status per module is below;
-the headless simulator cannot exercise several modules because of bugs in
-Digital 0.31's DIL chip library (details and workarounds in
-digital/README.md, "Known Digital 0.31 simulation bugs").
+tools/ netlist extractor, as standalone circuits first - and then merged
+into a single circuit, digital/Computer.dig (the per-module .dig files are
+gone; git history has them). The headless simulator cannot exercise the
+full machine because of bugs in Digital 0.31's DIL chip library (details
+and workarounds in digital/README.md, "Known Digital 0.31 simulation
+bugs").
 
-| module             | digital/ circuit          | wired from                 | state                                        |
-|--------------------|---------------------------|----------------------------|----------------------------------------------|
-| Clock              | "Clock.dig"               | schematics/clock.png       | wiring verified vs KiCad; realtime clock element verified; gated CLK output depends on the STEP_MODE switch (GUI test) |
-| A register          | "A Register.dig"          | schematics/a-register.png  | wiring verified vs KiCad; load/hold verified (register core); full-module sim blocked by the 74245 library bug |
-| B register          | "B Register.dig"          | schematics/b-register.png  | wiring verified vs KiCad (adds BO\_hat output-enable input); sim blocked by the 74245 library bug |
-| Instruction reg.   | "Instruction Register.dig"| schematics/ir.png          | wiring verified vs KiCad; sim blocked by the 74245 library bug |
-| ALU                | "Arithmetic Logic Unit.dig" | schematics/alu.png       | done: wiring verified vs KiCad; simulation verified (ADD/SUB, carry, CF/ZF flags, output enable) |
-| RAM                | "Random Access Memory.dig" | schematics/ram.png        | wiring verified vs KiCad; sim blocked by 74245/74157 library bugs |
-| MAR                | "Memory Address Register.dig" | schematics/mar.png     | wiring verified vs KiCad; sim blocked by a 74157 library bug |
-| Program counter    | "Program Counter.dig"      | schematics/pc.png          | done: wiring verified vs KiCad; simulation verified (count/hold, output enable) |
-| Output register    | "Output Register.dig"      | schematics/output.png      | done: wiring verified vs KiCad, ROM programmed, simulation passing |
-| Control logic      | "Control Logic.dig"        | schematics/control.png     | done: wiring verified vs KiCad, both ROMs programmed, simulation passing |
-| Computer           | "Computer.dig"             | all of the above           | in progress: the put-it-all-together composite |
+| module             | wired from                 | state (verified before the merge)                |
+|--------------------|----------------------------|--------------------------------------------------|
+| Clock              | schematics/clock.png       | wiring verified vs KiCad; realtime clock element verified; gated CLK output depends on the STEP_MODE switch (GUI test) |
+| A register          | schematics/a-register.png  | wiring verified vs KiCad; load/hold verified (register core); full-module sim blocked by the 74245 library bug |
+| B register          | schematics/b-register.png  | wiring verified vs KiCad (adds BO\_hat output-enable line); sim blocked by the 74245 library bug |
+| Instruction reg.   | schematics/ir.png          | wiring verified vs KiCad; sim blocked by the 74245 library bug |
+| ALU                | schematics/alu.png         | done: wiring verified vs KiCad; simulation verified (ADD/SUB, carry, CF/ZF flags, output enable) |
+| RAM                | schematics/ram.png         | wiring verified vs KiCad; sim blocked by 74245/74157 library bugs |
+| MAR                | schematics/mar.png         | wiring verified vs KiCad; sim blocked by a 74157 library bug |
+| Program counter    | schematics/pc.png          | done: wiring verified vs KiCad; simulation verified (count/hold, output enable) |
+| Output register    | schematics/output.png      | done: wiring verified vs KiCad, ROM programmed, simulation passing |
+| Control logic      | schematics/control.png     | done: wiring verified vs KiCad, both ROMs programmed, simulation passing |
+| Computer           | all of the above           | digital/Computer.dig: the integrated machine (all modules, front panel, program-entry dipswitches; ROMs re-verified in the merged circuit); shared-bus simulation blocked by the Digital 0.31 74245 library bug |
 
 Wiring verification is pin-exact; the only intentional deviations from
 Ben's board are listed in digital/README.md (BO\_hat on the B register,
 separate Ground symbols on chip enables, equivalent XOR gate pairing in the
-ALU, and the Clock element standing in for the 555s).
+ALU, and the Clock element standing in for the 555s). The current activity
+is step 5 of the workflow below: writing software for the integrated
+machine ([docs/](docs/), [programs/](programs/)).
 
 ## The workflow
 
