@@ -141,7 +141,11 @@ machine:
 ## Limits - what does not fit, and why
 
 The instruction set and the 16 bytes bound what is possible; these do not
-fit, for structural reasons (not just for lack of bytes):
+fit, for structural reasons (not just for lack of bytes). What would fix
+each one, and at what cost: [../docs/ideas.md](../docs/ideas.md) (the
+five unused opcode slots alone add inverted jumps, immediates and a
+copy-to-B for free); the full path to C programs:
+[../docs/getting-to-c.md](../docs/getting-to-c.md).
 
 - **Conway's Game of Life, even 1-D cellular automata (rule 90/110)** -
   the update rule XORs neighboring bits, and the ALU only adds and

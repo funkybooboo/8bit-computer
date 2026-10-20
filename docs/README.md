@@ -8,6 +8,8 @@ The reference documentation for the machine as built in
 | instruction-set.md    | The machine model and every opcode, with semantics and idioms |
 | microcode.md          | The 16 control signals, the two control ROMs, fetch + per-instruction microsteps |
 | assembly-language.md  | The assembly language and its assembler (`tools/asm.py`)      |
+| ideas.md              | What the machine is missing and what to add, by cost (free microcode up to redesigns) |
+| getting-to-c.md       | How far the machine is from running C programs, and the staged path |
 
 The source of truth for the microcode itself is the
 `control-rom1`/`control-rom2` presets in [../tools/digrom.py](../tools/digrom.py);
