@@ -109,8 +109,8 @@ additions - the jump rows live in the "other half" of the ROM images (the
 halves addressed by CF=0/ZF=0, which the original microcode leaves empty),
 and the immediate/shift rows reuse the existing datapath (IO already drives
 the operand nibble onto the bus, AO already drives A). No wiring changed; a
-pre-addition ROM burn makes those opcodes NOPs. See [ideas.md](ideas.md)
-tier 1.
+pre-addition ROM burn makes those opcodes NOPs. See [modifications.md](modifications.md),
+"Free: microcode only".
 
 ## Timing
 
@@ -121,30 +121,21 @@ counts steps 0..6; at step 7 the 74138 decoder's O7 line goes active, a
 plus one transient step 7, and instructions that finish early simply idle
 through the remaining cycles.
 
-The machine originally reset at step 5 (6 cycles per instruction, 3 work
-steps). Moving the reset wire from the 74138's ~Y5 output (pin 10) to ~Y7
-(pin 7) costs two idle cycles per instruction and buys T5 and T6 as real
-microcode steps - 5 usable work steps (T2-T6). The ROM images are unchanged:
-rows for steps 5-7 were already all zero, so no existing program behaves
-differently. The T5/T6 panel LEDs are wired from ~Y5/~Y6 (T7 is transient
-and never gets an LED). Rationale: [ideas.md](ideas.md) tier 2.
+The reset fires at T7 rather than T5, paying two idle cycles per
+instruction to leave T5/T6 usable as work steps (rationale:
+[modifications.md](modifications.md), "Wiring only"). ROM rows for steps
+5-7 are all zero. The T5/T6 panel LEDs wire from ~Y5/~Y6; T7 is transient
+and gets no LED.
 
 You can watch this table run on the machine: single-step a program
-(STEP_MODE + STEP_PULSE, see [../digital/README.md](../digital/README.md),
-"Running in the GUI") and the T0..T6 and control-line LEDs light up exactly
+(STEP_MODE + STEP_PULSE, see [hardware.md](hardware.md)
+"Front panel") and the T0..T6 and control-line LEDs light up exactly
 the rows above, one per microstep. Example programs:
-[../programs/](../programs/README.md).
+[programs.md](programs.md).
 
 ## Regenerating and injecting the ROMs
 
-After editing the presets in tools/digrom.py:
-
-    # regenerate the archived images
-    tools/digrom.py export --preset control-rom1 --out roms/control-rom1.hex
-    tools/digrom.py export --preset control-rom2 --out roms/control-rom2.hex
-    tools/digrom.py export --preset control-rom1 --out roms/control-rom1-intel.hex --format intel
-    tools/digrom.py export --preset control-rom2 --out roms/control-rom2-intel.hex --format intel
-
-    # re-inject into the circuit (ROM data lives at circuit level)
-    tools/digrom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
-    tools/digrom.py write --dig digital/Computer.dig --label U52 --preset control-rom2
+Both live in the toolchain documentation: [tools.md](tools.md),
+"digrom.py" (the presets in tools/digrom.py are the source of truth for
+the microcode itself; the archived images are in
+[../roms/](../roms/README.md)).

@@ -32,21 +32,11 @@ One statement per line; free-form whitespace:
   all rejected).
 - Comments start with `;` and run to end of line. Blank lines are free.
 
-## Operand rules (mirror the hardware)
-
-| mnemonics               | operand means   | allowed range | why                     |
-|-------------------------|-----------------|---------------|--------------------------|
-| LDA, ADD, SUB, STA      | RAM address     | 0-15          | the MAR is 4 bits        |
-| LDI, ADDI, SUBI         | immediate       | 0-15          | the operand is one nibble, loaded zero-extended |
-| JMP, JC, JZ, JNC, JNZ   | target address  | 0-15          | the PC is 4 bits         |
-| NOP, DBL, OUT, HLT      | (none)          | -             | DBL ignores its operand nibble |
-
-(ADDI/SUBI/DBL/JNC/JNZ are this project's opcode additions - see
-[instruction-set.md](instruction-set.md).)
-
+What each mnemonic's operand means, and the allowed range, is part of
+the instruction definition: [instruction-set.md](instruction-set.md).
 Out-of-range operands are errors, not truncations: the operand field is one
-nibble, and larger constants must be built with ADD (see idioms in
-[instruction-set.md](instruction-set.md)). Numeric literals are legal
+nibble, and larger constants must be built with ADD (see the programming
+rules there). Numeric literals are legal
 anywhere a label is - an address is just a number 0-15 (patch.asm's
 `STA 1` writes to address 1, which happens to be one of its own
 instructions); labels exist so the number does not have to be maintained
@@ -108,43 +98,14 @@ exactly the dipswitch groups for program entry (and the opcode table in
 [instruction-set.md](instruction-set.md)). For `.DB` bytes the opcode and
 operand groups are simply the byte's two nibbles - data has no opcode.
 
-The full example gallery - twenty-one programs in three groups (foundations,
-math, machine tricks) that together exercise every instruction, both
-flags, both wrap directions, self-modifying code and the practical limits
-of the machine, each with its expected display - is
-[../programs/](../programs/README.md).
+The full example gallery - every instruction, both flags, both wrap
+directions, self-modifying code, and the machine's practical limits - is
+[programs.md](programs.md).
 
-## Usage
-
-    tools/asm.py programs/count.asm                       # listing to stdout
-    tools/asm.py programs/count.asm --out prog.hex --lst prog.lst
-    tools/asm.py programs/count.asm --out prog.bin --format raw
-    tools/asm.py --dis prog.hex                           # disassemble an image
-    tools/asm.py --dis prog.hex --all                     # ... including trailing NOPs
-
-- `--out` writes the assembled image; `--format` selects `logisim`
-  (default; the "v2.0 raw" format Digital's ROM editor loads), `intel`
-  (Intel HEX) or `raw` binary. Formats are shared with digrom.py.
-- `--lst FILE` writes the listing to a file instead of stdout. The
-  listing shows hex and the address|opcode|operand bits column (see
-  the example above).
-- `--dis` disassembles an image (format sniffed); undefined opcodes and data
-  print as `.DB 0xNN`. A disassembler cannot know which bytes are data - it
-  decodes every byte linearly.
-
-## Loading a program into the machine
-
-The RAM has no stored content, so programs are entered through the RAM
-module's program-entry dipswitches (as wired from Ben's ram.png/mar.png
-schematics; verified against the netlist):
-
-1. Set `PROG` = 1 (program mode).
-2. For each listing row: set the address on the `PROG_ADDR` nibble
-   dipswitches and the byte on the `PROG_DATA` dipswitches, then pulse
-   `PROG_WRITE`.
-3. Set `PROG` = 0, press reset, and start the clock.
-
-The listing's ADDR/BYTE columns are exactly the dipswitch settings.
+Command-line usage (image formats, listings, the disassembler):
+[tools.md](tools.md). Loading a program into the machine (the front
+panel's program-entry dipswitches): [hardware.md](hardware.md),
+"Front panel".
 
 ## Style conventions
 

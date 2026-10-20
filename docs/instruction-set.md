@@ -60,8 +60,8 @@ into A, and why larger constants must be built with ADD.
 | 1110        | E   | OUT      | -       | display <- A                  | -     |
 | 1111        | F   | HLT      | -       | stop the clock                | -     |
 
-Opcodes 9-D are **this project's additions** (see [ideas.md](ideas.md)
-tier 1 - filled with microcode only, no wiring changes; the original Ben
+Opcodes 9-D are **this project's additions** (see [modifications.md](modifications.md),
+"Free: microcode only" - filled with microcode only, no wiring changes; the original Ben
 Eater set is 0-8, E, F). An older ROM image burns those opcodes as NOPs.
 
 ### Per-instruction notes
@@ -105,39 +105,13 @@ Eater set is 0-8, E, F). An older ROM image burns those opcodes as NOPs.
   its end will run through NOPs and wrap around to address 0 - so every
   program should end in a loop or HLT.
 
-## Programming idioms and examples
+## Programming rules of the road
 
-Every instruction of the set is exercised by the example gallery,
-[../programs/](../programs/README.md) - twenty-one programs in three groups
-(foundations, math, machine tricks), each with its expected display and
-what to watch on the front panel. Which program shows what:
-
-| idiom / instruction | shown by                                                  |
-|---------------------|-------------------------------------------------------------|
-| ADD on a `.DB` constant as an increment (no INC exists) | count.asm, memory.asm |
-| SUB counts down; 0 - 1 = 255 (underflow builds big values) | countdown.asm |
-| comparison without a compare instruction: SUB + JC as "jump if A >= B" | larger.asm |
-| comparison against a constant, no RAM cell for it: SUBI + JNC | min.asm |
-| equality: ZF=1 after SUB (or ADD wrapping to 0) | countdown.asm |
-| not-equal / nonzero exits without a spare jump: JNZ | powers.asm, decrement.asm |
-| overflow detection: ADD sets CF on the wrap | overflow.asm |
-| wrap-around counting with no conditional | count.asm |
-| constants without a RAM cell: ADDI | step.asm, rol.asm |
-| shift left in one instruction: DBL (CF = bit shifted out) | powers.asm |
-| rotate-left through the carry | rotate.asm (built from ADD self + JC + ADD), rol.asm (DBL + JNC + ADDI 1) |
-| state kept in RAM (LDA/ADD/STA read-modify-write) | memory.asm, fib.asm |
-| multiplication as a loop (r += x, y laps) | mul.asm |
-| division / remainder as a loop (x -= y until x < y) | div.asm, mod.asm |
-| Euclid's algorithm (greatest common divisor) | gcd.asm |
-| search loops: "find y such that" with ZF as the hit test | half.asm |
-| self-modifying code (STA into the code region) | patch.asm |
-| one operation setting both flags (255 + 1) | bothflags.asm |
-| NOP as pacing filler (8 idle cycles) | countdown.asm |
-| LDI's 0-15 limit worked around with `.DB` data + ADD/LDA | all of them |
-
-What does not fit on this machine, and why (cellular automata, arrays,
-interactive games, nested loops): [../programs/](../programs/README.md),
-"Limits".
+Every instruction is exercised by the example gallery - twenty-one
+programs in three groups, each with its expected display:
+[programs.md](programs.md). What that does not fit on this machine, and
+why (cellular automata, arrays, interactive games, nested loops): the
+same document, "Limits".
 
 - Comparison: SUB sets ZF=1 iff equal, CF=1 iff A >= B (no borrow). Note
   SUB clobbers A - keep a copy in RAM first (STA) if you need it

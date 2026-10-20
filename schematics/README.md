@@ -1,10 +1,10 @@
 # schematics/ - Ben Eater's original module schematics
 
 PNG schematics downloaded from https://eater.net/8bit - one per module page.
-These are the human-readable wiring reference for the Digital build
-(../digital/Computer.dig - all ten modules are built and integrated there;
-the standalone per-module .dig files are gone, git history has them) and
-correspond sheet-for-sheet to the KiCad project (../kicad/).
+The human-readable wiring reference for the machine
+(../digital/Computer.dig); correspond sheet-for-sheet to the KiCad
+project (../kicad/). The machine's own documentation is in ../docs/
+(hardware.md describes every part and wire).
 
 | file            | module                     | KiCad sheet             |
 |-----------------|----------------------------|-------------------------|
