@@ -82,10 +82,9 @@ the KiCad reference pin for pin:
   simulated correctly; modules with bus-side In elements (A/B registers,
   instruction register, RAM) failed to load because the wrongly-enabled
   transceiver fought the test inputs. This is the bug that makes the
-  shared bus of Computer.dig unreliable in simulation - check newer
-  Digital releases, or patch a local copy of
-  "DIL Chips/74xx/driver/74245.dig" (replace the inverted-input Ands with
-  plain Ands plus explicit Not gates).
+  shared bus of Computer.dig unreliable in simulation - a newer Digital
+  release is the fix (patching a local 74245.dig copy was investigated
+  and dropped; program behavior is verified headless with tools/sim.py).
 - 74157: the MAR's load path misbehaved in the headless model (the 74173 D
   inputs ended up with a mix of bus and dipswitch values regardless of
   MI\_hat); not yet root-caused.

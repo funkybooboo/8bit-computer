@@ -136,9 +136,11 @@ exists.
   programs pass it, cross-checked against an independent ISA-level
   reference. The compiler test bench of
   [getting-to-c.md](getting-to-c.md) exists.
-- **The Digital 0.31 74245 patch**: still pending - the known library bug
-  that stops Computer.dig from simulating its shared bus. sim.py covers
-  the ISA-level truth; a GUI-level run needs this patch.
+- **The Digital 0.31 74245 patch**: DROPPED (decision) - the known library
+  bug that stops Computer.dig from simulating its shared bus is not worth
+  chasing further: sim.py covers the ISA-level truth for every program,
+  and a GUI-level run of Computer.dig is better waited on with a newer
+  Digital release than patched into 0.31.
 - **Assembler**: DONE - .EQU named constants and 'c' char literals added,
   along with the tier-1 mnemonics. More (.DW for 16-bit values, .FILL)
   can wait until 16-bit data exists.
@@ -162,8 +164,8 @@ exists.
 
 1. DONE - tier-1 opcodes + assembler update (zero wiring, better
    programs, five new gallery programs).
-2. PARTLY DONE - tools/sim.py exists (the test bench); the 74245 patch
-   is still pending.
+2. DONE - tools/sim.py exists (the test bench; the 74245 patch is
+   dropped - see tier 4).
 3. The IN instruction (needs ROM3 + one 74245) - the machine becomes
    interactive.
 4. Memory + addressing + stack - the big one; its plan is
