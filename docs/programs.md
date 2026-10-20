@@ -23,7 +23,9 @@ data together); the tightest use all 16.
 | fib.asm       | Fibonacci mod 256, forever                           | LDA OUT ADD STA JMP       | 12    |
 | overflow.asm  | 0, 60, 120, 180, 240, then halt on the carry          | LDI OUT ADD JC JMP HLT    | 7     |
 | larger.asm    | the larger of two data bytes                         | LDA SUB JC OUT HLT        | 11    |
+| absdiff.asm   | the absolute difference |9 - 14| = 5                 | LDA SUB JC OUT HLT        | 9     |
 | min.asm       | min(x, 10): the threshold guard (x=25 -> 10)        | LDA SUBI JNC LDI OUT HLT  | 10    |
+| odometer.asm  | 0, 1, ..., 99, 0, ... a two-digit odometer          | LDI OUT ADDI SUB ADD JZ JMP | 10 |
 
 - **count.asm** - counts up forever, wrapping 255 -> 0 with no
   conditional: the 8-bit ALU wraps by itself. The +1 is a `.DB` constant
@@ -49,6 +51,16 @@ data together); the tightest use all 16.
 - **larger.asm** - the larger of two data bytes: SUB sets CF=1 when there
   is no borrow (A >= B), so JC acts as "jump if greater or equal". Change
   the two data bytes and re-enter to take the other branch (x=y shows x).
+- **absdiff.asm** - |x - y|, the textbook use of a borrow flag: the
+  same SUB both computes the difference and picks its direction (CF=1
+  means x >= y, so the fall-through and the jump land on the two
+  subtractions x - y and y - x). Two subtractions, one answer, no flag
+  re-tested.
+- **odometer.asm** - a two-digit odometer: count 0..99 and roll over.
+  The operand field only carries 0-15, so the compare against 100 is
+  SUB hundred - which sets ZF exactly at 100 - and every count below
+  100 comes back with ADD hundred (the wrapped subtraction restores
+  itself: A - 100 + 256 + 100 = A). Compare without a copy to keep.
 - **min.asm** - the guard pattern: compare against a threshold that
   exists only in the instruction. SUBI limit sets CF=1 iff A >= limit,
   so JNC means "strictly below" - a comparison that needs no RAM cell.
@@ -64,6 +76,7 @@ data together); the tightest use all 16.
 | gcd.asm    | gcd(252, 105) = 21                                        | subtractive Euclid               | 15    |
 | squares.asm| 1, 4, 9, ..., 225, then mod 256                            | sum of odd numbers               | 11    |
 | powers.asm | 1, 2, 4, ..., 128, then halt exactly on the wrap          | doubling (DBL), self-stopping    | 5     |
+| triple.asm | 3, 9, 27, 81, 243, ... the powers of three                  | shift-and-add (DBL + ADD)        | 7     |
 | half.asm   | 22 / 2 = 11                                               | search for y with y + y = x      | 16    |
 | lcg.asm    | a pseudorandom shuffle: every byte once per 256 steps    | x = 5x + 1 (mod 256)             | 11    |
 
@@ -89,6 +102,12 @@ data together); the tightest use all 16.
   CF catching the bit shifted out, and 128 * 2 wraps to exactly 0, so ZF
   ends the run on the wrap - no counter, no comparison. 5 bytes: the flag
   does the bookkeeping.
+- **triple.asm** - multiplication by three as (x << 1) + x - the
+  strength reduction every compiler makes when a constant multiply is
+  cheaper than a multiply instruction. DBL is the shift, ADD x is the
+  add, and no counter is needed: the same five-instruction shape as
+  powers.asm with the add dropped in. The powers of three mod 256 never
+  hit zero and return to 1 after 64 laps.
 - **half.asm** - halving without a shift: search upward for the y whose
   double equals x (the SUB sets ZF on the hit). A search loop - a
   different algorithm class from the counting loops. Edge case: x must
@@ -105,6 +124,7 @@ data together); the tightest use all 16.
 |--------------|---------------------------------------------------|-------------------------------------|-------|
 | rotate.asm   | a chasing light: 1, 2, 4, ..., 128, 1, ...        | rotate-left through the carry        | 12    |
 | rol.asm      | a bit pattern circling a byte, 8 steps per lap    | the same, with DBL + JNC + ADDI 1    | 6     |
+| bits.asm     | the byte itself as digits: 1, 0, 1, 1, ...       | the rotate, one bit displayed per lap | 15  |
 | patch.asm    | 7 once, then 9 forever                            | the program rewrites its own ADD    | 10    |
 | bothflags.asm| 255, then 0                                       | one ADD setting CF and ZF together  | 10    |
 
@@ -117,6 +137,12 @@ data together); the tightest use all 16.
   and with no data cell: DBL is the shift (CF = bit out), JNC skips the
   fixup, ADDI 1 wraps the carried bit into bit 0. The seed never has to
   sit in RAM, and every byte value passes through A once per 8 laps.
+- **bits.asm** - a byte's *binary representation* on the display, one
+  bit per OUT, most significant first - the way a serial link sends it.
+  The rotate trick runs the byte through carry; the bit that comes off
+  the top is displayed as 0 or 1 (LDI would overwrite A, so the rotating
+  byte survives in a RAM cell between laps). After 8 laps the byte is
+  back where it started and the digits repeat.
 - **patch.asm** - self-modifying code: program and data share RAM, so
   nothing stops a program from writing over its own instructions. Lap 1:
   the ADD at address 01 reads x (7); then the program builds the byte
@@ -140,9 +166,12 @@ the program, then watch it work:
 - **fraction reduction** (gcd.asm) - divide numerator and denominator by
   the displayed gcd;
 - **halving** (half.asm) - and any "find y such that" search on small sets;
+- **decimal counters and odometers** (odometer.asm) - counting past
+  the operand field's 15;
 - **clamps and thresholds** (min.asm) - compare against a constant the
   machine does not have to store;
-- **sequence generation** (lcg.asm, squares.asm, powers.asm, fib.asm) -
+- **sequence generation** (lcg.asm, squares.asm, powers.asm,
+  triple.asm, fib.asm) -
   permutations, squares, powers, Fibonacci: lookup-table content
   generated rather than stored;
 - **bit shipping** (rotate.asm, rol.asm) - shift a byte out one bit per
@@ -190,6 +219,7 @@ Load it through the front panel (the procedure and the dipswitch groups:
 columns are the dipswitch settings; its bits column is the same thing
 in ones and zeros.
 
-Note: programs that mutate their data bytes (memory.asm, fib.asm, and the
-math group's accumulators) leave that state in RAM - re-enter the image
-to restart them from their initial values.
+Note: programs that mutate their data bytes (memory.asm, fib.asm, and
+the math group's accumulators, triple.asm's running value) leave that
+state in RAM - re-enter the image to restart them from their initial
+values.

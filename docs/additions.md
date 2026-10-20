@@ -66,7 +66,7 @@ The design is hardware: it ships as schematics and EEPROM data. This
 repo adds the machine's whole software side - the machine's own
 definitions, an assembler and disassembler, a cycle-accurate simulator
 that runs the real control-ROM images, the EEPROM tooling with archived
-images, and a gallery of 21 verified programs exercising every
+images, and a gallery of 25 verified programs exercising every
 instruction ([tools.md](tools.md), [programs.md](programs.md)).
 
 ## Microcode only

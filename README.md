@@ -5,7 +5,7 @@ An 8-bit breadboard computer, built and verified in the
 breadboards: [digital/Computer.dig](digital/Computer.dig) is the whole
 machine - clock, registers, ALU, RAM, microcode control unit, front panel -
 wired pin-exact against Ben Eater's [KiCad reference](kicad/), with its
-own instruction set, assembler, and a cycle-accurate simulator, plus 21
+own instruction set, assembler, and a cycle-accurate simulator, plus 25
 example programs.
 
 ## Run a program in 30 seconds
