@@ -89,9 +89,9 @@ into A, and why larger constants must be built with ADD.
 ## Programming idioms and examples
 
 Every instruction of the set is exercised by the example gallery,
-[../programs/](../programs/README.md) - six programs, each with its
-expected display and what to watch on the front panel. Which program
-shows what:
+[../programs/](../programs/README.md) - sixteen programs in three groups
+(foundations, math, machine tricks), each with its expected display and
+what to watch on the front panel. Which program shows what:
 
 | idiom / instruction | shown by                                                  |
 |---------------------|-------------------------------------------------------------|
@@ -102,8 +102,19 @@ shows what:
 | overflow detection: ADD sets CF on the wrap | overflow.asm |
 | wrap-around counting with no conditional | count.asm |
 | state kept in RAM (LDA/ADD/STA read-modify-write) | memory.asm, fib.asm |
+| multiplication as a loop (r += x, y laps) | mul.asm |
+| division / remainder as a loop (x -= y until x < y) | div.asm, mod.asm |
+| Euclid's algorithm (greatest common divisor) | gcd.asm |
+| search loops: "find y such that" with ZF as the hit test | half.asm |
+| rotate-left through the carry (the shift the ISA lacks) | rotate.asm |
+| self-modifying code (STA into the code region) | patch.asm |
+| one operation setting both flags (255 + 1) | bothflags.asm |
 | NOP as pacing filler (6 idle cycles) | countdown.asm |
 | LDI's 0-15 limit worked around with `.DB` data + ADD/LDA | all of them |
+
+What does not fit on this machine, and why (cellular automata, arrays,
+interactive games, nested loops): [../programs/](../programs/README.md),
+"Limits".
 
 - Comparison: SUB sets ZF=1 iff equal, CF=1 iff A >= B (no borrow). Note
   SUB clobbers A - keep a copy in RAM first (STA) if you need it
@@ -114,3 +125,12 @@ shows what:
 - Since LDI can only load 0-15, larger constants are built with `.DB`
   data bytes plus ADD (or LDA), or - for values near 255 - by subtracting
   down from 0 (countdown.asm starts at 255 = 0 - 1).
+- Flags change only on ADD and SUB - nothing else touches CF/ZF. A JZ
+  three instructions after a SUB still reads that SUB's result (mul.asm
+  leans on this); but a conditional reading a flag from before program
+  start reads whatever the reset left there - put the SUB before the
+  first test.
+- **Self-modifying code is legal**: program and data share RAM, and STA
+  can target a code address (patch.asm rewrites its own ADD's operand
+  at run time). The machine has no memory protection - nothing stops a
+  program from eating itself.

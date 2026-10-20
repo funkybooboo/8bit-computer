@@ -41,15 +41,25 @@ One statement per line; free-form whitespace:
 
 Out-of-range operands are errors, not truncations: the operand field is one
 nibble, and larger constants must be built with ADD (see idioms in
-[instruction-set.md](instruction-set.md)).
+[instruction-set.md](instruction-set.md)). Numeric literals are legal
+anywhere a label is - an address is just a number 0-15 (patch.asm's
+`STA 1` writes to address 1, which happens to be one of its own
+instructions); labels exist so the number does not have to be maintained
+by hand.
 
 ## Directives
 
 - `.DB value [, value ...]` - emit raw data bytes (constants, variables,
   tables). Values may be numbers 0-255 or labels (label = its RAM address).
+  Any byte value is legal, including instruction encodings - the
+  undefined opcodes 9-D execute as NOPs, so `.DB 0x9F` is a legal, if
+  unusual, no-op byte (patch.asm goes further and builds an instruction
+  byte at run time with LDI + ADD).
 - `.ORG address` - set the address of the next emitted byte. Forward-only;
   a label on an `.ORG` line lands at the moved-to address. The address must
   be a numeric literal (labels are not known yet when `.ORG` is processed).
+  patch.asm uses it for a real need: placing a data byte at an exact
+  address so a run-time-built instruction byte encodes correctly.
 
 ## Program model and limits
 
@@ -87,9 +97,11 @@ exactly the dipswitch groups for program entry (and the opcode table in
 [instruction-set.md](instruction-set.md)). For `.DB` bytes the opcode and
 operand groups are simply the byte's two nibbles - data has no opcode.
 
-The full example gallery - six programs that together exercise every
-instruction, both flags and both wrap directions, each with its expected
-display - is [../programs/](../programs/README.md).
+The full example gallery - sixteen programs in three groups (foundations,
+math, machine tricks) that together exercise every instruction, both
+flags, both wrap directions, self-modifying code and the practical limits
+of the machine, each with its expected display - is
+[../programs/](../programs/README.md).
 
 ## Usage
 
