@@ -99,16 +99,24 @@ no control lines):
 
 ## Timing
 
-Every instruction takes exactly 6 clock cycles. The step counter (a 74161)
-counts steps 0..4; at step 5 the 74138 decoder's O5 line goes active, a
+Every instruction takes exactly 8 clock cycles. The step counter (a 74161)
+counts steps 0..6; at step 7 the 74138 decoder's O7 line goes active, a
 7400 NAND pair shapes it into a reset pulse for the counter's asynchronous
-~MR, and counting restarts at 0. So the ROMs are addressed with steps 0-4
-plus one transient step 5, and instructions that finish early simply idle
+~MR, and counting restarts at 0. So the ROMs are addressed with steps 0-6
+plus one transient step 7, and instructions that finish early simply idle
 through the remaining cycles.
+
+The machine originally reset at step 5 (6 cycles per instruction, 3 work
+steps). Moving the reset wire from the 74138's ~Y5 output (pin 10) to ~Y7
+(pin 7) costs two idle cycles per instruction and buys T5 and T6 as real
+microcode steps - 5 usable work steps (T2-T6). The ROM images are unchanged:
+rows for steps 5-7 were already all zero, so no existing program behaves
+differently. The T5/T6 panel LEDs are wired from ~Y5/~Y6 (T7 is transient
+and never gets an LED). Rationale: [ideas.md](ideas.md) tier 2.
 
 You can watch this table run on the machine: single-step a program
 (STEP_MODE + STEP_PULSE, see [../digital/README.md](../digital/README.md),
-"Running in the GUI") and the T0..T4 and control-line LEDs light up exactly
+"Running in the GUI") and the T0..T6 and control-line LEDs light up exactly
 the rows above, one per microstep. Example programs:
 [../programs/](../programs/README.md).
 

@@ -109,7 +109,7 @@ the commands at the bottom (`tools/asm.py --dis` on the image verifies them).
 ## Watching them on the machine
 
 Set STEP_MODE and click STEP_PULSE once per clock edge to single-step:
-the T0..T4 LEDs are the microstep counter, and the 16 control-line LEDs
+the T0..T6 LEDs are the microstep counter, and the 16 control-line LEDs
 show exactly the rows of [../docs/microcode.md](../docs/microcode.md) -
 every instruction starts with the fetch (MI+CO, then RO+II+CE), ADD adds
 RO+BI then EO+AI+FI at T3/T4, and so on. The CF and ZF LEDs tell you

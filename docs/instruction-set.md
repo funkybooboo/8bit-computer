@@ -25,8 +25,9 @@ several of those at once if you arrange it.
 
 ## Encoding
 
-Every instruction is exactly **one byte** and executes in exactly **6 clock
-cycles**:
+Every instruction is exactly **one byte** and executes in exactly **8 clock
+cycles** (fixed-length timing; see
+[microcode.md](microcode.md) for the step-by-step breakdown):
 
       bit:  7 6 5 4   3 2 1 0
             opcode    operand

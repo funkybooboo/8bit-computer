@@ -59,11 +59,13 @@ that OUTs different registers. The replication already exists.
 
 ## Tier 2: wiring only (no new chips)
 
-- **8 microsteps instead of 6**: the step counter is reset through the
-  74138 decoder's O5 output; O6 and O7 are unused. Taking the reset from a
-  later output lengthens every instruction's budget from 3 work steps to
-  5 - which tier 3's CALL/RET and indirect microprograms will need. (This
-  is also where a variable "slow" instruction could live.)
+- **8 microsteps instead of 6**: DONE - the step counter now resets at the
+  74138's O7 output (count 7): 8 cycles per instruction, 7 stable steps,
+  5 usable work steps (T2-T6). On hardware: move the reset wire from 74138
+  ~Y5 (pin 10) to ~Y7 (pin 7) at the 7400 gate; T5/T6 panel LEDs wire from
+  ~Y5/~Y6. The ROM images are unchanged (rows 5-7 were already zero), so
+  existing programs run identically, just 2 cycles slower. Applied to
+  Computer.dig and the timing docs.
 - **64 bytes of RAM from the chips already on the board**: the 74189s are
   64 words deep and A4/A5 are simply not connected. The catch: the MAR is
   4 bits and the operand nibble only names 0-15, so the extra space needs
