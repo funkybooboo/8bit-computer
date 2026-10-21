@@ -67,6 +67,9 @@ debugging.
 | L4 (software, weeks) | the subset-C cross compiler on the host, emitting this repo's assembly; asm.py as the backend, sim.py as the test bench | C programs compile, run, and can be hand-checked against the gallery |
 | L5 (polish) | IN (getchar), hardware bitwise (DBL already gives shift-left), structs | comfort, not capability |
 
+L3 is also the OS threshold - the same upgrades that give C its
+stack, memory and pointers give an OS its resident-first-program,
+hand-back and load path ([getting-to-os.md](getting-to-os.md)).
 L3 is the long pole: it reworks the machine's spine - every address path,
 the instruction format, the step budget, the control word. Practically
 it is "build a second machine using everything learned from the first",

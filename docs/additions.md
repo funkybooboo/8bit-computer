@@ -130,7 +130,9 @@ the circuit (every "unused" pin claim verified in Computer.dig):
 3. **A stack (SP + CALL/RET + push/pop)** - subroutines, recursion,
    expression evaluation. Needs an up/down counter (74193) as SP and
    microsteps to load/store through it. On 16 bytes of RAM the stack
-   has no room - this and the memory growth below are one project.
+   has no room - this and the memory growth below are one project. It
+   is also the OS threshold's hand-back primitive
+   ([getting-to-os.md](getting-to-os.md)).
 4. **Memory + addressing** - 2KB of code in a 28C16 (the part this repo
    already burns) + 2KB SRAM for data and stack, a 16-bit MAR and PC, a
    two-byte instruction format with wide operands. This is the C

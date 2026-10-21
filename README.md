@@ -44,6 +44,7 @@ hardware or Digital's ROM editor? The assembler builds it:
 | [docs/tools.md](docs/tools.md) | The toolchain |
 | [docs/additions.md](docs/additions.md) | Additions to Ben Eater's computer: made and possible |
 | [docs/getting-to-c.md](docs/getting-to-c.md) | The staged path to running C |
+| [docs/getting-to-os.md](docs/getting-to-os.md) | The staged path to running an OS |
 
 ## Credits
 
