@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>8-bit computer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>8-bit computer</h1>
+    <p>
+      Ben Eater's breadboard computer (with added opcodes), simulated in the
+      browser. It runs the real control-ROM images,
+      <code>roms/control-rom1.hex</code> and
+      <code>roms/control-rom2.hex</code> - the same microcode the hardware
+      burns - so a program behaves here exactly the way it behaves on the
+      machine.
+    </p>
+  </header>
+
+  <main>
+    <section id="controls">
+      <label>program
+        <select id="program"></select>
+      </label>
+      <button id="load">load</button>
+      <button id="run">run</button>
+      <button id="step">step</button>
+      <button id="reset">reset</button>
+      <label class="file">or your own image (.hex / .bin)
+        <input type="file" id="file" accept=".hex,.bin">
+      </label>
+      <p id="name"></p>
+      <p id="state">loading the ROM images...</p>
+    </section>
+
+    <section>
+      <h2>machine state</h2>
+      <table>
+        <tbody>
+          <tr><th>A</th><td id="a"></td></tr>
+          <tr><th>B</th><td id="b"></td></tr>
+          <tr><th>IR</th><td id="ir"></td></tr>
+          <tr><th>PC</th><td id="pc"></td></tr>
+          <tr><th>MAR</th><td id="mar"></td></tr>
+          <tr><th>OUT</th><td id="out"></td></tr>
+          <tr><th>CF</th><td id="cf"></td></tr>
+          <tr><th>ZF</th><td id="zf"></td></tr>
+          <tr><th>step</th><td id="step"></td></tr>
+          <tr><th>cycles</th><td id="cycles"></td></tr>
+          <tr><th>instructions</th><td id="instructions"></td></tr>
+          <tr><th>status</th><td id="halted"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>OUT</h2>
+      <pre id="outs"></pre>
+    </section>
+
+    <section>
+      <h2>cycle trace (step button)</h2>
+      <pre id="trace"></pre>
+    </section>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

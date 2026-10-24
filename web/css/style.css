@@ -1,0 +1,88 @@
+/* style.css - dark, monospace, nothing clever. */
+
+:root {
+  --bg: #14171c;
+  --panel: #1d2128;
+  --fg: #cdd3dd;
+  --muted: #7d8590;
+  --accent: #66d9ef;
+  --out: #a6e22e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #2a2f39;
+}
+header h1 { margin: 0 0 .4rem; font-size: 1.4rem; color: var(--accent); }
+header p { margin: 0; color: var(--muted); max-width: 46rem; }
+code { color: var(--accent); }
+
+main {
+  padding: 1rem 1.5rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  align-items: start;
+}
+
+section {
+  background: var(--panel);
+  border: 1px solid #2a2f39;
+  border-radius: 6px;
+  padding: .8rem 1rem;
+}
+section h2 {
+  margin: 0 0 .6rem;
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+#controls { grid-column: 1 / -1; }
+#controls label { margin-right: .8rem; }
+#controls p { margin: .4rem 0 0; color: var(--muted); }
+#name { color: var(--accent) !important; }
+
+button, select, input[type="file"] {
+  font: inherit;
+  color: var(--fg);
+  background: #262c35;
+  border: 1px solid #3a4150;
+  border-radius: 4px;
+  padding: .25rem .7rem;
+  cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--accent); }
+#run { border-color: #3f7d4a; }
+button:disabled { opacity: .5; cursor: default; }
+
+table { border-collapse: collapse; }
+th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: normal;
+  padding: .1rem 1rem .1rem 0;
+  white-space: nowrap;
+}
+td { color: var(--accent); }
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-height: 1.5em;
+}
+#outs { color: var(--out); }
+#trace { color: var(--muted); font-size: .85rem; }

@@ -25,6 +25,7 @@ hardware or Digital's ROM editor? The assembler builds it:
 |-----------|----------|
 | [docs/](docs/README.md) | The real documentation - one document per domain |
 | [digital/](digital/README.md) | The machine: Computer.dig |
+| [web/](web/README.md) | The machine in the browser: pure HTML/CSS/JS, same ROM images |
 | [programs/](programs/README.md) | Assembly programs (sources) |
 | [tools/](tools/README.md) | Assembler, simulator, EEPROM writer, netlist verifiers |
 | [roms/](roms/README.md) | Archived EEPROM images |
