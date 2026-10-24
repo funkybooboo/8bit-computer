@@ -137,7 +137,12 @@ DIGITAL_JAR / JAVA_HOME). Options in command-line order: `--set NAME=VALUE`,
 display state during toggles), `--watch LABEL.pin` or `--watch x,y`,
 `--dump [FILTER]`, `--pins [FILTER]` (element pins with real positions),
 `--nets` (Digital's own flattened nets - the view that exposed the
-library bugs below). Labels with underscores are stored backslash-escaped
+library bugs below), `--setpos X,Y=VALUE` (drive a DipSwitch or Button
+output by element position - switches are not model inputs, so --set
+cannot reach them; e.g. `--setpos -220,3020=1`), `--switch NAME=0|1`
+(open/close a SwitchDT by Label; closed connects the common pin to the
+B1 throw - this is how PROG_ADDR/RESET/PROG_WRITE are driven headless).
+Labels with underscores are stored backslash-escaped
 (`BUS\_1`); --set accepts both forms.
 
 Reflection-based (ModelCreator.netList), so it is Digital-version

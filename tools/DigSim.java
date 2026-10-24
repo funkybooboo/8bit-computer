@@ -2,11 +2,13 @@ import de.neemann.digital.cli.CircuitLoader;
 import de.neemann.digital.core.Model;
 import de.neemann.digital.core.ObservableValue;
 import de.neemann.digital.core.Signal;
+import de.neemann.digital.core.switching.SwitchDT;
 import de.neemann.digital.core.wiring.Clock;
 import de.neemann.digital.draw.elements.Circuit;
 import de.neemann.digital.draw.elements.Pin;
 import de.neemann.digital.draw.elements.VisualElement;
 import de.neemann.digital.draw.model.ModelCreator;
+import de.neemann.digital.draw.model.ModelEntry;
 import de.neemann.digital.draw.model.Net;
 import de.neemann.digital.draw.model.NetList;
 
@@ -36,6 +38,12 @@ import java.util.Map;
  *   --list             list the input signal names and exit
  *   --set NAME=VALUE   set an input signal; VALUE may be 0x.., 0b.. or decimal.
  *                      Propagation steps run after each --set.
+ *   --setpos X,Y=V     set the value of the net pin at position X,Y - the way
+ *                      to drive DipSwitch and Button outputs headlessely
+ *                      (they are not model inputs; e.g. "--setpos -220,3020=1").
+ *   --switch NAME=0|1  open or close a SwitchDT (double-throw switch) by its
+ *                      Label; closed connects the common pin to the B1 throw.
+ *                      E.g. "--switch RESET=1". Not a model input either.
  *   --edge NAME        pulse a signal 0->1->0 (a full clock cycle)
  *   --toggle NAME=N    toggle a signal N half-cycles, stepping after each;
  *                      with --render, the display state is printed per half-cycle
@@ -61,6 +69,7 @@ public class DigSim {
 
     private final Circuit circuit;
     private final Model model;
+    private final ModelCreator mc;
     private final Map<String, ObservableValue> inputs = new LinkedHashMap<>();
     private final Map<String, ObservableValue> posMap = new HashMap<>();
     private final List<Net> nets = new ArrayList<>();
@@ -70,7 +79,7 @@ public class DigSim {
     public DigSim(String file) throws Exception {
         CircuitLoader cl = new CircuitLoader(file, false);
         circuit = cl.getCircuit();
-        ModelCreator mc = new ModelCreator(circuit, cl.getLibrary());
+        mc = new ModelCreator(circuit, cl.getLibrary());
         model = mc.createModel(true);
 
         for (Signal s : model.getInputs())
@@ -100,6 +109,37 @@ public class DigSim {
         if (v == null)
             throw new RuntimeException("input not found: " + name + " (use --list; have " + inputs.keySet() + ")");
         v.setValue(value);
+    }
+
+    /** Sets the ObservableValue of the net pin at the given position (DipSwitch/Button outputs). */
+    void setPos(String pos, long value) throws Exception {
+        ObservableValue v = posMap.get(pos);
+        if (v == null)
+            throw new RuntimeException("no net pin at position " + pos);
+        v.setValue(value);
+        step();
+        step();
+    }
+
+    /** Opens/closes a SwitchDT by Label: closed connects common (A1) to the B1 throw. */
+    void setSwitch(String name, boolean closed) throws Exception {
+        for (ModelEntry me : mc) {
+            VisualElement ve = me.getVisualElement();
+            String label = ve.getElementAttributes().getLabel();
+            if (!name.equals(label) && !name.equals(label.replace("\\_", "_")))
+                continue;
+            if (!(me.getElement() instanceof SwitchDT))
+                throw new RuntimeException("element '" + name + "' is a "
+                        + me.getElement().getClass().getSimpleName() + ", not a SwitchDT");
+            SwitchDT s = (SwitchDT) me.getElement();
+            s.setClosed(closed);
+            s.hasChanged();
+            step();
+            step();
+            System.out.println("  switch " + label.replace("\\_", "_") + " = " + (closed ? 1 : 0));
+            return;
+        }
+        throw new RuntimeException("SwitchDT not found: " + name);
     }
 
     static long parseValue(String s) {
@@ -334,6 +374,18 @@ public class DigSim {
                     if (kv.length != 2) throw new RuntimeException("bad --set (need NAME=VALUE)");
                     sim.setInput(kv[0], parseValue(kv[1]));
                     sim.step();
+                    break;
+                }
+                case "--setpos": {
+                    String[] kv = args[++i].split("=", 2);
+                    if (kv.length != 2) throw new RuntimeException("bad --setpos (need X,Y=VALUE)");
+                    sim.setPos(kv[0], parseValue(kv[1]));
+                    break;
+                }
+                case "--switch": {
+                    String[] kv = args[++i].split("=", 2);
+                    if (kv.length != 2) throw new RuntimeException("bad --switch (need NAME=0|1)");
+                    sim.setSwitch(kv[0], kv[1].trim().equals("1"));
                     break;
                 }
                 case "--edge":
