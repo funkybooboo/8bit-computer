@@ -162,9 +162,16 @@ with digsim --nets):
   a newer Digital release is the fix (patching a local 74245.dig copy
   was investigated and dropped; program behavior is verified headless
   with sim.py). The display path (MUX_CLK multiplexing) does simulate.
-- **74157**: the MAR's load path misbehaved in the headless model (D
-  inputs ended up with a mix of bus and dipswitch values regardless of
-  the select); not root-caused.
+- **74157**: with a 74245 pin on any of its B-input nets, the mux
+  outputs zeros on the *selected* A path (reproduced in isolation:
+  clean A inputs, B inputs grounded except one on a 74245 - with or
+  without the 74245 enabled, at either rotation; the same mux with a
+  plain Driver or In on the B net is correct). This is the concrete
+  mechanism behind the earlier "mix of bus and dipswitch values"
+  observation, and it is why the front-panel program entry writes
+  garbage under Digital 0.31 even in program mode: the RAM data muxes
+  (U26/U27) have their B inputs on the shared bus, which is built from
+  74245 pins. Test panel entry only on a newer Digital release.
 - **Switch/DipSwitch/Button** elements are not model inputs, so
   `digsim --set` cannot drive them; test those paths in the GUI.
 

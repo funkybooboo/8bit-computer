@@ -148,8 +148,14 @@ Switches and buttons (each has VDD/GND on its unmodeled second throw):
 
 LEDs: BUS_0..7, PC_0..3, A_0..7, B_0..7, SUM_0..7, CF, ZF, IR_0..7,
 RAM_DATA_0..7, RAM address A0..A3, microsteps T0..T6, STEP_0..2 (the
-counter's raw bits), all 16 control lines, CLK, PROG. (PROG_hat, next
-to the PROG LED, is a drawn-but-unwired placeholder.)
+counter's raw bits), all 16 control lines, CLK, PROG, PROG_hat (lit in
+run mode - the complement of PROG through the Not gate at -700,520).
+
+Program-mode polarity (matches the KiCad reference): the panel muxes
+are 74157s, which select their A inputs (the panel) when S is LOW. The
+PROG_ADDR switch grounds the S net when closed (KiCad SW6), and the
+R63/D48 path pulls it high when open - so PROG_ADDR closed = program
+mode (PROG LED lit), open = run mode (PROG_hat lit).
 
 **Entering a program**: flip PROG_ADDR to program mode; for each byte of
 the listing (built with [tools.md](tools.md), asm.py) set PROG_ADDR_A0..3

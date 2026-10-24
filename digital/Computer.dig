@@ -1672,16 +1672,6 @@
       <elementName>LED</elementName>
       <elementAttributes>
         <entry>
-          <string>Label</string>
-          <string>PROG\_hat</string>
-        </entry>
-      </elementAttributes>
-      <pos x="-620" y="520"/>
-    </visualElement>
-    <visualElement>
-      <elementName>LED</elementName>
-      <elementAttributes>
-        <entry>
           <string>Color</string>
           <awt-color>
             <red>51</red>
@@ -1693,6 +1683,16 @@
         <entry>
           <string>Label</string>
           <string>PROG</string>
+        </entry>
+      </elementAttributes>
+      <pos x="-620" y="520"/>
+    </visualElement>
+    <visualElement>
+      <elementName>LED</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>PROG\_hat</string>
         </entry>
       </elementAttributes>
       <pos x="-620" y="560"/>
@@ -1799,12 +1799,12 @@
       <pos x="-700" y="520"/>
     </visualElement>
     <visualElement>
-      <elementName>Ground</elementName>
+      <elementName>VDD</elementName>
       <elementAttributes/>
       <pos x="-620" y="640"/>
     </visualElement>
     <visualElement>
-      <elementName>VDD</elementName>
+      <elementName>Ground</elementName>
       <elementAttributes/>
       <pos x="-620" y="620"/>
     </visualElement>
