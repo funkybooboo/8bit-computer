@@ -161,7 +161,7 @@ the circuit (every "unused" pin claim verified in Computer.dig):
 
 - The assembler could grow `.DW` (16-bit data) and `.FILL` - pointless
   until 16-bit data exists ([assembly-language.md](assembly-language.md)).
-- The microcode's source of truth is MICROSTEPS in tools/microcode.py,
+- The microcode's source of truth is MICROSTEPS in tools/genroms.py,
   written in the "LDA: MI,IO / RO,AI" notation ([tools.md](tools.md)) -
   experiments there are painless already.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-digrom.py - ROM data inside Digital .dig circuits, and the image bridges.
+rom.py - ROM data inside Digital .dig circuits, and the image bridges.
 
 The Digital-specific half of the EEPROM story: Digital stores the ROM
 content of an embedded DIL chip (e.g. 28c16.dig) at the CIRCUIT level, in
@@ -35,7 +35,7 @@ the old format.
 
 What goes INTO the ROMs - the machine's EEPROM contents (the microcode,
 the display patterns) and the image formats (logisim / Intel HEX / raw) -
-is machine-level and lives in tools/microcode.py (used equally by the
+is machine-level and lives in tools/genroms.py (used equally by the
 assembler and the simulator, no Digital involved). This tool moves that
 data between machine-level image files and .dig circuits.
 
@@ -47,12 +47,12 @@ Commands:
   export    Write a preset's (or a .dig's) ROM image to a file: logisim .hex,
             Intel HEX, or raw binary - for the Digital ROM editor's "load from
             file" option or for burning real EEPROMs.
-  presets   List the built-in data presets (defined in tools/microcode.py).
+  presets   List the built-in data presets (defined in tools/genroms.py).
 
 Examples (from the repo root):
-  digrom.py dump --dig digital/Computer.dig --label U45 --words
-  digrom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
-  digrom.py export --preset control-rom1 --out roms/control-rom1.hex
+  rom.py dump --dig digital/Computer.dig --label U45 --words
+  rom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
+  rom.py export --preset control-rom1 --out roms/control-rom1.hex
 """
 
 import argparse
@@ -64,7 +64,7 @@ import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
-from microcode import PRESETS, read_image, write_image  # tools/microcode.py:
+from genroms import PRESETS, read_image, write_image  # tools/genroms.py:
 # the EEPROM contents + the image file formats
 
 # ---------------------------------------------------------------------------
@@ -169,7 +169,7 @@ def write_rom(path, label, data):
     def sub_once(pattern, repl, s, what):
         new, n = re.subn(pattern, repl, s, count=1, flags=re.S)
         if n != 1:
-            raise SystemExit("digrom: failed to %s (pattern not found)" % what)
+            raise SystemExit("rom: failed to %s (pattern not found)" % what)
         return new
 
     entry_re = re.compile(
@@ -266,11 +266,11 @@ def write_rom(path, label, data):
     try:
         got = read_roms(tmp).get(label)
         if got is None:
-            raise SystemExit("digrom: internal error - written file lost the ROM entry")
+            raise SystemExit("rom: internal error - written file lost the ROM entry")
         back = decode_tokens(got)
         want = list(data)
         if back[: len(want)] != want:
-            raise SystemExit("digrom: internal error - round-trip mismatch")
+            raise SystemExit("rom: internal error - round-trip mismatch")
     except Exception:
         os.unlink(tmp)
         raise
@@ -286,7 +286,7 @@ def load_data(args):
     if args.preset:
         if args.preset not in PRESETS:
             raise SystemExit(
-                "digrom: unknown preset %r (have: %s)" % (args.preset, ", ".join(sorted(PRESETS)))
+                "rom: unknown preset %r (have: %s)" % (args.preset, ", ".join(sorted(PRESETS)))
             )
         data = PRESETS[args.preset](swap_banks=getattr(args, "swap_banks", False))
         return data[:n] if n else data
@@ -298,7 +298,7 @@ def load_data(args):
     if args.binfile:
         vals = list(open(args.binfile, "rb").read())
         return (vals + [0] * n)[:n] if n else vals
-    raise SystemExit("digrom: no data source given (use --preset, --data, --hex or --bin)")
+    raise SystemExit("rom: no data source given (use --preset, --data, --hex or --bin)")
 
 
 # ---------------------------------------------------------------------------
@@ -308,11 +308,11 @@ def load_data(args):
 def cmd_dump(args):
     roms = read_roms(args.dig)
     if not roms:
-        raise SystemExit("digrom: no romContent found in %s" % args.dig)
+        raise SystemExit("rom: no romContent found in %s" % args.dig)
     labels = [args.label] if args.label else sorted(roms)
     for label in labels:
         if label not in roms:
-            raise SystemExit("digrom: no ROM for label %r (have: %s)" % (label, ", ".join(sorted(roms))))
+            raise SystemExit("rom: no ROM for label %r (have: %s)" % (label, ", ".join(sorted(roms))))
         vals = decode_tokens(roms[label])
         last = max((i for i, v in enumerate(vals) if v), default=-1)
         print("label %s: %d words listed, last nonzero address 0x%03x (%d)" % (label, len(vals), last, last))
@@ -325,12 +325,12 @@ def cmd_dump(args):
 
 def cmd_write(args):
     if not args.label:
-        raise SystemExit("digrom: --label is required for write (the chip instance's Label)")
+        raise SystemExit("rom: --label is required for write (the chip instance's Label)")
     if not check_label_exists(args.dig, args.label):
-        print("digrom: WARNING: no element with Label %r in %s" % (args.label, args.dig), file=sys.stderr)
+        print("rom: WARNING: no element with Label %r in %s" % (args.label, args.dig), file=sys.stderr)
     data = load_data(args)
     write_rom(args.dig, args.label, data)
-    print("digrom: wrote %d bytes to %s (label %s)" % (len(data), args.dig, args.label))
+    print("rom: wrote %d bytes to %s (label %s)" % (len(data), args.dig, args.label))
 
 
 def cmd_export(args):
@@ -340,14 +340,14 @@ def cmd_export(args):
     elif args.dig and args.label:
         roms = read_roms(args.dig)
         if args.label not in roms:
-            raise SystemExit("digrom: no ROM for label %r in %s" % (args.label, args.dig))
+            raise SystemExit("rom: no ROM for label %r in %s" % (args.label, args.dig))
         data = decode_tokens(roms[args.label])
     else:
-        raise SystemExit("digrom: export needs a --preset/--hex/--bin/--data source, or --dig + --label")
+        raise SystemExit("rom: export needs a --preset/--hex/--bin/--data source, or --dig + --label")
     if args.size:
         data = (list(data) + [0] * args.size)[: args.size]
     write_image(args.out, data, args.format)
-    print("digrom: exported %d bytes to %s (%s)" % (len(data), args.out, args.format))
+    print("rom: exported %d bytes to %s (%s)" % (len(data), args.out, args.format))
 
 
 def cmd_presets(_args):
@@ -391,7 +391,7 @@ def main():
     e.add_argument("--size", type=int)
     e.set_defaults(fn=cmd_export)
 
-    ps = sub.add_parser("presets", help="list the built-in presets (defined in tools/microcode.py)")
+    ps = sub.add_parser("presets", help="list the built-in presets (defined in tools/genroms.py)")
     ps.set_defaults(fn=cmd_presets)
 
     args = p.parse_args()

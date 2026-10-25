@@ -18,7 +18,7 @@ against its exported netlist.
 | program-counter.sch           | Program counter sheet                                              |
 | output.sch                    | Output register sheet (display + mux counter + mode switch)        |
 | control.sch                   | Control logic sheet (instruction decoder, microcode EEPROMs)       |
-| 8bit-computer.net             | Exported netlist of the whole board - the reference used by kicadnets.py in this directory |
+| 8bit-computer.net             | Exported netlist of the whole board - the reference used by netlist.py in this directory |
 | 8bit-computer.kicad_pcb       | The full PCB layout of the computer                                |
 | 8bit-computer-cache.lib       | Cached schematic symbols for the sheets above                      |
 | 8bit-computer.xml             | XML netlist export (intermediate for BOM tooling)                  |
@@ -28,7 +28,7 @@ against its exported netlist.
 | 8bit-custom-footprints.pretty/| Custom footprints, see its README                                  |
 
 Chip pin maps (74LS273, 28C16, 74LS76, 74LS139, 74LS08) for reading the
-netlist are in the header comment of kicadnets.py; the netlist of a
+netlist are in the header comment of netlist.py; the netlist of a
 module is printed with e.g. (from the repo root):
 
-    kicad/kicadnets.py --net kicad/8bit-computer.net --refs U44,U45,U46
+    kicad/netlist.py --net kicad/8bit-computer.net --refs U44,U45,U46

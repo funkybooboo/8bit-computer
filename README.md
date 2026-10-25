@@ -6,7 +6,7 @@ ways: the wiring verified pin-exact in [Digital](digital/), playable in
 a browser in [web/](web/), Ben's KiCad project as the reference in
 [kicad/](kicad/), and one day, real breadboards. Every build runs the
 same control-ROM images from [roms/](roms/README.md) (generated from one
-place, [tools/microcode.py](tools/microcode.py)) and the same program
+place, [tools/genroms.py](tools/genroms.py)) and the same program
 gallery from [programs/](programs/README.md), and each program's
 expected output is frozen so every build can be checked against the same
 answers.
@@ -27,7 +27,7 @@ works from this repo as cloned.
 | [docs/](docs/README.md) | The real documentation - one document per domain |
 | [roms/](roms/README.md) | The machine's ROM images: what every build runs |
 | [programs/](programs/README.md) | The program gallery (.asm sources) |
-| [tools/](tools/README.md) | The assembler + the microcode/ROM generator |
+| [tools/](tools/README.md) | The assembler + the ROM generator (genroms.py) |
 | [digital/](digital/README.md) | The Digital build + its tools |
 | [web/](web/README.md) | The browser build + its build and test scripts |
 | [kicad/](kicad/README.md) | Ben's KiCad project - the reference build |

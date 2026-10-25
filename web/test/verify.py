@@ -27,7 +27,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))  # the repo root
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import asm      # noqa: E402 - to build the image node runs
-from microcode import write_image  # noqa: E402 - image I/O
+from genroms import write_image  # noqa: E402 - image I/O
 
 CAP = 20000  # the cycle cap the expectations were frozen with
 

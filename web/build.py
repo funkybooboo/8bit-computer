@@ -20,7 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import asm      # the assembler
-from microcode import write_image  # image I/O
+from genroms import write_image  # image I/O
 
 
 def main():

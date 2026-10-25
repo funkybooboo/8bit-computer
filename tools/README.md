@@ -9,4 +9,4 @@ browser build's scripts. Full usage and workflow:
 | file         | what it is                                                       |
 |--------------|------------------------------------------------------------------|
 | asm.py       | Assembler / disassembler ([assembly-language.md](../docs/assembly-language.md)) |
-| microcode.py | The instruction set and microcode in code; generates and checks the ROM images every build runs ([microcode.md](../docs/microcode.md)) |
+| genroms.py | The instruction set and microcode in code; generates and checks the ROM images every build runs ([microcode.md](../docs/microcode.md)) |

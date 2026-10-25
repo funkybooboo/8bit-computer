@@ -42,12 +42,12 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from microcode import OPCODES, read_image, write_image  # tools/microcode.py:
+from genroms import OPCODES, read_image, write_image  # tools/genroms.py:
 # opcode numbers (the source of truth) + the image file formats
 
 # ---------------------------------------------------------------------------
 # instruction table: language-level facts about each mnemonic. The opcode
-# NUMBERS come from microcode.py (the machine's definition, shared with the
+# NUMBERS come from genroms.py (the machine's definition, shared with the
 # microcode); operand kinds and effects are language documentation.
 # ---------------------------------------------------------------------------
 

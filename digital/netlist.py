@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-dignetlist.py - extract the netlist from a Digital .dig circuit and sanity check it.
+netlist.py - extract the netlist from a Digital .dig circuit and sanity check it.
 
 How pins are located (verified against Digital 0.31 source, DILShape.java /
 SevenSegShape.java / GenericShape.java):
@@ -26,13 +26,13 @@ Multiple Ground / VDD symbols are separate nets electrically, but every one
 drives the same constant; they are reported as GND/VDD sources.
 
 Usage:
-  dignetlist.py --dig digital/Computer.dig [--lib LIBDIR] [--quiet]
+  netlist.py --dig digital/Computer.dig [--lib LIBDIR] [--quiet]
 
 The Digital library directory is found via --lib, $DIGITAL_LIB, the `digital`
 executable's wrapper script (nix), or /nix/store/*digital*/share/java/lib.
 
 Workflow: dump this netlist, extract the reference netlist from Ben Eater's
-KiCad netlist (../kicad/kicadnets.py), and compare pin by pin - that is the
+KiCad netlist (../kicad/netlist.py), and compare pin by pin - that is the
 wiring verification of Computer.dig against 8bit-computer.net.
 """
 
@@ -71,7 +71,7 @@ def find_library(explicit=None):
         if c and os.path.isdir(c):
             return c
     raise SystemExit(
-        "dignetlist: Digital library dir not found; use --lib or $DIGITAL_LIB\n"
+        "netlist: Digital library dir not found; use --lib or $DIGITAL_LIB\n"
         "(it is the directory containing 'DIL Chips/', next to Digital.jar)"
     )
 
@@ -117,7 +117,7 @@ def load_lib_chip(libdir, name):
         path = cand
         break
     if path is None:
-        raise SystemExit("dignetlist: library chip %r not found under %s" % (name, libdir))
+        raise SystemExit("netlist: library chip %r not found under %s" % (name, libdir))
     root = ET.parse(path).getroot()
     width, pins = 5, {}
     for e in root.find("attributes"):

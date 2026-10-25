@@ -1,6 +1,6 @@
 // hex.js - memory-image parsing.
 //
-// The same three formats tools/microcode.py reads (logisim .hex, Intel HEX, raw
+// The same three formats tools/genroms.py reads (logisim .hex, Intel HEX, raw
 // binary), sniffed the same way, so this build loads exactly the images
 // every other implementation burns:
 //   - logisim: "v2.0 raw" header + hex words - what Digital's ROM editor

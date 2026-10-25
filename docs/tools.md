@@ -4,13 +4,13 @@ The software that serves the machine. [../tools/](../tools/) holds the
 machine-level tools (they work from any clone - no Digital, no JDK, no
 node needed); each build directory holds the tools that belong to it:
 
-- **tools/** - `asm.py` (the assembler) and `microcode.py` (the
+- **tools/** - `asm.py` (the assembler) and `genroms.py` (the
   instruction set and microcode in code, and the script that generates
   the ROM images every build runs).
-- **digital/** - the Digital build's own tools: `digrom.py` (ROM data
-  inside .dig circuits), `dignetlist.py` (netlists out of .dig
+- **digital/** - the Digital build's own tools: `rom.py` (ROM data
+  inside .dig circuits), `netlist.py` (netlists out of .dig
   circuits), `DigSim.java`/`digsim` (headless Digital simulation).
-- **kicad/** - `kicadnets.py`: the netlist out of Ben's KiCad project,
+- **kicad/** - `netlist.py`: the netlist out of Ben's KiCad project,
   the wiring reference for any build target, Digital or breadboard.
 - **web/** - the browser build, plus its test against the expected
   outputs (below).
@@ -23,20 +23,20 @@ machine's own ROM images.
 ## The workflow
 
 1. **Wire** a module in Digital from Ben's schematics ([../schematics/](../schematics/README.md)).
-2. **Verify the wiring**: `dignetlist.py` extracts the netlist from the
-   .dig; `kicadnets.py` prints the reference netlist from Ben's KiCad
+2. **Verify the wiring**: `netlist.py` extracts the netlist from the
+   .dig; `netlist.py` prints the reference netlist from Ben's KiCad
    project; compare pin by pin.
-3. **Program EEPROMs** with `digrom.py` (images archived in
-   [../roms/](../roms/README.md); contents defined in `microcode.py`).
+3. **Program EEPROMs** with `rom.py` (images archived in
+   [../roms/](../roms/README.md); contents defined in `genroms.py`).
 4. **Run programs** in the browser build - the machine itself is the
    last mile (load the image through the front panel,
    [hardware.md](hardware.md)).
 
-## microcode.py - the instruction set and microcode, in code
+## genroms.py - the ROM generator (the machine's tables in code)
 
-    tools/microcode.py             # print the instruction/microstep table
-    tools/microcode.py --generate  # regenerate the ../roms/ images
-    tools/microcode.py --check     # verify the ../roms/ images match it
+    tools/genroms.py             # print the instruction/microstep table
+    tools/genroms.py --generate  # regenerate the ../roms/ images
+    tools/genroms.py --check     # verify the ../roms/ images match it
 
 The machine's definition, independent of how it is built: the opcode
 numbers, the 16 control lines, and the MICROSTEPS table - the source of
@@ -59,7 +59,7 @@ step conditional on a flag half. Run the file to see the resulting table.
 `--generate` (re)writes the images in [../roms/](../roms/README.md) -
 logisim .hex plus Intel HEX for EEPROM burners; the roms are shared by
 every build, and each build uploads them its own way (Digital via
-`digrom.py`, the web build by fetching them, the hardware by burning the
+`rom.py`, the web build by fetching them, the hardware by burning the
 Intel files). `--check` verifies the archived images are exactly these
 tables. The image formats themselves (logisim / Intel HEX / raw) are
 also defined in this file; the web build's twin is web/js/hex.js.
@@ -77,7 +77,7 @@ Two-pass assembler for the one-byte instruction format
 hardware cannot encode. The listing shows each byte in hex and in ones
 and zeros as the three hardware groups - RAM address | opcode | operand -
 which are also the dipswitch groups for program entry. Image formats are
-`microcode.py`'s (logisim / intel / raw).
+`genroms.py`'s (logisim / intel / raw).
 
 ## Running programs: the web build and the expected outputs
 
@@ -94,13 +94,13 @@ OUT count within 20,000 cycles, and the first 32 OUT values - and every
 build of the machine must reproduce them exactly. Changing a program's
 intended behavior means updating that table deliberately.
 
-## digrom.py - EEPROM data in .dig circuits
+## rom.py - EEPROM data in .dig circuits
 
-    digital/digrom.py presets
-    digital/digrom.py dump  --dig digital/Computer.dig --label U45 --words
-    digital/digrom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
-    digital/digrom.py write --dig c.dig --label U1 --hexfile myrom.hex --size 2048
-    digital/digrom.py export --preset control-rom1 --out roms/control-rom1.hex
+    digital/rom.py presets
+    digital/rom.py dump  --dig digital/Computer.dig --label U45 --words
+    digital/rom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
+    digital/rom.py write --dig c.dig --label U1 --hexfile myrom.hex --size 2048
+    digital/rom.py export --preset control-rom1 --out roms/control-rom1.hex
 
 ROM data for embedded DIL chips is stored at the circuit level under the
 `romContent` attribute, keyed by chip instance Label (Digital 0.31
@@ -109,15 +109,15 @@ edit (keeps the file's formatting), then re-reads and round-trip checks
 before atomically replacing the file.
 
 The data itself is machine-level: presets and images come from
-`microcode.py` and [../roms/](../roms/README.md). Changing the
-microcode: edit MICROSTEPS in `tools/microcode.py`, `export` to
-[../roms/](../roms/README.md), `write` into Computer.dig, then
-`tools/microcode.py --check` and `web/test/verify.py` before touching
+`genroms.py` and [../roms/](../roms/README.md). Changing the
+microcode: edit MICROSTEPS in `tools/genroms.py`, `--generate` into
+[../roms/](../roms/README.md), `write` into Computer.dig with `rom.py`,
+then `tools/genroms.py --check` and `web/test/verify.py` before touching
 hardware.
 
-## dignetlist.py - netlist extraction
+## digital/netlist.py - netlist extraction
 
-    digital/dignetlist.py --dig digital/Computer.dig
+    digital/netlist.py --dig digital/Computer.dig
 
 Prints every element, every pin, and the members of the net each pin is
 on. Warns about wire endpoints touching the middle of another wire
@@ -127,9 +127,9 @@ DIL chips 40 px pitch, left column pins 1..N/2 top-down, right column
 bottom-up; Seven-Seg segment pins on the top/bottom edges) - verified
 against the Digital 0.31 source.
 
-## kicadnets.py - the reference netlist
+## kicad/netlist.py - the reference netlist
 
-    kicad/kicadnets.py --net kicad/8bit-computer.net --refs U44,U45,U46
+    kicad/netlist.py --net kicad/8bit-computer.net --refs U44,U45,U46
 
 Prints every net containing the given component refs, as (ref, pin)
 pairs, from Ben's KiCad netlist. Chip pin maps (74LS273, 28C16, 74LS76,

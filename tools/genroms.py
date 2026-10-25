@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-microcode.py - the instruction set and the microcode, in code.
+genroms.py - generate the machine's ROMs.
 
-The machine's definition, independent of how it is built: the opcode
-numbers, the 16 control lines (which bit of which control ROM drives
-each), and the MICROSTEPS table below - the source of truth for what
-every instruction does, cycle by cycle. The control-ROM images in
-../roms/ are generated from this table, and every build of the machine
-(digital/Computer.dig, web/js/machine.js, the breadboards) runs those
-images: the images are the machine's own contents, and this file is
-where they are defined.
+The machine's tables live here - the opcode numbers, the 16 control
+lines (which bit of which control ROM drives each), and the MICROSTEPS
+table, the source of truth for what every instruction does, cycle by
+cycle - and this script turns them into the ROM images in ../roms/ that
+every build of the machine runs (digital/Computer.dig, web/js/machine.js,
+the breadboards). The ISA table in asm.py comes from here too, so tools
+and builds can never disagree about an opcode or a microstep.
 
 Run with no arguments to print the instruction/microstep table.
 --generate regenerates the images in ../roms/ from these tables (the
@@ -18,7 +17,7 @@ logisim .hex every build loads plus the Intel HEX for EEPROM burners).
 tables, and that the fetch and bus rules hold in every ROM row.
 
 The roms are shared by every build; each build uploads them its own way:
-Digital via digital/digrom.py (they are embedded in the .dig), the web
+Digital via digital/rom.py (they are embedded in the .dig), the web
 build by fetching them, the hardware by burning the Intel HEX files.
 
 Full references: ../docs/instruction-set.md (the ISA),
@@ -301,7 +300,7 @@ def _generate():
         for suffix, fmt in ((".hex", "logisim"), ("-intel.hex", "intel")):
             path = os.path.join(root, "roms", name + suffix)
             write_image(path, img, fmt)
-            print("microcode: wrote roms/%s%s" % (name, suffix))
+            print("genroms: wrote roms/%s%s" % (name, suffix))
 
 
 def _check():
@@ -314,7 +313,7 @@ def _check():
         archived = bytes(read_image(os.path.join(root, "roms", name + ".hex"),
                                     len(img)))
         assert archived == img, \
-            "roms/%s.hex does not match the tables in microcode.py" % name
+            "roms/%s.hex does not match the tables in genroms.py" % name
 
     # rules every control-ROM row must satisfy: fetch is identical for all
     # opcodes/flags (T0 MI|CO, T1 RO|II|CE), at most one bus driver per
@@ -341,8 +340,8 @@ def _check():
                             (ROM1_BITS["MI"], ROM2_BITS["CO"]) if step == 0
                             else (ROM1_BITS["RO"] | ROM1_BITS["II"], ROM2_BITS["CE"])
                         ), "fetch rows differ at opcode %x" % opcode
-    print("microcode: roms/ images match these tables; fetch and bus rules hold")
-    print("microcode: check OK")
+    print("genroms: roms/ images match these tables; fetch and bus rules hold")
+    print("genroms: check OK")
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@
 //   - registers latch on the clock edge at the end of each cycle, all from
 //     the pre-edge state; RI writes RAM[MAR]; PC wraps mod 16
 //
-// The control-word bits below come from tools/microcode.py (ROM1_BITS /
+// The control-word bits below come from tools/genroms.py (ROM1_BITS /
 // ROM2_BITS, the machine definition in code) - one source of truth,
 // kept in sync by web/test/verify.py's run against the frozen expected
 // outputs in programs/*.out.
@@ -32,7 +32,7 @@ export const ROM2_BITS = {  // U52
   CE: 0x08, CO: 0x04, J: 0x02, FI: 0x01,
 };
 
-export const OPCODES = {  // tools/microcode.py OPCODES, same table
+export const OPCODES = {  // tools/genroms.py OPCODES, same table
   NOP: 0x0, LDA: 0x1, ADD: 0x2, SUB: 0x3, STA: 0x4, LDI: 0x5,
   JMP: 0x6, JC: 0x7, JZ: 0x8, JNC: 0x9, JNZ: 0xa, ADDI: 0xb,
   SUBI: 0xc, DBL: 0xd, OUT: 0xe, HLT: 0xf,

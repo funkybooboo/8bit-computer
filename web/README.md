@@ -17,8 +17,8 @@ instruction. If the microcode is wrong, programs fail here exactly the way
 they fail on the machine. That is what makes this an implementation of the
 spec rather than a second opinion about it.
 
-The control-word bits are the tables from [tools/microcode.py]
-(../tools/microcode.py), the machine definition in code, and the cycle
+The control-word bits are the tables from [tools/genroms.py]
+(../tools/genroms.py), the machine definition in code, and the cycle
 model is the one documented in [docs/microcode.md](../docs/microcode.md).
 Correctness is defined by the expectations frozen in
 [test/verify.py](test/verify.py)'s table - for every program, the halt
@@ -49,8 +49,8 @@ the built `../programs/` images is fully static.
 |-----------------|---------------------------------------------------------------|
 | index.html      | the app                                                        |
 | css/style.css   | the looks                                                      |
-| js/hex.js       | memory-image parsing: logisim .hex, Intel HEX, raw (the JS twin of the formats in tools/microcode.py) |
-| js/machine.js   | the machine: control-word bits (tools/microcode.py) + the cycle-accurate core |
+| js/hex.js       | memory-image parsing: logisim .hex, Intel HEX, raw (the JS twin of the formats in tools/genroms.py) |
+| js/machine.js   | the machine: control-word bits (tools/genroms.py) + the cycle-accurate core |
 | js/main.js      | the UI: load, run, step, reset, register and OUT display        |
 | js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count.hex)    |
 | build.py        | builds programs/*.hex from the .asm sources (gitignored artifacts) |
