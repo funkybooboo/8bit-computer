@@ -32,8 +32,8 @@ The Digital library directory is found via --lib, $DIGITAL_LIB, the `digital`
 executable's wrapper script (nix), or /nix/store/*digital*/share/java/lib.
 
 Workflow: dump this netlist, extract the reference netlist from Ben Eater's
-KiCad netlist (kicadnets.py), and compare pin by pin - that is the wiring
-verification of digital/Computer.dig against kicad/8bit-computer.net.
+KiCad netlist (../kicad/kicadnets.py), and compare pin by pin - that is the
+wiring verification of Computer.dig against 8bit-computer.net.
 """
 
 import argparse

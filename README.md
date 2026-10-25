@@ -1,36 +1,38 @@
-# Ben Eater's 8-bit computer - Digital edition
+# Ben Eater's 8-bit computer - one machine, several builds
 
-An 8-bit breadboard computer, built and verified in the
-[Digital](https://github.com/hneemann/Digital) logic simulator before the
-breadboards: [digital/Computer.dig](digital/Computer.dig) is the whole
-machine - clock, registers, ALU, RAM, microcode control unit, front panel -
-wired pin-exact against Ben Eater's [KiCad reference](kicad/), with its
-own instruction set, assembler, and a cycle-accurate simulator, plus 25
-example programs.
+An 8-bit breadboard computer - [Ben Eater's](https://eater.net/8bit)
+design, with a few additions of its own - defined once and built several
+ways: the wiring verified pin-exact in [Digital](digital/), playable in
+a browser in [web/](web/), Ben's KiCad project as the reference in
+[kicad/](kicad/), and one day, real breadboards. Every build runs the
+same control-ROM images from [roms/](roms/README.md) (generated from one
+place, [tools/microcode.py](tools/microcode.py)) and the same program
+gallery from [programs/](programs/README.md), and each program's
+expected output is frozen so every build can be checked against the same
+answers.
 
 ## Run a program in 30 seconds
 
-    tools/sim.py programs/powers.asm
+    python3 web/build.py      # build the program images the app serves
+    python3 -m http.server    # from this directory
 
-That runs "powers of two" on the same control-ROM images the hardware
-burns - 1, 2, 4, ..., 128, halting on the wrap. No hardware needed;
-everything works from this repo as cloned. Need the image for the
-hardware or Digital's ROM editor? The assembler builds it:
-
-    tools/asm.py programs/powers.asm --out /tmp/p.hex
+then open <http://localhost:8000/web/>, pick "powers", and hit run:
+1, 2, 4, ..., 128, halting on the wrap. No hardware needed; everything
+works from this repo as cloned.
 
 ## What is where
 
 | directory | contents |
 |-----------|----------|
 | [docs/](docs/README.md) | The real documentation - one document per domain |
-| [digital/](digital/README.md) | The machine: Computer.dig |
-| [web/](web/README.md) | The machine in the browser: pure HTML/CSS/JS, same ROM images |
-| [programs/](programs/README.md) | Assembly programs (sources) |
-| [tools/](tools/README.md) | Assembler, simulator, EEPROM writer, netlist verifiers |
-| [roms/](roms/README.md) | Archived EEPROM images |
-| [schematics/](schematics/README.md) | Ben Eater's original module schematics |
-| [kicad/](kicad/README.md) | Ben Eater's KiCad project - the reference design |
+| [roms/](roms/README.md) | The machine's ROM images: what every build runs |
+| [programs/](programs/README.md) | The program gallery (.asm sources) |
+| [tools/](tools/README.md) | The assembler + the microcode/ROM generator |
+| [digital/](digital/README.md) | The Digital build + its tools |
+| [web/](web/README.md) | The browser build + its build and test scripts |
+| [kicad/](kicad/README.md) | Ben's KiCad project - the reference build |
+| [crumb/](crumb/README.md) | The Crumb build (empty for now) |
+| [schematics/](schematics/README.md) | Ben's original module schematics |
 
 ## The documentation
 
@@ -50,6 +52,5 @@ hardware or Digital's ROM editor? The assembler builds it:
 ## Credits
 
 The computer itself - circuit design, architecture, schematics - is
-[Ben Eater's](https://eater.net/8bit) published work; this repo is a
-personal reproduction of it for study. All credit for the machine
-belongs to him.
+Ben Eater's published work; this repo is a personal reproduction of it
+for study. All credit for the machine belongs to him.

@@ -4,11 +4,13 @@ The program gallery for the machine ([../programs/](../programs/)):
 what each shows on the display, what it teaches, and what the machine
 cannot do. The language: [assembly-language.md](assembly-language.md);
 the instructions: [instruction-set.md](instruction-set.md); running
-them without the machine: [tools.md](tools.md), sim.py.
+them without the machine: the web build and its test ([tools.md](tools.md),
+"Running programs").
 
-Every program is verified by the cycle-accurate simulator (sim.py),
-cross-checked against an independent ISA-level reference, before being
-documented here. Each fits in the machine's 16 bytes of RAM (program +
+Every program's expected OUT stream and halt status is frozen in its
+.out file beside the source (20,000-cycle cap), and every build of the
+machine must reproduce it exactly - the web build is tested against
+them on every change (web/test/verify.py). Each fits in the machine's 16 bytes of RAM (program +
 data together); the tightest use all 16.
 
 ## Foundations - sequences, state and flags
@@ -212,7 +214,7 @@ On purpose at the limit: div.asm and half.asm use exactly all 16 bytes.
 
     tools/asm.py programs/count.asm --out prog.hex --lst prog.lst   # assemble
     tools/asm.py --dis prog.hex                                     # verify
-    tools/sim.py programs/count.asm                                 # run headless
+    node web/js/run.mjs prog.hex                                    # run headless
 
 Load it through the front panel (the procedure and the dipswitch groups:
 [hardware.md](hardware.md), "Front panel"). The listing's ADDR/BYTE

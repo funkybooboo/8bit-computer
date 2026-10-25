@@ -1,22 +1,24 @@
 # Tools
 
-The toolchain in [../tools/](../tools/). Digital is one way this machine
-gets built, not the machine itself, so the tools split by level:
+The software that serves the machine. [../tools/](../tools/) holds the
+machine-level tools (they work from any clone - no Digital, no JDK, no
+node needed); each build directory holds the tools that belong to it:
 
-- **machine-level** - know nothing about Digital: `machine.py` (the
-  machine's own definitions), `asm.py` (the assembler), `sim.py` (the
-  cycle-accurate simulator). These work from any clone, no Digital, no
-  JDK.
-- **Digital-specific** - the bridge to the Digital build: `digrom.py`
-  (ROM data inside .dig circuits), `dignetlist.py` (netlists out of .dig
+- **tools/** - `asm.py` (the assembler) and `microcode.py` (the
+  instruction set and microcode in code, and the script that generates
+  the ROM images every build runs).
+- **digital/** - the Digital build's own tools: `digrom.py` (ROM data
+  inside .dig circuits), `dignetlist.py` (netlists out of .dig
   circuits), `DigSim.java`/`digsim` (headless Digital simulation).
-- **reference** - `kicadnets.py`, the netlist out of Ben's KiCad project:
+- **kicad/** - `kicadnets.py`: the netlist out of Ben's KiCad project,
   the wiring reference for any build target, Digital or breadboard.
+- **web/** - the browser build, plus its test against the expected
+  outputs (below).
 
-The image files are the bridge between levels and targets: the
-assembler emits them (logisim hex / Intel HEX / raw), the simulator reads
-them back, EEPROM burners and Digital's ROM editor load them, and
-[../roms/](../roms/README.md) archives the machine's own ROM images.
+The image files are the bridge between tools and targets: the assembler
+emits them (logisim hex / Intel HEX / raw), EEPROM burners and Digital's
+ROM editor load them, and [../roms/](../roms/README.md) archives the
+machine's own ROM images.
 
 ## The workflow
 
@@ -25,23 +27,27 @@ them back, EEPROM burners and Digital's ROM editor load them, and
    .dig; `kicadnets.py` prints the reference netlist from Ben's KiCad
    project; compare pin by pin.
 3. **Program EEPROMs** with `digrom.py` (images archived in
-   [../roms/](../roms/README.md); contents defined in machine.py).
-4. **Run programs** with `asm.py` + `sim.py` - the machine itself is the
+   [../roms/](../roms/README.md); contents defined in `microcode.py`).
+4. **Run programs** in the browser build - the machine itself is the
    last mile (load the image through the front panel,
    [hardware.md](hardware.md)).
 
-## machine.py - the machine itself, in code
+## microcode.py - the instruction set and microcode, in code
 
-    python3 tools/machine.py     # print the instruction/microstep table
+    tools/microcode.py             # print the instruction/microstep table
+    tools/microcode.py --generate  # regenerate the ../roms/ images
+    tools/microcode.py --check     # verify the ../roms/ images match it
 
-Everything that is true of the machine no matter how it is built: the
-opcode numbers, the 16-bit control word, the microcode (the MICROSTEPS
-table - the source of truth for what each instruction does,
-[microcode.md](microcode.md)), the ROM contents (control ROMs, display
-ROM), and the image formats. The assembler, the simulator and the
-Digital tools all import from here, so they can never disagree about an
-opcode or a microstep. The microcode is written in a small notation, one
-line per instruction:
+The machine's definition, independent of how it is built: the opcode
+numbers, the 16 control lines, and the MICROSTEPS table - the source of
+truth for what every instruction does, step by step
+([microcode.md](microcode.md)). The control-ROM images in
+[../roms/](../roms/README.md) are generated from this table, and every
+build of the machine runs those images: digital/Computer.dig,
+web/js/machine.js, the breadboards. The assembler imports the opcode
+numbers from here, so tools and builds can never disagree about an
+opcode or a microstep. The microcode is written in a small notation,
+one line per instruction:
 
     LDA:  "MI,IO / RO,AI"        # T2, T3 after the shared fetch
     JC:   "IO,J if CF"            # only in the CF=1 halves of the images
@@ -50,26 +56,13 @@ line per instruction:
 `/` separates microsteps (numbered from T2 - T0/T1 are the shared fetch),
 `,` separates control lines within a step, `if CF` / `if not ZF` make a
 step conditional on a flag half. Run the file to see the resulting table.
-
-## digrom.py - EEPROM data in .dig circuits
-
-    tools/digrom.py presets
-    tools/digrom.py dump  --dig digital/Computer.dig --label U45 --words
-    tools/digrom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
-    tools/digrom.py write --dig c.dig --label U1 --hexfile myrom.hex --size 2048
-    tools/digrom.py export --preset control-rom1 --out roms/control-rom1.hex
-
-ROM data for embedded DIL chips is stored at the circuit level under the
-`romContent` attribute, keyed by chip instance Label (Digital 0.31
-format; Digital round-trips it on re-save). `write` does a surgical text
-edit (keeps the file's formatting), then re-reads and round-trip checks
-before atomically replacing the file.
-
-The data itself is machine-level: presets and images come from
-machine.py and [../roms/](../roms/README.md). Changing the microcode:
-edit MICROSTEPS in machine.py, `export` to [../roms/](../roms/), `write`
-into Computer.dig, then `sim.py --selftest` and run the gallery through
-`sim.py` before touching hardware.
+`--generate` (re)writes the images in [../roms/](../roms/README.md) -
+logisim .hex plus Intel HEX for EEPROM burners; the roms are shared by
+every build, and each build uploads them its own way (Digital via
+`digrom.py`, the web build by fetching them, the hardware by burning the
+Intel files). `--check` verifies the archived images are exactly these
+tables. The image formats themselves (logisim / Intel HEX / raw) are
+also defined in this file; the web build's twin is web/js/hex.js.
 
 ## asm.py - assembler / disassembler
 
@@ -84,27 +77,47 @@ Two-pass assembler for the one-byte instruction format
 hardware cannot encode. The listing shows each byte in hex and in ones
 and zeros as the three hardware groups - RAM address | opcode | operand -
 which are also the dipswitch groups for program entry. Image formats are
-machine.py's (logisim / intel / raw).
+`microcode.py`'s (logisim / intel / raw).
 
-## sim.py - cycle-accurate simulator
+## Running programs: the web build and the expected outputs
 
-    tools/sim.py programs/powers.asm            # run: OUT stream + summary
-    tools/sim.py programs/rotate.asm --max-cycles 5000
-    tools/sim.py programs/count.asm --trace 40 # per-cycle trace (stderr)
-    tools/sim.py --selftest                     # verify the ROM images
+    python3 web/build.py     # build the program images the app serves
+    python3 -m http.server   # from the repo root; open http://localhost:8000/web/
+    node web/js/run.mjs programs/count.hex    # headless CLI on the same machine model
+    python3 web/test/verify.py  # every program vs its frozen expectations
 
-Loads the control-ROM images from [../roms/](../roms/) (the same images
-the hardware burns and Computer.dig carries) and executes the microcode
-itself: fetch, flags, bus drivers, register latches - no per-instruction
-special cases. So it verifies the microcode and the ROM files, not just
-programs. Accepts .asm sources or .hex/.bin images; stdout carries the
-OUT stream, summary and trace go to stderr; exit status tells halt vs.
-cycle cap. Every program in the gallery passes it
-([programs.md](programs.md)).
+The web build runs the same control-ROM images the hardware burns, so a
+program behaves there exactly the way it behaves on the machine. What
+"correct" means is defined by the expectations frozen in
+web/test/verify.py's table: for every program, the halt status, the
+OUT count within 20,000 cycles, and the first 32 OUT values - and every
+build of the machine must reproduce them exactly. Changing a program's
+intended behavior means updating that table deliberately.
+
+## digrom.py - EEPROM data in .dig circuits
+
+    digital/digrom.py presets
+    digital/digrom.py dump  --dig digital/Computer.dig --label U45 --words
+    digital/digrom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
+    digital/digrom.py write --dig c.dig --label U1 --hexfile myrom.hex --size 2048
+    digital/digrom.py export --preset control-rom1 --out roms/control-rom1.hex
+
+ROM data for embedded DIL chips is stored at the circuit level under the
+`romContent` attribute, keyed by chip instance Label (Digital 0.31
+format; Digital round-trips it on re-save). `write` does a surgical text
+edit (keeps the file's formatting), then re-reads and round-trip checks
+before atomically replacing the file.
+
+The data itself is machine-level: presets and images come from
+`microcode.py` and [../roms/](../roms/README.md). Changing the
+microcode: edit MICROSTEPS in `tools/microcode.py`, `export` to
+[../roms/](../roms/README.md), `write` into Computer.dig, then
+`tools/microcode.py --check` and `web/test/verify.py` before touching
+hardware.
 
 ## dignetlist.py - netlist extraction
 
-    tools/dignetlist.py --dig digital/Computer.dig
+    digital/dignetlist.py --dig digital/Computer.dig
 
 Prints every element, every pin, and the members of the net each pin is
 on. Warns about wire endpoints touching the middle of another wire
@@ -116,7 +129,7 @@ against the Digital 0.31 source.
 
 ## kicadnets.py - the reference netlist
 
-    tools/kicadnets.py --net kicad/8bit-computer.net --refs U44,U45,U46
+    kicad/kicadnets.py --net kicad/8bit-computer.net --refs U44,U45,U46
 
 Prints every net containing the given component refs, as (ref, pin)
 pairs, from Ben's KiCad netlist. Chip pin maps (74LS273, 28C16, 74LS76,
@@ -127,8 +140,8 @@ wiring notes, in [hardware.md](hardware.md)).
 
 ## digsim - headless Digital simulator
 
-    tools/digsim --dig digital/Computer.dig --list
-    tools/digsim --dig digital/Computer.dig --toggle 'MUX\_CLK:8' --render
+    digital/digsim --dig digital/Computer.dig --list
+    digital/digsim --dig digital/Computer.dig --toggle 'MUX\_CLK:8' --render
 
 Runs any .dig headless through Digital's own model (compiles DigSim.java
 against Digital.jar; needs a JDK and Digital.jar, auto-located or set via
@@ -165,8 +178,9 @@ with digsim --nets):
   bus-side loads fought the wrongly-enabled transceiver. This makes the
   shared bus of Computer.dig unreliable in Digital 0.31 simulation -
   a newer Digital release is the fix (patching a local 74245.dig copy
-  was investigated and dropped; program behavior is verified headless
-  with sim.py). The display path (MUX_CLK multiplexing) does simulate.
+  was investigated and dropped; program behavior is verified against
+  the frozen expected outputs instead, via web/test/verify.py). The
+  display path (MUX_CLK multiplexing) does simulate.
 - **74157**: with a 74245 pin on any of its B-input nets, the mux
   outputs zeros on the *selected* A path (reproduced in isolation:
   clean A inputs, B inputs grounded except one on a 74245 - with or

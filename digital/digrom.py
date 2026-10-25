@@ -35,9 +35,9 @@ the old format.
 
 What goes INTO the ROMs - the machine's EEPROM contents (the microcode,
 the display patterns) and the image formats (logisim / Intel HEX / raw) -
-is machine-level and lives in machine.py (used equally by the assembler
-and the simulator, no Digital involved). This tool moves that data
-between machine-level image files and .dig circuits.
+is machine-level and lives in tools/microcode.py (used equally by the
+assembler and the simulator, no Digital involved). This tool moves that
+data between machine-level image files and .dig circuits.
 
 Commands:
   dump      Read and print ROM data stored in a .dig circuit.
@@ -47,9 +47,9 @@ Commands:
   export    Write a preset's (or a .dig's) ROM image to a file: logisim .hex,
             Intel HEX, or raw binary - for the Digital ROM editor's "load from
             file" option or for burning real EEPROMs.
-  presets   List the built-in data presets (defined in machine.py).
+  presets   List the built-in data presets (defined in tools/microcode.py).
 
-Examples:
+Examples (from the repo root):
   digrom.py dump --dig digital/Computer.dig --label U45 --words
   digrom.py write --dig digital/Computer.dig --label U47 --preset control-rom1
   digrom.py export --preset control-rom1 --out roms/control-rom1.hex
@@ -62,8 +62,10 @@ import sys
 import tempfile
 import xml.etree.ElementTree as ET
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import machine  # the machine-level EEPROM contents and image formats
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+from microcode import PRESETS, read_image, write_image  # tools/microcode.py:
+# the EEPROM contents + the image file formats
 
 # ---------------------------------------------------------------------------
 # dataField token format (Digital's DataFieldConverter)
@@ -282,17 +284,17 @@ def write_rom(path, label, data):
 def load_data(args):
     n = args.size
     if args.preset:
-        if args.preset not in machine.PRESETS:
+        if args.preset not in PRESETS:
             raise SystemExit(
-                "digrom: unknown preset %r (have: %s)" % (args.preset, ", ".join(sorted(machine.PRESETS)))
+                "digrom: unknown preset %r (have: %s)" % (args.preset, ", ".join(sorted(PRESETS)))
             )
-        data = machine.PRESETS[args.preset](swap_banks=getattr(args, "swap_banks", False))
+        data = PRESETS[args.preset](swap_banks=getattr(args, "swap_banks", False))
         return data[:n] if n else data
     if args.data:
         vals = decode_tokens(args.data)
         return (vals + [0] * n)[:n] if n else vals
     if args.hexfile:
-        return bytearray(machine.read_image(args.hexfile))
+        return bytearray(read_image(args.hexfile))
     if args.binfile:
         vals = list(open(args.binfile, "rb").read())
         return (vals + [0] * n)[:n] if n else vals
@@ -344,12 +346,12 @@ def cmd_export(args):
         raise SystemExit("digrom: export needs a --preset/--hex/--bin/--data source, or --dig + --label")
     if args.size:
         data = (list(data) + [0] * args.size)[: args.size]
-    machine.write_image(args.out, data, args.format)
+    write_image(args.out, data, args.format)
     print("digrom: exported %d bytes to %s (%s)" % (len(data), args.out, args.format))
 
 
 def cmd_presets(_args):
-    for name, fn in sorted(machine.PRESETS.items()):
+    for name, fn in sorted(PRESETS.items()):
         print("%s\n  %s\n" % (name, " ".join((fn.__doc__ or "").split())))
 
 
@@ -389,7 +391,7 @@ def main():
     e.add_argument("--size", type=int)
     e.set_defaults(fn=cmd_export)
 
-    ps = sub.add_parser("presets", help="list the built-in presets (defined in machine.py)")
+    ps = sub.add_parser("presets", help="list the built-in presets (defined in tools/microcode.py)")
     ps.set_defaults(fn=cmd_presets)
 
     args = p.parse_args()

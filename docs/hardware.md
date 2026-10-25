@@ -11,7 +11,7 @@ document describes the machine as it stands. Re-derive the raw netlist any
 time with `tools/dignetlist.py --dig digital/Computer.dig` (prints every
 pin and the members of its net; also warns about T-junctions, which are
 not connections in Digital) or compare against the KiCad reference with
-`tools/kicadnets.py` (see [tools.md](tools.md)).
+`kicad/kicadnets.py` (see [tools.md](tools.md)).
 
 Conventions: chips keep Ben's reference designators (U1..U53) so the two
 netlists line up one to one. "X <- Y" means X latches Y on the clock edge

@@ -61,10 +61,10 @@ debugging.
 | level | what it is | C status |
 |-------|-----------|----------|
 | L0 (original) | 16 bytes, 11 instructions, assembler + verified programs | impossible |
-| L1 (free microcode) - DONE | JNC/JNZ/ADDI/SUBI/DBL (additions.md, "Added: five opcodes") + tools/sim.py, the cycle-accurate test bench | still impossible - 16 bytes is 16 bytes |
+| L1 (free microcode) - DONE | JNC/JNZ/ADDI/SUBI/DBL (additions.md, "Added: five opcodes") + the web build, the cycle-accurate test bench | still impossible - 16 bytes is 16 bytes |
 | L2 (wiring) - DONE | 8 microsteps (T2-T6 usable); the 64-byte RAM is its own tier just above ([additions.md](additions.md), "Wiring + RAM chips") | still impossible |
 | L3 (the C threshold - hardware project) | 2KB code ROM (a 28C16 - this repo already burns them) + 2KB SRAM; 16-bit MAR and PC; two-byte instructions; the third control ROM; SP + CALL/RET + push/pop; indirect load/store (MAR from a register pair); ADC | the machine can now express C's abstract machine |
-| L4 (software, weeks) | the subset-C cross compiler on the host, emitting this repo's assembly; asm.py as the backend, sim.py as the test bench | C programs compile, run, and can be hand-checked against the gallery |
+| L4 (software, weeks) | the subset-C cross compiler on the host, emitting this repo's assembly; asm.py as the backend, the web build as the test bench | C programs compile, run, and can be hand-checked against the gallery |
 | L5 (polish) | IN (getchar), hardware bitwise (DBL already gives shift-left), structs | comfort, not capability |
 
 L3 is also the OS threshold - the same upgrades that give C its
@@ -78,15 +78,15 @@ computer. L4 does not need L3 to *start* (next section).
 
 ## What can start now, with zero new hardware
 
-1. DONE - **tools/sim.py** exists: the cycle-accurate simulator runs any
-   program (self-modifying code included) off the real control-ROM images
-   and is the compiler's test bench.
+1. DONE - **the web build** exists: web/js/machine.js runs any program
+   (self-modifying code included) off the real control-ROM images, and is
+   the compiler's test bench (node web/js/run.mjs for headless runs).
 2. DONE - **the tier-1 opcodes + assembler update**: the
    compiler target now has inverted jumps and immediates, for free.
 3. DROPPED - **the Digital 0.31 74245 patch**: not pursued; GUI-level
    runs of Computer.dig wait on a newer Digital release instead.
-4. NEXT - **write the compiler against sim.py + asm.py, with the L3 ISA
-   defined on paper first.** The compiler is the biggest software piece of the
+4. NEXT - **write the compiler against the web build + asm.py, with the
+   L3 ISA defined on paper first.** The compiler is the biggest software piece of the
    project and needs no hardware; doing it first also produces, as a
    side effect, the exact demand list the hardware must satisfy
    (data-driven hardware design: the compiler tells you what L3 must
@@ -112,7 +112,7 @@ what forces L3 in the first place.
 
 - C on the current 16-byte machine: impossible, forever.
 - Subset C compiling and running in the simulator: weeks, zero
-  hardware (sim.py + tier-1 opcodes + the compiler).
+  hardware (the web build + tier-1 opcodes + the compiler).
 - Subset C running on real (upgraded) hardware: the compiler plus the
   L3 rebuild - the hardware is the long pole, measured in a real
   electronics project, not an afternoon.

@@ -17,25 +17,31 @@ instruction. If the microcode is wrong, programs fail here exactly the way
 they fail on the machine. That is what makes this an implementation of the
 spec rather than a second opinion about it.
 
-The control-word bits and the cycle model are a port of [tools/sim.py]
-(../tools/sim.py) and [tools/machine.py](../tools/machine.py), the
-machine-readable spec. Correctness is defined by differential testing:
+The control-word bits are the tables from [tools/microcode.py]
+(../tools/microcode.py), the machine definition in code, and the cycle
+model is the one documented in [docs/microcode.md](../docs/microcode.md).
+Correctness is defined by the expectations frozen in
+[test/verify.py](test/verify.py)'s table - for every program, the halt
+status, the OUT count, and the first 32 OUT values - and each build must
+reproduce them exactly:
 
     python3 web/test/verify.py
 
-runs every program in [programs/](../programs/) on both `tools/sim.py`
-(the golden model) and this build's `js/machine.js`, and requires identical
-OUT streams and identical halt status for every program.
+runs every program in [programs/](../programs/) on this build's
+`js/machine.js` and checks them against that table.
 
 ## Run it locally
 
-The app fetches the ROM images and programs from the repo, so it needs an
-HTTP server (not `file://`). From the repo root:
+The app fetches the ROM images from the repo and the program images
+from ../programs/ (build artifacts - build them first). From the repo
+root:
 
+    python3 web/build.py        # writes programs/*.hex from the .asm sources
     python3 -m http.server
 
-then open <http://localhost:8000/web/>. Hosting elsewhere is the same
-story: this directory plus `../roms/` and `../programs/` is fully static.
+then open <http://localhost:8000/web/>. (An HTTP server, not `file://`.)
+Hosting elsewhere is the same story: this directory plus `../roms/` and
+the built `../programs/` images is fully static.
 
 ## What is here
 
@@ -43,11 +49,12 @@ story: this directory plus `../roms/` and `../programs/` is fully static.
 |-----------------|---------------------------------------------------------------|
 | index.html      | the app                                                        |
 | css/style.css   | the looks                                                      |
-| js/hex.js       | memory-image parsing: logisim .hex, Intel HEX, raw (same sniffing as machine.py) |
-| js/machine.js   | the machine: control-word bits + cycle-accurate core (the port of sim.py) |
+| js/hex.js       | memory-image parsing: logisim .hex, Intel HEX, raw (the JS twin of the formats in tools/microcode.py) |
+| js/machine.js   | the machine: control-word bits (tools/microcode.py) + the cycle-accurate core |
 | js/main.js      | the UI: load, run, step, reset, register and OUT display        |
-| js/run.mjs      | headless entry for node (used only by the differential test)    |
-| test/verify.py  | differential test against tools/sim.py                         |
+| js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count.hex)    |
+| build.py        | builds programs/*.hex from the .asm sources (gitignored artifacts) |
+| test/verify.py  | runs every program on js/machine.js against the frozen expectations |
 
 ## Phases
 

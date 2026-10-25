@@ -6,12 +6,14 @@ import {
   Machine, MEM_SIZE, controlNames, opcodeName, ROM1_BITS, ROM2_BITS,
 } from "./machine.js";
 
-// the programs that ship a .hex image in ../programs/ (a browser-side
-// assembler is a later phase - see the README)
+// the programs this build serves: programs/<name>.hex images, built from
+// the .asm sources by web/build.py (they are gitignored build artifacts -
+// run it on a fresh clone before serving)
 const PROGRAMS = [
-  "bothflags", "count", "countdown", "div", "fib", "gcd", "half",
-  "larger", "lcg", "memory", "mod", "mul", "overflow", "patch",
-  "rotate", "squares",
+  "absdiff", "bits", "bothflags", "count", "countdown", "decrement",
+  "div", "fib", "gcd", "half", "larger", "lcg", "memory", "min",
+  "mod", "mul", "odometer", "overflow", "patch", "powers", "rol",
+  "rotate", "squares", "step", "triple",
 ];
 
 const MAX_CYCLES = 100000;
@@ -92,7 +94,7 @@ function render(cycleInfo) {
   }
 }
 
-// the control word for the cycle about to execute (like sim.py --trace)
+// the control word for the cycle about to execute (docs/microcode.md, "Timing")
 function peekWord() {
   const opcode = machine.ir >> 4;
   const addr = machine.step | (opcode << 3) | (machine.cf << 8) | (machine.zf << 9);

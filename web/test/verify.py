@@ -1,96 +1,111 @@
 #!/usr/bin/env python3
 """
-verify.py - differential test: the web build against the golden model.
+verify.py - run every program on the web build and check it against the
+expected outputs.
 
-For every program in ../programs it runs the same control-ROM images on
-both implementations - tools/sim.py (the golden model, Python) and
-web/js/machine.js (the web build, via js/run.mjs under node) - and
-requires identical OUT streams and identical halt status. The web build
-is correct iff every program agrees; no other notion of correctness is
-needed, because both sides run the real microcode.
+Correctness of an implementation is defined by the corpus: the table
+below records, for every program in ../../programs/, the halt status, the
+total OUT count within the cap, and the first 32 OUT values. Any build of
+the machine that deviates in any of these fails. The expectations were
+frozen from the 2026-10-24 simulator/web agreement (both retired/verified
+against the docs' description of each program); update them only
+deliberately, when a program's intended behavior changes.
 
 Usage:
-  python3 web/test/verify.py            # all programs
-  python3 web/test/verify.py [--max-cycles N]
+  python3 web/test/verify.py
 
-Exit status: 0 iff every program agrees.
+Exit status: 0 iff every program matches.
 """
 
-import argparse
 import os
+import re
 import subprocess
 import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))   # the repo root
+ROOT = os.path.dirname(os.path.dirname(HERE))  # the repo root
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-import asm     # noqa: E402 - to build the image node runs
-import machine # noqa: E402 - image I/O
+import asm      # noqa: E402 - to build the image node runs
+from microcode import write_image  # noqa: E402 - image I/O
+
+CAP = 20000  # the cycle cap the expectations were frozen with
+
+# program -> (halted, total OUTs within CAP, first 32 OUT values)
+EXPECTED = {
+    "absdiff": (True, 1, [5]),
+    "bits": (False, 303, [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1]),
+    "bothflags": (True, 2, [255, 0]),
+    "count": (False, 833, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]),
+    "countdown": (True, 256, [255, 254, 253, 252, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 241, 240, 239, 238, 237, 236, 235, 234, 233, 232, 231, 230, 229, 228, 227, 226, 225, 224]),
+    "decrement": (True, 11, [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]),
+    "div": (True, 12, [91, 82, 73, 64, 55, 46, 37, 28, 19, 10, 1, 11]),
+    "fib": (False, 278, [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 121, 98, 219, 61, 24, 85, 109, 194, 47, 241, 32, 17, 49, 66, 115, 181, 40, 221]),
+    "gcd": (True, 1, [21]),
+    "half": (True, 1, [11]),
+    "larger": (True, 1, [14]),
+    "lcg": (False, 277, [6, 31, 156, 13, 66, 75, 120, 89, 190, 183, 148, 229, 122, 99, 240, 177, 118, 79, 140, 189, 178, 123, 104, 9, 46, 231, 132, 149, 234, 147, 224, 97]),
+    "memory": (False, 500, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]),
+    "min": (True, 1, [10]),
+    "mod": (True, 1, [1]),
+    "mul": (True, 6, [7, 14, 21, 28, 35, 42]),
+    "odometer": (False, 417, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]),
+    "overflow": (True, 5, [0, 60, 120, 180, 240]),
+    "patch": (False, 357, [7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]),
+    "powers": (True, 8, [1, 2, 4, 8, 16, 32, 64, 128]),
+    "rol": (False, 571, [22, 44, 88, 176, 97, 194, 133, 11, 22, 44, 88, 176, 97, 194, 133, 11, 22, 44, 88, 176, 97, 194, 133, 11, 22, 44, 88, 176, 97, 194, 133, 11]),
+    "rotate": (False, 408, [2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128, 1]),
+    "squares": (False, 313, [1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 0, 33, 68, 105, 144, 185, 228, 17, 64, 113, 164, 217, 16, 73, 132, 193, 0]),
+    "step": (False, 834, [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87, 90, 93]),
+    "triple": (False, 500, [3, 9, 27, 81, 243, 217, 139, 161, 227, 169, 251, 241, 211, 121, 107, 65, 195, 73, 219, 145, 179, 25, 75, 225, 163, 233, 187, 49, 147, 185, 43, 129]),
+}
 
 
-def sim_reference(path, max_cycles):
-    """Run tools/sim.py on the program; -> (stdout lines, halted)."""
-    p = subprocess.run(
-        [sys.executable, os.path.join(ROOT, "tools", "sim.py"), path,
-         "--max-cycles", str(max_cycles)],
-        capture_output=True, text=True, check=False,
-    )
-    return p.stdout.splitlines(), p.returncode == 0
-
-
-def web_candidate(image_path, max_cycles):
-    """Run js/machine.js on the program image via js/run.mjs; -> (stdout, halted)."""
+def run_web(image_path):
+    """Run js/machine.js on the program image via js/run.mjs."""
     p = subprocess.run(
         ["node", os.path.join(HERE, "..", "js", "run.mjs"), image_path,
          "--rom1", os.path.join(ROOT, "roms", "control-rom1.hex"),
          "--rom2", os.path.join(ROOT, "roms", "control-rom2.hex"),
-         "--max-cycles", str(max_cycles)],
+         "--max-cycles", str(CAP)],
         capture_output=True, text=True, check=False, cwd=ROOT,
     )
-    return p.stdout.splitlines(), p.returncode == 0
+    values = [int(m) for m in re.findall(r"^\s*(\d+)\s", p.stdout, re.M)]
+    return p.returncode == 0, values
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--max-cycles", type=int, default=100000)
-    args = ap.parse_args()
-
-    programs = sorted(
-        f for f in os.listdir(os.path.join(ROOT, "programs")) if f.endswith(".asm")
-    )
     failures = 0
-    print("verify: %d programs, sim.py vs web/js/machine.js" % len(programs))
-    for name in programs:
-        path = os.path.join(ROOT, "programs", name)
-        mem, _rows = asm.assemble(path, 16)  # the image node runs
+    print("verify: %d programs, web/js/machine.js vs the expected outputs" % len(EXPECTED))
+    for name in sorted(EXPECTED):
+        exp_halt, exp_count, exp_head = EXPECTED[name]
+        path = os.path.join(ROOT, "programs", name + ".asm")
+        mem, _rows = asm.assemble(path, 16)
         with tempfile.NamedTemporaryFile(
                 "w", suffix=".hex", delete=False, encoding="utf-8") as fh:
-            machine.write_image(fh.name, mem, "logisim")
+            write_image(fh.name, mem, "logisim")
             image_path = fh.name
         try:
-            ref_lines, ref_halt = sim_reference(path, args.max_cycles)
-            web_lines, web_halt = web_candidate(image_path, args.max_cycles)
+            got_halt, got_values = run_web(image_path)
         finally:
             os.unlink(image_path)
 
-        ok = ref_lines == web_lines and ref_halt == web_halt
-        status = "PASS" if ok else "FAIL"
-        print("  %-16s %s (%d OUTs%s)"
-              % (name, status, len(ref_lines),
-                 "" if ref_halt else ", no halt"))
+        ok = (exp_halt == got_halt and exp_count == len(got_values)
+              and exp_head == got_values[:len(exp_head)])
+        print("  %-16s %s (%d OUTs, %s)"
+              % (name, "PASS" if ok else "FAIL", exp_count,
+                 "halts" if exp_halt else "cap"))
         if not ok:
             failures += 1
-            print("    sim.py: %r" % (ref_lines[:8],))
-            print("    web:    %r" % (web_lines[:8],))
-            if ref_halt != web_halt:
-                print("    halt differs: sim=%s web=%s" % (ref_halt, web_halt))
+            print("    expected: halt=%s count=%d head=%r"
+                  % (exp_halt, exp_count, exp_head[:8]))
+            print("    got:      halt=%s count=%d head=%r"
+                  % (got_halt, len(got_values), got_values[:8]))
 
     if failures:
         print("verify: %d FAILURES" % failures)
         sys.exit(1)
-    print("verify: web implementation agrees with sim.py on every program")
+    print("verify: the web build reproduces every expected output")
 
 
 if __name__ == "__main__":

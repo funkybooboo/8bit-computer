@@ -3,13 +3,14 @@
 kicadnets.py - extract nets from a KiCad schematic netlist (.net) file.
 
 Used as the reference side of wiring verification: Ben Eater's KiCad project
-(kicad/8bit-computer.net) contains the netlist of the real build. Print the
-nets for the components of one module and compare pin by pin against what
-dignetlist.py extracts from the matching Digital .dig circuit.
+(8bit-computer.net, this directory) contains the netlist of the real build.
+Print the nets for the components of one module and compare pin by pin
+against what ../digital/dignetlist.py extracts from the matching Digital
+.dig circuit.
 
-Example - the output module chips:
-  kicadnets.py --net kicad/8bit-computer.net --refs U37,U38,U44,U45,U46
-  kicadnets.py --net kicad/8bit-computer.net --refs U40,U41,U42,U43   # displays
+Example - the output module chips (run from this directory):
+  kicadnets.py --net 8bit-computer.net --refs U37,U38,U44,U45,U46
+  kicadnets.py --net 8bit-computer.net --refs U40,U41,U42,U43   # displays
 
 Pin number maps for the chips used in this project (standard pinouts, also
 what Digital's DIL library uses):

@@ -42,12 +42,13 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from machine import OPCODES, read_image, write_image  # opcode numbers + image I/O
+from microcode import OPCODES, read_image, write_image  # tools/microcode.py:
+# opcode numbers (the source of truth) + the image file formats
 
 # ---------------------------------------------------------------------------
 # instruction table: language-level facts about each mnemonic. The opcode
-# NUMBERS come from machine.py (the machine-level source of truth, shared
-# with the microcode); operand kinds and effects are language documentation.
+# NUMBERS come from microcode.py (the machine's definition, shared with the
+# microcode); operand kinds and effects are language documentation.
 # ---------------------------------------------------------------------------
 
 OPERAND_NONE, OPERAND_ADDR, OPERAND_IMM = "none", "addr", "imm"

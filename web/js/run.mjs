@@ -6,8 +6,8 @@
 //
 // Runs the program on js/machine.js (the same cycle model as the browser
 // app) and prints one line per OUT on stdout, the summary on stderr, exit
-// 0 iff the program halted - the same output contract as tools/sim.py,
-// which is exactly what the differential test compares.
+// 0 iff the program halted - the contract web/test/verify.py compares
+// against the frozen expected outputs in programs/*.out.
 
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";

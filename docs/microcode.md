@@ -4,7 +4,7 @@ How the machine turns a step counter, an opcode and two flags into the 16
 control lines that make every instruction work.
 
 The **source of truth** is the generator: the MICROSTEPS table in
-[../tools/machine.py](../tools/machine.py), one line per instruction in
+[../tools/microcode.py](../tools/microcode.py), one line per instruction in
 a small notation ("/" separates microsteps, "," separates control lines,
 "if CF" makes a step conditional on a flag half). The images are archived
 in [../roms/](../roms/README.md) (logisim + Intel HEX) and injected into the

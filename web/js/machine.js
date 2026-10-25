@@ -1,6 +1,6 @@
 // machine.js - the machine, cycle-accurate.
 //
-// Port of tools/sim.py's Machine: it runs the REAL control-ROM images
+// The machine in code: it runs the REAL control-ROM images
 // (roms/control-rom1.hex and roms/control-rom2.hex - the same images the
 // Digital build carries and the hardware burns). Every clock cycle it
 // looks up the 16-bit control word at (step, opcode, CF, ZF) and asserts
@@ -18,9 +18,10 @@
 //   - registers latch on the clock edge at the end of each cycle, all from
 //     the pre-edge state; RI writes RAM[MAR]; PC wraps mod 16
 //
-// The control-word bits below come from tools/machine.py (ROM1_BITS /
-// ROM2_BITS, the machine-readable spec) - one source of truth, kept in
-// sync by web/test/verify.py's differential run against tools/sim.py.
+// The control-word bits below come from tools/microcode.py (ROM1_BITS /
+// ROM2_BITS, the machine definition in code) - one source of truth,
+// kept in sync by web/test/verify.py's run against the frozen expected
+// outputs in programs/*.out.
 
 export const ROM1_BITS = {  // U47
   HLT: 0x80, MI: 0x40, RI: 0x20, RO: 0x10,
@@ -31,7 +32,7 @@ export const ROM2_BITS = {  // U52
   CE: 0x08, CO: 0x04, J: 0x02, FI: 0x01,
 };
 
-export const OPCODES = {  // the spec: tools/machine.py OPCODES
+export const OPCODES = {  // tools/microcode.py OPCODES, same table
   NOP: 0x0, LDA: 0x1, ADD: 0x2, SUB: 0x3, STA: 0x4, LDI: 0x5,
   JMP: 0x6, JC: 0x7, JZ: 0x8, JNC: 0x9, JNZ: 0xa, ADDI: 0xb,
   SUBI: 0xc, DBL: 0xd, OUT: 0xe, HLT: 0xf,

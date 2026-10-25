@@ -1,28 +1,32 @@
 #!/usr/bin/env python3
 """
-machine.py - the machine itself, independent of how it is built.
+microcode.py - the instruction set and the microcode, in code.
 
-Everything here is true of the computer whether it runs in a simulator, in
-Digital, or on breadboards: the opcode numbers, the 16-bit control word,
-the microcode (the microstep table below is its source of truth), the ROM
-contents (control ROMs, display ROM), and the EEPROM image formats
-(Logisim hex / Intel HEX / raw). Digital-specific tools (digrom.py - ROM
-data inside .dig circuits) and machine-level tools alike (asm.py - the
-assembler, sim.py - the cycle-accurate simulator) import from here.
+The machine's definition, independent of how it is built: the opcode
+numbers, the 16 control lines (which bit of which control ROM drives
+each), and the MICROSTEPS table below - the source of truth for what
+every instruction does, cycle by cycle. The control-ROM images in
+../roms/ are generated from this table, and every build of the machine
+(digital/Computer.dig, web/js/machine.js, the breadboards) runs those
+images: the images are the machine's own contents, and this file is
+where they are defined.
 
 Run with no arguments to print the instruction/microstep table.
+--generate regenerates the images in ../roms/ from these tables (the
+logisim .hex every build loads plus the Intel HEX for EEPROM burners).
+--check verifies that the images archived in ../roms/ are exactly these
+tables, and that the fetch and bus rules hold in every ROM row.
+
+The roms are shared by every build; each build uploads them its own way:
+Digital via digital/digrom.py (they are embedded in the .dig), the web
+build by fetching them, the hardware by burning the Intel HEX files.
 
 Full references: ../docs/instruction-set.md (the ISA),
-../docs/microcode.md (the control unit), ../docs/hardware.md (what is
-wired where), ../docs/tools.md (the toolchain and how it splits by
-level).
-
-ROM image formats:
-  - logisim: "v2.0 raw" header + hex words, 8 per line - what Digital's
-    ROM editor loads (also a common generic format)
-  - intel:   Intel HEX records - what EEPROM burners take
-  - raw:     bare binary
+../docs/microcode.md (the control unit and timing), ../docs/hardware.md
+(what is wired where).
 """
+
+import os
 
 # ---------------------------------------------------------------------------
 # opcodes (canonical; docs/instruction-set.md documents them)
@@ -196,9 +200,9 @@ PRESETS = {
 
 
 # ---------------------------------------------------------------------------
-# EEPROM / memory image formats (the bridge between tools and targets:
-# the assembler emits them, EEPROM burners and Digital's ROM editor load
-# them, the simulator reads them back)
+# memory image formats (how these ROM contents and the assembler's output
+# travel between tools and build targets: Digital's ROM editor loads the
+# logisim form, EEPROM burners take the Intel form)
 # ---------------------------------------------------------------------------
 
 def export_logisim(data):
@@ -269,8 +273,7 @@ def read_image(path, size=None):
 
 
 # ---------------------------------------------------------------------------
-# a human-readable dump of the instruction/microstep table (cross-check
-# ../docs/microcode.md's tables against the source of truth)
+# running this file: show the table, regenerate the roms, or check them
 # ---------------------------------------------------------------------------
 
 def _dump():
@@ -289,5 +292,71 @@ def _dump():
         print("0x%x     %-8s  %s" % (opcode, name, row))
 
 
+def _generate():
+    """Regenerate the images in ../roms/ from these tables: the logisim
+    .hex every build loads plus the Intel HEX for EEPROM burners."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for name, preset in PRESETS.items():
+        img = preset()
+        for suffix, fmt in ((".hex", "logisim"), ("-intel.hex", "intel")):
+            path = os.path.join(root, "roms", name + suffix)
+            write_image(path, img, fmt)
+            print("microcode: wrote roms/%s%s" % (name, suffix))
+
+
+def _check():
+    """Verify the images archived in ../roms/ are exactly these tables,
+    and that the fetch and bus rules hold in every control-ROM row
+    (the rules are documented in ../docs/microcode.md)."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for name, preset in PRESETS.items():
+        img = preset()
+        archived = bytes(read_image(os.path.join(root, "roms", name + ".hex"),
+                                    len(img)))
+        assert archived == img, \
+            "roms/%s.hex does not match the tables in microcode.py" % name
+
+    # rules every control-ROM row must satisfy: fetch is identical for all
+    # opcodes/flags (T0 MI|CO, T1 RO|II|CE), at most one bus driver per
+    # cycle, and T7 - the transient step that resets the step counter -
+    # reads zero in both ROMs
+    rom1 = PRESETS["control-rom1"]()
+    rom2 = PRESETS["control-rom2"]()
+    for step in range(8):
+        for opcode in range(16):
+            for cf in (0, 1):
+                for zf in (0, 1):
+                    a = step | (opcode << 3) | (cf << 8) | (zf << 9)
+                    w1, w2 = rom1[a], rom2[a]
+                    drivers = sum(bool(x) for x in (
+                        w2 & ROM2_BITS["CO"], w1 & ROM1_BITS["RO"], w1 & ROM1_BITS["IO"],
+                        w1 & ROM1_BITS["AO"], w2 & ROM2_BITS["EO"],
+                    ))
+                    assert drivers <= 1, \
+                        "bus contention at step %d opcode %x" % (step, opcode)
+                    if step == 7:
+                        assert (w1, w2) == (0, 0), "T7 rows must be zero (reset transient)"
+                    if step in (0, 1):
+                        assert (w1, w2) == (
+                            (ROM1_BITS["MI"], ROM2_BITS["CO"]) if step == 0
+                            else (ROM1_BITS["RO"] | ROM1_BITS["II"], ROM2_BITS["CE"])
+                        ), "fetch rows differ at opcode %x" % opcode
+    print("microcode: roms/ images match these tables; fetch and bus rules hold")
+    print("microcode: check OK")
+
+
 if __name__ == "__main__":
-    _dump()
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--check", action="store_true",
+                    help="verify the ../roms/ images are exactly these tables")
+    ap.add_argument("--generate", action="store_true",
+                    help="regenerate the ../roms/ images from these tables")
+    args = ap.parse_args()
+    if args.generate:
+        _generate()
+    elif args.check:
+        _check()
+    else:
+        _dump()
