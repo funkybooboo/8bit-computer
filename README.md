@@ -2,9 +2,10 @@
 
 An 8-bit breadboard computer - [Ben Eater's](https://eater.net/8bit)
 design, with a few additions of its own - defined once and built several
-ways: the wiring verified pin-exact in [Digital](digital/), playable in
-a browser in [web/](web/), Ben's KiCad project as the reference in
-[kicad/](kicad/), and one day, real breadboards. Every build runs the
+ways: the wiring verified pin-exact in [Digital](digital/), emulated in
+a browser in [web/](web/) (the repo's emulator), Ben's KiCad project as
+the reference in [kicad/](kicad/), and one day, real breadboards. Every
+build runs the
 same control-ROM images from [roms/](roms/README.md) (generated from one
 place, [tools/genroms.py](tools/genroms.py)) and the same program
 gallery from [programs/](programs/README.md), and each program's

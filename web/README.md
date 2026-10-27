@@ -1,9 +1,10 @@
-# web/ - the browser implementation
+# web/ - the emulator
 
-The same machine as [digital/Computer.dig](../digital/Computer.dig), the
-same spec, one more way to run it: pure HTML, CSS and JavaScript, no build
-tools, no frameworks, no network dependencies - a static directory any web
-server can host, so anyone can play with the computer in a browser.
+The machine emulated in a browser - the repo's emulator (there is no
+separate one): the same machine as [digital/Computer.dig](../digital/Computer.dig),
+running the same ROM images, in pure HTML, CSS and JavaScript, no build
+tools, no frameworks, no network dependencies - a static directory any
+web server can host, so anyone can run the computer in a browser.
 
 ## The one rule: real ROM images, not an ISA re-implementation
 
@@ -16,6 +17,32 @@ signals against the registers, RAM and bus. Nothing is special-cased per
 instruction. If the microcode is wrong, programs fail here exactly the way
 they fail on the machine. That is what makes this an implementation of the
 spec rather than a second opinion about it.
+
+## What makes it a close emulation
+
+Everything below is modeled as the hardware does it (references:
+[docs/microcode.md](../docs/microcode.md), [docs/hardware.md](../docs/hardware.md),
+"Clock, reset, and power"):
+
+- the **two-edge clock**: one cycle is `risingEdge()` + `fallingEdge()` -
+  every register latches on the CLK edge, and only the microstep counter
+  (U48) advances on the inverted edge, between register edges, which is why
+  the control word is stable for the whole cycle
+- **bus discipline**: at most one bus driver per cycle; more is an error
+  (the emulator throws), not silent last-writer-wins
+- **pre-edge latching**: every register latches from the state before the
+  edge (which is what makes FI capture the flags of THIS result even as
+  AI latches the same result into A); the ALU computes A + ~B + 1 for SUB
+- **RESET as wired**: clears the PC, the step counter, the output register
+  and every 74173 (A, B, IR, MAR, flags) - and does NOT clear RAM (the
+  74189s are not on the reset net), so reset + rerun runs over whatever
+  the last run left in memory, exactly like the hardware; the load button
+  is the power cycle
+
+Not modeled yet (phase 2, the visual front panel): the program-entry
+dipswitches, and the multiplexed 4-digit display module, which is driven
+by [roms/output-display.hex](../roms/output-display.hex) and will join
+the emulation when the display does.
 
 The control-word bits are the tables from [tools/genroms.py]
 (../tools/genroms.py), the machine definition in code, and the cycle

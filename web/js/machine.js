@@ -15,13 +15,14 @@
 //   - bus drivers (exactly one may be active per cycle): CO (PC), RO
 //     (RAM at MAR), IO (operand nibble, zero-extended), AO (A), EO (ALU)
 //   - ALU: A + B, or A - B when SU (A + ~B + 1); FI latches CF and ZF
-//   - registers latch on the clock edge at the end of each cycle, all from
-//     the pre-edge state; RI writes RAM[MAR]; PC wraps mod 16
+//   - registers latch on the CLK edge, all from the pre-edge state;
+//     the microstep counter advances on the INVERTED edge, between
+//     register edges; RI writes RAM[MAR]; PC wraps mod 16
 //
 // The control-word bits below come from tools/genroms.py (ROM1_BITS /
 // ROM2_BITS, the machine definition in code) - one source of truth,
-// kept in sync by web/test/verify.py's run against the frozen expected
-// outputs in programs/*.out.
+// kept in sync by web/test/verify.py's run against its frozen
+// expectations table.
 
 export const ROM1_BITS = {  // U47
   HLT: 0x80, MI: 0x40, RI: 0x20, RO: 0x10,
@@ -77,10 +78,20 @@ export class Machine {
     return [t & 0xff, t > 0xff ? 1 : 0];
   }
 
-  // -- one clock cycle --------------------------------------------------
-  // Returns the bus value; throws on bus contention in the microcode.
+  // -- the clock, as the hardware shapes it -----------------------------
+  //
+  // One full cycle is two edges. The registers step on the CLK edge
+  // (risingEdge); the microstep counter U48 clocks on the INVERTED edge
+  // (fallingEdge), so it advances BETWEEN register edges - which is why
+  // the control word selected by (step, opcode, CF, ZF) is stable for the
+  // whole cycle. Nothing is special-cased per instruction: if the ROM
+  // images are wrong, programs fail here exactly the way they fail on
+  // the machine.
 
-  cycle() {
+  /** The edge the registers step on. Latches every register from the
+   *  pre-edge state, per the word selected by the current step.
+   *  Returns the bus value; throws on bus contention in the microcode. */
+  risingEdge() {
     const opcode = this.ir >> 4;
     const addr = this.step | (opcode << 3) | (this.cf << 8) | (this.zf << 9);
     const w1 = this.rom1[addr], w2 = this.rom2[addr];
@@ -103,7 +114,7 @@ export class Machine {
     if (on.length > 1) throw new Error("bus contention in the microcode");
     const bus = on.length ? on[0] : 0;
 
-    // edge: all latches from the pre-edge state
+    // the edge: all latches from the pre-edge state
     if (w1 & ROM1_BITS.MI) this.mar = bus & 0xf;
     if (w1 & ROM1_BITS.II) this.ir = bus & 0xff;
     if (w2 & ROM2_BITS.BI) this.b = bus & 0xff;
@@ -122,12 +133,38 @@ export class Machine {
       this.cf = aluCf;
       this.zf = aluRes === 0 ? 1 : 0;
     }
-    if (w1 & ROM1_BITS.HLT) this.halted = true;
+    if (w1 & ROM1_BITS.HLT) this.halted = true;  // the 7476 gates the clock off
 
     this.cycles++;
-    this.step = (this.step + 1) % STEPS;
-    if (this.step === 0) this.instructions++;
     return bus;
+  }
+
+  /** The inverted edge: only the microstep counter moves. */
+  fallingEdge() {
+    this.step = (this.step + 1) % STEPS;  // T7's word is zero and resets U48
+    if (this.step === 0) this.instructions++;
+  }
+
+  /** One full clock cycle: both edges. Returns the bus value. */
+  cycle() {
+    const bus = this.risingEdge();
+    this.fallingEdge();
+    return bus;
+  }
+
+  /** The RESET switch, as wired: clears the PC (U35), the microstep
+   *  counter (U48), the output register (U44) and every 74173's RES pin
+   *  (A, B, IR, MAR, flags). RAM is NOT cleared - the 74189s are not on
+   *  the reset net - so a reset+rerun re-runs over whatever the previous
+   *  run left in memory, exactly like the hardware. The outputs log is
+   *  an observation record, not machine state; reset does not touch it. */
+  reset() {
+    this.pc = this.mar = 0;
+    this.ir = 0;
+    this.a = this.b = this.out = 0;
+    this.cf = this.zf = 0;
+    this.step = 0;
+    this.halted = false;
   }
 
   /** Run until halt or maxCycles; returns true iff halted. */

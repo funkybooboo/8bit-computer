@@ -125,8 +125,12 @@ function run() {
 }
 
 function reset() {
-  if (!loadedRam) return;
-  machine = new Machine(rom1, rom2, loadedRam);
+  if (!machine) return;
+  // the RESET switch, as wired: clears PC/step/OUT/A/B/IR/MAR/flags but
+  // NOT RAM - a reset+rerun runs over whatever the last run left in
+  // memory, exactly like the hardware. To start from the program image
+  // again (a power cycle), use the load button.
+  machine.reset();
   $("trace").textContent = "";
   render();
 }
