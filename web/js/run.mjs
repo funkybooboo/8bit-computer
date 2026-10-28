@@ -4,7 +4,7 @@
 //   node web/js/run.mjs <program-image> [--rom1 FILE] [--rom2 FILE]
 //                       [--max-cycles N]
 //
-// Runs the program on js/machine.js (the same cycle model as the browser
+// Runs the program on js/machine.js (the same cycle model as the web
 // app) and prints one line per OUT on stdout, the summary on stderr, exit
 // 0 iff the program halted - the contract web/test/verify.py checks
 // against its frozen expectations table.

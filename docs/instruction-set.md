@@ -1,6 +1,6 @@
 # Instruction set
 
-The machine language executed by the computer in
+The machine language the machine executes in
 [../digital/Computer.dig](../digital/Computer.dig). The wiring is pin-exact
 against Ben Eater's reference design (his KiCad project, his schematics), and
 the microcode that implements this instruction set is documented in

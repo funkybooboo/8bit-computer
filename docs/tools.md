@@ -12,7 +12,7 @@ node needed); each build directory holds the tools that belong to it:
   circuits), `DigSim.java`/`digsim` (headless Digital simulation).
 - **kicad/** - `netlist.py`: the netlist out of Ben's KiCad project,
   the wiring reference for any build target, Digital or breadboard.
-- **web/** - the browser build, plus its test against the expected
+- **web/** - the web build, plus its test against the expected
   outputs (below).
 
 The image files are the bridge between tools and targets: the assembler
@@ -37,7 +37,7 @@ From a program's source to the machine in two tools:
   any .asm it produces the same two files:
   `asm.py X.asm --out X.bin --lst X.lst`.
 
-`compile.py` (and `web/build.py` for the whole corpus) just write those
+`compile.py` (and `web/build.py` for the whole gallery) just write those
 three files beside the source and print the listing; `compile.py` also
 runs the assembler once on what it generated, purely to reject a
 program that does not fit the hardware. Only the `.hl` is tracked -
@@ -51,7 +51,7 @@ the `.asm`, `.lst` and `.bin` are gitignored build artifacts.
    project; compare pin by pin.
 3. **Program EEPROMs** with `rom.py` (images archived in
    [../roms/](../roms/README.md); contents defined in `genroms.py`).
-4. **Run programs** in the browser build - the machine itself is the
+4. **Run programs** in the web build - the machine itself is the
    last mile (load the image through the front panel,
    [hardware.md](hardware.md)).
 
@@ -96,11 +96,12 @@ Compiles [language.md](language.md) - the high-level language - to the
 assembly language, validates the result by assembling it, and writes
 three files beside the source: the .asm (for inspection, gitignored),
 the .lst - the front-panel entry table, the dipswitch bit groups for
-every address - and the .bin, the bare 16-byte machine image. The language covers the whole machine (every opcode is reachable
-from some construct) and refuses at compile time what the hardware
+every address - and the .bin, the bare 16-byte machine image. The
+language covers the whole machine (every opcode is reachable from
+some construct) and refuses at compile time what the hardware
 cannot do: e * e, division, boolean values, functions, arrays,
-programs that do not fit the 16 bytes. The compiler emits the corpus's
-hand-written idioms - accumulator tracking makes `out x` after
+programs that do not fit the 16 bytes. The compiler emits the
+hand-written idioms the gallery grew from - accumulator tracking makes `out x` after
 `x = ...` one byte, `x = x - y` after `while x >= y` reuse the
 compare's subtraction, `x >= 128` is the DBL top-bit test - so the
 generated assembly reads like the hand-written programs did.

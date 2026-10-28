@@ -30,7 +30,7 @@ works from this repo as cloned.
 | [programs/](programs/README.md) | The program gallery (.hl sources, compiled by tools/compile.py) |
 | [tools/](tools/README.md) | The .hl compiler, the assembler and the ROM generator |
 | [digital/](digital/README.md) | The Digital build + its tools |
-| [web/](web/README.md) | The browser build + its build and test scripts |
+| [web/](web/README.md) | The web build + its build and test scripts |
 | [kicad/](kicad/README.md) | Ben's KiCad project - the reference build |
 | [crumb/](crumb/README.md) | The Crumb build (clock module in progress) |
 | [schematics/](schematics/README.md) | Ben's original module schematics |

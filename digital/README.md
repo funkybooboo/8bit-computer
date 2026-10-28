@@ -1,4 +1,4 @@
-# digital/ - the machine
+# digital/ - the Digital build
 
 The whole computer as one Digital circuit: Computer.dig - all ten
 modules plus the front panel, with the EEPROM contents stored in the

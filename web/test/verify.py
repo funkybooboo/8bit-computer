@@ -3,7 +3,7 @@
 verify.py - run every program on the web build and check it against the
 expected outputs.
 
-Correctness of an implementation is defined by the corpus: the table
+Correctness of an implementation is defined by the gallery: the table
 below records, for every program in ../../programs/, the halt status, the
 total OUT count within the cap, and the first 32 OUT values. Any build of
 the machine that deviates in any of these fails. The OUT sequences were

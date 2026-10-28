@@ -2,7 +2,7 @@
 """
 build.py - build the program images the web app serves.
 
-The browser app's program picker fetches ../programs/<name>.bin; those
+The web app's program picker fetches ../programs/<name>.bin; those
 images are build artifacts (compiled from the .hl sources with the repo's
 compiler, then assembled) and are gitignored, so a fresh clone has none
 of them. This script builds all of them. Run it from anywhere; it is

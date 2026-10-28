@@ -122,7 +122,7 @@ the compiler owns the code addresses, and an accidental write over
 your own code is exactly the kind of mistake the language exists to
 prevent.
 
-## The corpus
+## The gallery
 
 Every program in [../programs](../programs) is a `.hl` source; the
 generated `.asm` (kept by `compile.py`, gitignored) shows exactly what

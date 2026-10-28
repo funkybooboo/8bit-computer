@@ -17,7 +17,7 @@ The language maps onto what the hardware can do (full reference:
   - there are no boolean variables, no arrays, no functions, no
     recursion - the hardware has no storage for any of them, and the
     compiler rejects them instead of pretending
-  - the compiler emits the hand-written idioms from the program corpus:
+  - the compiler emits the hand-written idioms the gallery grew from:
     it tracks the accumulator, so `out x` right after `x = ...` costs
     one byte, `x = x - y` right after `while x >= y` reuses the
     compare's subtraction, and `x = x * 2 + 1` after `if x >= 128`

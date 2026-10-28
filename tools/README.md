@@ -3,7 +3,7 @@
 Three scripts, all runnable, all useful to every build of the machine.
 Tools that serve only one build live beside it: ../digital/ has the
 Digital tools, ../kicad/ has the netlist extractor, ../web/ has the
-browser build's scripts. Full usage and workflow:
+web build's scripts. Full usage and workflow:
 [../docs/tools.md](../docs/tools.md).
 
 | file         | what it is                                                       |
