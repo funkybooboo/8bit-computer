@@ -2306,12 +2306,12 @@
       <pos x="-2120" y="2340"/>
     </visualElement>
     <visualElement>
-      <elementName>Ground</elementName>
+      <elementName>VDD</elementName>
       <elementAttributes/>
       <pos x="-2300" y="2700"/>
     </visualElement>
     <visualElement>
-      <elementName>VDD</elementName>
+      <elementName>Ground</elementName>
       <elementAttributes/>
       <pos x="-2300" y="2680"/>
     </visualElement>

@@ -142,8 +142,10 @@ Switches and buttons (each has VDD/GND on its unmodeled second throw):
   program entry.
 - **PROG_DATA_0..7** (dipswitches -> U26/U27.A) - the data byte for
   program entry.
-- **PROG_WRITE** (U32.A4) - in program mode, pulsing this writes the
-  byte (through U32 -> U24/U25 ~WE).
+- **PROG_WRITE** (U32.A4) - in program mode, closing this writes the
+  byte (through U32 -> U24/U25 ~WE); the write is level-active while
+  held closed. Rails match the KiCad SW4: closed throws to ground
+  (write), open to VDD (idle).
 - **DEC_HEX** (U45.A10) - display mode: 1 decimal, 0 hexadecimal.
 
 LEDs: BUS_0..7, PC_0..3, A_0..7, B_0..7, SUM_0..7, CF, ZF, IR_0..7,

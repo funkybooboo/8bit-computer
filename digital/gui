@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# gui - launch the Digital GUI with the Driver high-Z fix built in.
+#
+# Digital 0.31's Driver element (the tri-state buffer inside the 74245 and
+# other bus chips) turns a high-Z input into a random-noise output. With the
+# shared bus that noise burns nets, the burn closes the whole model, and the
+# machine freezes at mid-init garbage (the "random numbers"). Driver.java in
+# this directory is the fixed source (high-Z in -> high-Z out); this script
+# compiles it against the stock Digital.jar, patches a copy, and launches it.
+#
+# The patched jar (with its lib/) is cached in ~/.cache/digital-patched and
+# rebuilt whenever digital/Driver.java or the stock jar changes. To use the
+# same jar headless: DIGITAL_JAR=$HOME/.cache/digital-patched/Digital.jar
+# digital/digsim ...
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -n ${DIGITAL_JAR:-} ]]; then
+  stock_jar=$DIGITAL_JAR
+elif command -v digital >/dev/null 2>&1; then
+  w="$(readlink -f "$(command -v digital)")"
+  stock_jar="$(grep -oE '[^ "]*Digital\.jar' "$w" 2>/dev/null | head -n1 || true)"
+  [[ -n $stock_jar ]] || stock_jar="$(ls -d /nix/store/*digital*/share/java/Digital.jar 2>/dev/null | head -n1 || true)"
+else
+  stock_jar="$(ls -d /nix/store/*digital*/share/java/Digital.jar 2>/dev/null | head -n1 || true)"
+fi
+[[ -n $stock_jar && -f $stock_jar ]] || { echo "gui: stock Digital.jar not found - set DIGITAL_JAR" >&2; exit 1; }
+stock_dir="$(dirname "$stock_jar")"
+
+javac_bin=""
+if [[ -n ${JAVA_HOME:-} && -x $JAVA_HOME/bin/javac ]]; then
+  javac_bin=$JAVA_HOME/bin/javac
+elif command -v javac >/dev/null 2>&1; then
+  javac_bin="$(command -v javac)"
+else
+  w="$(readlink -f "$(command -v digital)")"
+  jdir="$(grep -oE '"([^"]*)/bin/java"' "$w" 2>/dev/null | head -n1 | tr -d '"' | xargs dirname 2>/dev/null || true)"
+  [[ -n ${jdir:-} && -x $jdir/javac ]] && javac_bin=$jdir/javac
+fi
+[[ -n $javac_bin ]] || { echo "gui: javac not found - set JAVA_HOME (a full JDK)" >&2; exit 1; }
+jar_bin="${javac_bin%/javac}/jar"
+java_bin="${javac_bin%/javac}/java"
+
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/digital-patched"
+mkdir -p "$cache"
+
+needs_build=0
+[[ -f $cache/Digital.jar ]] || needs_build=1
+[[ $needs_build -eq 0 && $here/Driver.java -nt $cache/Digital.jar ]] && needs_build=1
+[[ $needs_build -eq 0 && $stock_jar -nt $cache/Digital.jar ]] && needs_build=1
+[[ $needs_build -eq 0 && ! -d $cache/lib ]] && needs_build=1
+
+if [[ $needs_build -eq 1 ]]; then
+  echo "gui: building patched Digital.jar in $cache" >&2
+  rm -rf "$cache/Digital.jar" "$cache/lib" "$cache/build"
+  mkdir -p "$cache/build"
+  cp "$stock_jar" "$cache/Digital.jar"
+  chmod u+w "$cache/Digital.jar"
+  cp -r "$stock_dir/lib" "$cache/lib"
+  chmod -R u+w "$cache/lib"
+  "$javac_bin" -cp "$stock_jar" -d "$cache/build" "$here/Driver.java"
+  (cd "$cache/build" && "$jar_bin" uf "$cache/Digital.jar" de/neemann/digital/core/wiring/Driver.class)
+fi
+
+exec "$java_bin" -jar "$cache/Digital.jar" "$@"

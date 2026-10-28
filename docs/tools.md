@@ -181,16 +181,30 @@ with digsim --nets):
   was investigated and dropped; program behavior is verified against
   the frozen expected outputs instead, via web/test/verify.py). The
   display path (MUX_CLK multiplexing) does simulate.
-- **74157**: with a 74245 pin on any of its B-input nets, the mux
-  outputs zeros on the *selected* A path (reproduced in isolation:
-  clean A inputs, B inputs grounded except one on a 74245 - with or
-  without the 74245 enabled, at either rotation; the same mux with a
-  plain Driver or In on the B net is correct). This is the concrete
-  mechanism behind the earlier "mix of bus and dipswitch values"
-  observation, and it is why the front-panel program entry writes
-  garbage under Digital 0.31 even in program mode: the RAM data muxes
-  (U26/U27) have their B inputs on the shared bus, which is built from
-  74245 pins. Test panel entry only on a newer Digital release.
+- **Driver (core, FIXED HERE)**: the tri-state Driver element - the
+  buffer inside the 74245/74189 models and the multiplexer output path
+  - converted a high-Z input into a random-noise *driven* output
+  (`getValue()` returns random bits for high-Z). At model init, with
+  all inputs at 0, the B->A transceivers started enabled, read the
+  floating side, and drove noise onto nets that were also driven by
+  real sources: a bus burn, and Digital swallows the BurnException and
+  closes the *entire model* (every later input change is silently
+  ignored - the machine shows frozen mid-init garbage, different every
+  run). This was the root cause of the "74157 mixes bus and dipswitch"
+  observation above and of all panel-entry corruption; the 74157 and
+  74245 chip models themselves are correct. The fix is
+  [Driver.java](../digital/Driver.java): propagate the input's high-Z
+  to the output. `digital/gui` builds a patched Digital.jar on demand
+  (cache: ~/.cache/digital-patched/Digital.jar) and launches the GUI;
+  point digsim at the same jar with
+  `DIGITAL_JAR=~/.cache/digital-patched/Digital.jar`. With the fix,
+  front-panel entry writes and reads back every byte deterministically.
+- **Burn-on-transition (core, unfixed)**: on some model builds a
+  transient two-driver overlap during clock-edge settling still trips
+  the burn check and closes the model mid-run (order-dependent, about
+  half of headless runs). If the machine freezes at garbage in the
+  GUI, stop and restart the simulation - the next build usually runs
+  clean through the whole program.
 - **Switch/DipSwitch/Button** elements are not model inputs, so
   `digsim --set` cannot drive them; test those paths in the GUI.
 
