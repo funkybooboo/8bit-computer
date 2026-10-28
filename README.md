@@ -28,11 +28,11 @@ works from this repo as cloned.
 | [docs/](docs/README.md) | The real documentation - one document per domain |
 | [roms/](roms/README.md) | The machine's ROM images: what every build runs |
 | [programs/](programs/README.md) | The program gallery (.hl sources, compiled by tools/compile.py) |
-| [tools/](tools/README.md) | The assembler + the ROM generator (genroms.py) |
+| [tools/](tools/README.md) | The .hl compiler, the assembler and the ROM generator |
 | [digital/](digital/README.md) | The Digital build + its tools |
 | [web/](web/README.md) | The browser build + its build and test scripts |
 | [kicad/](kicad/README.md) | Ben's KiCad project - the reference build |
-| [crumb/](crumb/README.md) | The Crumb build (empty for now) |
+| [crumb/](crumb/README.md) | The Crumb build (clock module in progress) |
 | [schematics/](schematics/README.md) | Ben's original module schematics |
 
 ## The documentation
@@ -41,7 +41,8 @@ works from this repo as cloned.
 |----------|--------|
 | [docs/architecture.md](docs/architecture.md) | How the parts make a computer - the theory |
 | [docs/hardware.md](docs/hardware.md) | Every part and every wire |
-| [docs/instruction-set.md](docs/instruction-set.md) | The machine language |
+| [instruction-set.md](docs/instruction-set.md) | The machine language |
+| [docs/language.md](docs/language.md) | The .hl high-level language |
 | [docs/microcode.md](docs/microcode.md) | The control signals and ROMs |
 | [docs/assembly-language.md](docs/assembly-language.md) | The assembly language and assembler |
 | [docs/programs.md](docs/programs.md) | The program gallery and the machine's limits |

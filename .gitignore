@@ -1,14 +1,13 @@
 __pycache__/
 
-# build and run artifacts - generated, never committed. programs/*.bin
-# and programs/*.asm are generated for the web app by web/build.py (the
-# .asm files are compiled from the .hl sources by tools/compile.py);
-# the .hl sources and web/test/verify.py's expectations table are what
-# is tracked.
+# build and run artifacts - generated, never committed. web/build.py
+# writes programs/*.bin, *.lst and *.asm for the web app (compiled from
+# the .hl sources by tools/compile.py); tools/compile.py writes the
+# same three on demand. The .hl sources and web/test/verify.py's
+# expectations table are what is tracked.
 # roms/*.hex are NOT artifacts: they are the machine's own ROM contents,
 # the pinned images every build consumes - tracked on purpose.
 programs/*.hex
 programs/*.lst
 programs/*.bin
-programs/*.out
 programs/*.asm
