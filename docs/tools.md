@@ -198,7 +198,8 @@ output by element position - switches are not model inputs, so --set
 cannot reach them; e.g. `--setpos -220,3020=1`), `--switch NAME=0|1`
 (open/close a SwitchDT by Label; closed connects the common pin to the
 B1 throw - this is how PROG_ADDR/RESET/PROG_WRITE are driven headless).
-Labels with underscores are stored backslash-escaped
+`--help` (or no arguments) prints the option list. Labels with
+underscores are stored backslash-escaped
 (`BUS\_1`); --set accepts both forms.
 
 Reflection-based (ModelCreator.netList), so it is Digital-version

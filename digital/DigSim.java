@@ -340,7 +340,37 @@ public class DigSim {
 
     // ---------------- CLI ----------------
 
+    private static void usage() {
+        System.out.println("DigSim - drive a Digital .dig circuit headless.");
+        System.out.println();
+        System.out.println("  digital/digsim --dig FILE [ACTIONS...]     --list works without --dig");
+        System.out.println();
+        System.out.println("Options, in command-line order (as parsed):");
+        System.out.println("  --dig FILE       the circuit to open");
+        System.out.println("  --list           list the model inputs and exit");
+        System.out.println("  --set NAME=VALUE set a model input, one step");
+        System.out.println("  --setpos X,Y=VALUE  drive a DipSwitch/Button output by position");
+        System.out.println("  --switch NAME=0|1   open/close a SwitchDT by Label (1 = closed)");
+        System.out.println("  --edge NAME      pulse a Clock/one-shot input");
+        System.out.println("  --toggle NAME:N  toggle an input N times (default 1)");
+        System.out.println("  --steps N        run N model steps");
+        System.out.println("  --render         print the seven-segment display state after each toggle");
+        System.out.println("  --watch LABEL.pin | --watch x,y   trace a pin through the run");
+        System.out.println("  --dump [FILTER]  dump element values (filter = substring)");
+        System.out.println("  --pins [FILTER]  element pins with real positions");
+        System.out.println("  --nets           Digital's own flattened nets");
+    }
+
     public static void main(String[] args) throws Exception {
+        for (String a : args)
+            if (a.equals("--help") || a.equals("-h")) {
+                usage();
+                return;
+            }
+        if (args.length == 0) {
+            usage();
+            return;
+        }
         String dig = null;
         boolean list = false;
         DigSim sim = null;
