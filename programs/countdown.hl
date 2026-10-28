@@ -1,0 +1,11 @@
+; countdown.hl - count down from 255 to 0, then halt
+; 0 - 1 underflows to 255, so a register at 0 counts down from 255;
+; the loop ends when the count reaches exactly 0. The pass (NOP) is
+; pacing: idle microsteps slow the countdown's display.
+var n = 255
+while n != 0:
+    out n
+    pass
+    n = n - 1
+out n
+halt

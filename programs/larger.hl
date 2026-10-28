@@ -1,0 +1,10 @@
+; larger.hl - display the larger of two data bytes
+; SUB sets CF=1 when there is no borrow, i.e. when A >= B, so a
+; comparison costs one subtraction - no compare instruction needed.
+var x = 9
+var y = 14
+if x >= y:
+    out x
+else:
+    out y
+halt

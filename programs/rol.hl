@@ -1,0 +1,9 @@
+; rol.hl - rotate the pattern 0b1011 left through carry, forever
+; x >= 128 is the DBL top-bit test; x * 2 + 1 is the rotate idiom.
+var x = 0b1011
+while 1:
+    if x >= 128:
+        x = x * 2 + 1
+    else:
+        x = x * 2
+    out x

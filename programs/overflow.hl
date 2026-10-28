@@ -1,0 +1,9 @@
+; overflow.hl - detect the 8-bit wrap: 0 + 60 + 60 + ...
+; A wrapped sum lands below its addend (mod 256, a sum that did not
+; wrap is at least the addend), so the wrap test is one comparison.
+var s = 0
+while 1:
+    out s
+    s = s + 60
+    if s < 60:
+        halt

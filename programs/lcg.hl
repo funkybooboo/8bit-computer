@@ -1,0 +1,7 @@
+; lcg.hl - a linear congruential generator: s = 5s + 1, forever
+; The multiply by 5 compiles to the hardware's ADD chain (ADD s four
+; times). Every seed gives the same cycle.
+var s = 1
+while 1:
+    s = s * 5 + 1
+    out s

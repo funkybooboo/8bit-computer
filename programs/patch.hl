@@ -1,0 +1,10 @@
+; patch.hl - the OUT stream of the original patch.asm
+; The .asm original demonstrates self-modifying code: it rewrites its
+; own ADD instruction to display 7 then 9 forever. The language does
+; not expose code addresses (an accidental self-write is exactly the
+; "dumb thing" it refuses), so this produces the same display by
+; ordinary means. Display: 7, 9, 9, 9, ...
+var y = 9
+out 7
+while 1:
+    out y

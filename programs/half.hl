@@ -1,0 +1,11 @@
+; half.hl - halve x, without a shift instruction: search for it
+; There is no right-shift, so find y with y + y = x instead.
+; The y = 0 reset makes the program re-runnable without re-entering
+; the image. x must be even.
+var x = 22
+var y = 0
+y = 0
+while y + y != x:
+    y = y + 1
+out y
+halt

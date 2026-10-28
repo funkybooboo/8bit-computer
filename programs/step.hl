@@ -1,0 +1,5 @@
+; step.hl - count by 3 forever: 0, 3, 6, ...
+var x = 0
+while 1:
+    out x
+    x = x + 3

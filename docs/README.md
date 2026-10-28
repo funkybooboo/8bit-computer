@@ -8,6 +8,7 @@ point here.
 | architecture.md   | How the parts make a computer: the theory, the block diagram |
 | hardware.md       | Every part and every wire (chips, nets, front panel)          |
 | instruction-set.md| The machine language: encoding, semantics, flags              |
+| language.md       | The .hl language: the high-level language, compiled to asm  |
 | microcode.md      | The control unit: 16 control signals, two ROMs, microsteps     |
 | assembly-language.md | The assembly language and its assembler                    |
 | programs.md       | The program gallery, the practical set, the limits            |

@@ -1,0 +1,13 @@
+; gcd.hl - Euclid's algorithm: the greatest common divisor of x and y
+; Subtractive Euclid: while x != y, subtract the smaller from the
+; larger. gcd(252, 105) = 21. One SUB does triple duty: A = x - y,
+; ZF tests x == y, CF tests x >= y - both branches here test it.
+var x = 252
+var y = 105
+while x != y:
+    if x >= y:
+        x = x - y
+    else:
+        y = y - x
+out x
+halt

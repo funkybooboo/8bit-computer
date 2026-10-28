@@ -1,0 +1,7 @@
+; mod.hl - the remainder of 100 / 9 by repeated subtraction
+var x = 100
+var y = 9
+while x >= y:
+    x = x - y
+out x
+halt

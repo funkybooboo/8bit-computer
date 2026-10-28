@@ -85,12 +85,12 @@ Eater set is 0-8, E, F). An older ROM image burns those opcodes as NOPs.
 - **ADDI / SUBI** - immediate forms of ADD/SUB: the operand nibble (0-15,
   zero-extended) feeds the ALU directly instead of a RAM cell, so loops can
   step and compare against constants without spending a byte of RAM on
-  them (decrement.asm, min.asm, step.asm).
+  them (decrement.hl, min.hl, step.hl).
 - **DBL** - doubles A through the ALU (B <- A, then A <- A + B): a
   shift-left-1 instruction, with CF catching the bit shifted out. DBL +
   JNC + ADDI 1 is a rotate-left-through-carry in three instructions
-  (rol.asm, and bits.asm streams a byte's bits through the display with
-  it), and a doubling loop ends itself on the wrap (powers.asm). The
+  (rol.hl, and bits.hl streams a byte's bits through the display with
+  it), and a doubling loop ends itself on the wrap (powers.hl). The
   operand nibble is ignored (the assembler emits 0).
 - **OUT** - displays **A**, not the operand. The output module's mode
   switch selects decimal or hex display.
@@ -116,21 +116,21 @@ same document, "Limits".
 
 - Comparison: SUB sets ZF=1 iff equal, CF=1 iff A >= B (no borrow). Note
   SUB clobbers A - keep a copy in RAM first (STA) if you need it
-  (larger.asm re-loads the winner from RAM instead), or let the wrapped
+  (larger.hl re-loads the winner from RAM instead), or let the wrapped
   subtraction restore itself when the compare value is a .DB constant
-  (SUB k, test the flags, ADD k - odometer.asm).
+  (SUB k, test the flags, ADD k - odometer.hl).
 - The ALU wraps modulo 256: 255 + 1 = 0, so counting loops need no
   end-of-range test; the wrap sets ZF at the same time if you do want it
-  (count.asm runs on this).
+  (count.hl runs on this).
 - Since LDI can only load 0-15, larger constants are built with `.DB`
   data bytes plus ADD (or LDA), or - for values near 255 - by subtracting
-  down from 0 (countdown.asm starts at 255 = 0 - 1).
+  down from 0 (countdown.hl starts at 255 = 0 - 1).
 - Flags change only on ADD, SUB, ADDI, SUBI and DBL - nothing else touches
   CF/ZF. A JZ three instructions after a SUB still reads that SUB's result
-  (mul.asm leans on this); but a conditional reading a flag from before
+  (mul.hl leans on this); but a conditional reading a flag from before
   program start reads whatever the reset left there - put the SUB before
   the first test.
 - **Self-modifying code is legal**: program and data share RAM, and STA
-  can target a code address (patch.asm rewrites its own ADD's operand
+  can target a code address (patch.hl rewrites its own ADD's operand
   at run time). The machine has no memory protection - nothing stops a
   program from eating itself.

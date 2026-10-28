@@ -31,9 +31,9 @@ Assembly language (full reference: ../docs/assembly-language.md):
 
 Examples:
   asm.py programs/count.asm                       # listing to stdout
-  asm.py programs/count.asm --out programs/count.hex --lst programs/count.lst
-  asm.py --dis programs/count.hex                 # disassemble an image
-  asm.py --dis programs/count.hex --all           # ... including trailing NOPs
+  asm.py programs/count.asm --out count.bin --lst count.lst
+  asm.py --dis count.bin                          # disassemble an image
+  asm.py --dis count.bin --all                    # ... including trailing NOPs
 """
 
 import argparse
@@ -365,8 +365,9 @@ def main():
     p.add_argument("--dis", action="store_true",
                    help="disassemble a memory image instead of assembling")
     p.add_argument("--out", help="write the assembled memory image to this file")
-    p.add_argument("--format", choices=["logisim", "intel", "raw"], default="logisim",
-                   help="image file format for --out (default: logisim)")
+    p.add_argument("--format", choices=["bin", "raw", "logisim", "intel"], default="bin",
+                   help="image file format for --out (default: bin - one hex"
+                        " byte per line, address = line number)")
     p.add_argument("--lst", "--listing", dest="lst",
                    help="write the listing to this file instead of stdout")
     p.add_argument("--mem-size", type=int, default=16,

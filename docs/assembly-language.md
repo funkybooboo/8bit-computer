@@ -2,7 +2,12 @@
 
 The assembly language for the machine's instruction set
 ([instruction-set.md](instruction-set.md)), and its assembler,
-[../tools/asm.py](../tools/asm.py).
+[../tools/asm.py](../tools/asm.py). This is the compiler's target
+language: the `.hl` sources in [../programs](../programs) are compiled
+to it by [compile.py](../tools/compile.py)
+([language.md](language.md)), and the generated `.asm` files sit beside
+each source (gitignored artifacts) - what you read to see exactly what
+the machine will run.
 
 The language is deliberately minimal and honest about the hardware: every
 instruction is one byte with a 4-bit operand field, and **every statement
@@ -75,7 +80,7 @@ by hand.
 
 ## Example
 
-[../programs/count.asm](../programs/count.asm) - count 0..255 forever:
+[../programs/count.asm](../programs/count.asm) - the compiler's output for count.hl - count 0..255 forever:
 
         LDI 0        ; A = 0 (the counter)
 loop:   OUT          ; display A

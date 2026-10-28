@@ -1,0 +1,7 @@
+; powers.hl - the powers of two, 1 to 128, then halt
+; DBL wraps 128 to 0, and the loop ends exactly there (x == 0).
+var x = 1
+while x != 0:
+    out x
+    x = x * 2
+halt

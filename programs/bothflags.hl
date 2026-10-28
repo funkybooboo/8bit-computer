@@ -1,0 +1,11 @@
+; bothflags.hl - one ADD setting both flags at once: 255 + 1
+; The full adder carries out (CF=1) and the result is zero (ZF=1) in
+; the same instruction - the only byte whose successor is exactly 0
+; with a carry. (The .asm original demonstrates JC and JZ both testing
+; that one operation; the arithmetic here is the same.)
+var a = 15
+a = a + 240
+out a
+a = a + 1
+out a
+halt

@@ -1,0 +1,8 @@
+; decrement.hl - countdown with no data cell: SUBI takes the constant
+; from the instruction. Displays 10 down to 0.
+var n = 10
+while n != 0:
+    out n
+    n = n - 1
+out n
+halt

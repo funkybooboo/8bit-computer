@@ -1,0 +1,6 @@
+; memory.hl - display the variable itself: 0, 1, 2, ... forever
+; The variable is a RAM cell entered together with the program.
+var i = 0
+while 1:
+    out i
+    i = i + 1

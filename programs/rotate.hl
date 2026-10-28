@@ -1,0 +1,8 @@
+; rotate.hl - rotate a byte left, keeping it in RAM: 1, 2, 4, ...
+var s = 1
+while 1:
+    if s >= 128:
+        s = s * 2 + 1
+    else:
+        s = s * 2
+    out s

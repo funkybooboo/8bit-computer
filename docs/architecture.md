@@ -52,7 +52,7 @@ me" possible (they latch on the clock edge only when enabled).
 data in one address space. Nothing distinguishes them: a byte is an
 instruction only because the program counter points at it when it is
 fetched. The flip side is self-modification - a program can write over
-its own instructions ([programs.md](programs.md), patch.asm) - which is
+its own instructions ([programs.md](programs.md), patch.hl) - which is
 legal because there is no protection, which is the same thing a 1970s CPU
 gave you.
 

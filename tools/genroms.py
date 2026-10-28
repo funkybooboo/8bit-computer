@@ -26,6 +26,7 @@ Full references: ../docs/instruction-set.md (the ISA),
 """
 
 import os
+import re
 
 # ---------------------------------------------------------------------------
 # opcodes (canonical; docs/instruction-set.md documents them)
@@ -211,6 +212,13 @@ def export_logisim(data):
     return "\n".join(lines) + "\n"
 
 
+def export_bin(data):
+    """The .bin format: one byte per line, two hex digits - the whole
+    image, so line N is the byte at address N. Human readable (it is the
+    front-panel entry table) and still trivially machine-parsed."""
+    return "\n".join("%02x" % b for b in data) + "\n"
+
+
 def export_intel(data):
     out = []
     for i in range(0, len(data), 16):
@@ -223,12 +231,14 @@ def export_intel(data):
 
 
 def write_image(path, mem, fmt):
-    """Write a memory image: 'logisim', 'intel' or 'raw'."""
+    """Write a memory image: 'bin' (one hex byte per line), 'logisim',
+    'intel' or 'raw' (bare binary)."""
     if fmt == "raw":
         with open(path, "wb") as fh:
             fh.write(bytes(mem))
     else:
-        text = export_logisim(mem) if fmt == "logisim" else export_intel(mem)
+        text = {"bin": export_bin, "logisim": export_logisim,
+                "intel": export_intel}[fmt](mem)
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(text)
 
@@ -267,6 +277,11 @@ def read_image(path, size=None):
         body = text.split("\n", 1)[1] if "\n" in text else ""
         vals = [int(t, 16) for t in body.replace(",", " ").split() if t]
         return bytearray((vals + [0] * size)[:size] if size else vals)
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    if lines and all(re.fullmatch(r"[0-9a-fA-F]{2}", l) for l in lines):
+        # the .bin format: one hex byte per line, address = line number
+        return bytearray((bytes.fromhex("".join(lines)) )[:size] if size
+                         else bytes.fromhex("".join(lines)))
     vals = list(blob)
     return bytearray((vals + [0] * size)[:size] if size else vals)  # raw binary
 

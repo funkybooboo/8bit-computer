@@ -139,7 +139,7 @@ the circuit (every "unused" pin claim verified in Computer.dig):
    threshold: [getting-to-c.md](getting-to-c.md).
 5. **Indirect addressing** - load the MAR from a register pair instead
    of a constant operand (a mux into the MAR's inputs + control lines).
-   With 16 bytes it is pointless (patch.asm's manual operand rewrite is
+   With 16 bytes it is pointless (patch.hl's manual operand rewrite is
    the loophole); with kilobytes it is what arrays, pointers and stacks
    need.
 6. **ALU upgrades**:
@@ -148,7 +148,7 @@ the circuit (every "unused" pin claim verified in Computer.dig):
      instead (one gate + a control line) enables 16-bit arithmetic as
      byte pairs chained through CF.
    - **Real shifts**: rotate-through-carry exists as software
-     (rotate.asm); hardware shifts want an ALU output mux.
+     (rotate.hl); hardware shifts want an ALU output mux.
    - **Bitwise AND/OR/XOR**: the 7486 XOR gates already exist in the ALU
      but are wired as SU's invert-B path, not a data path. Real bitwise
      ops want a second result source + control lines - ROM3 territory.

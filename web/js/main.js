@@ -6,8 +6,8 @@ import {
   Machine, MEM_SIZE, controlNames, opcodeName, ROM1_BITS, ROM2_BITS,
 } from "./machine.js";
 
-// the programs this build serves: programs/<name>.hex images, built from
-// the .asm sources by web/build.py (they are gitignored build artifacts -
+// the programs this build serves: programs/<name>.bin images, built from
+// the .hl sources by web/build.py (they are gitignored build artifacts -
 // run it on a fresh clone before serving)
 const PROGRAMS = [
   "absdiff", "bits", "bothflags", "count", "countdown", "decrement",
@@ -41,7 +41,7 @@ async function loadRomImages() {
 }
 
 async function loadProgram(name) {
-  const ram = await fetchImage("../programs/" + name + ".hex", MEM_SIZE);
+  const ram = await fetchImage("../programs/" + name + ".bin", MEM_SIZE);
   programName = name;
   startMachine(ram);
 }

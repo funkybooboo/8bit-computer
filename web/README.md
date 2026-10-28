@@ -63,7 +63,7 @@ The app fetches the ROM images from the repo and the program images
 from ../programs/ (build artifacts - build them first). From the repo
 root:
 
-    python3 web/build.py        # writes programs/*.hex from the .asm sources
+    python3 web/build.py        # writes programs/*.bin from the .hl sources
     python3 -m http.server
 
 then open <http://localhost:8000/web/>. (An HTTP server, not `file://`.)
@@ -79,20 +79,20 @@ the built `../programs/` images is fully static.
 | js/hex.js       | memory-image parsing: logisim .hex, Intel HEX, raw (the JS twin of the formats in tools/genroms.py) |
 | js/machine.js   | the machine: control-word bits (tools/genroms.py) + the cycle-accurate core |
 | js/main.js      | the UI: load, run, step, reset, register and OUT display        |
-| js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count.hex)    |
-| build.py        | builds programs/*.hex from the .asm sources (gitignored artifacts) |
+| js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count.bin)    |
+| build.py        | builds programs/*.bin from the .hl sources (gitignored artifacts; keeps the generated .asm next to each .hl for inspection) |
 | test/verify.py  | runs every program on js/machine.js against the frozen expectations |
 
 ## Phases
 
 1. Core + minimal UI (this): runs the real ROM images, program picker for
-   the programs that ship .hex images, run/step/reset, register, control
+   the programs that ship .bin images, run/step/reset, register, control
    signal and OUT display.
 2. Front panel + visual datapath: the fun part - LEDs, bus and register
    boxes, clock animation, single-stepping with the control lines lighting
    up, the programming dipswitches from the hardware.
-3. Assembler in the browser: port asm.py so any .asm source can be pasted
-   and run (removes the dependency on the .hex images existing).
+3. Compiler in the browser: port tools/compile.py so any .hl source can
+   be pasted and run (removes the dependency on the .bin images existing).
 4. Hosting: publish so anyone can play with it.
 
 Phase 1 is the whole machine, done correctly; everything after it is

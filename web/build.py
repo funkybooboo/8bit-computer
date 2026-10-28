@@ -2,10 +2,13 @@
 """
 build.py - build the program images the web app serves.
 
-The browser app's program picker fetches ../programs/<name>.hex; those
-images are build artifacts (assembled from the .asm sources with the
-repo's assembler) and are gitignored, so a fresh clone has none of them.
-This script builds all of them. Run it from anywhere; it is idempotent.
+The browser app's program picker fetches ../programs/<name>.bin; those
+images are build artifacts (compiled from the .hl sources with the repo's
+compiler, then assembled) and are gitignored, so a fresh clone has none
+of them. This script builds all of them. Run it from anywhere; it is
+idempotent. The generated .asm files are kept next to the .hl sources
+for inspection (also gitignored - use tools/compile.py --stdout to
+look at one).
 
     python3 web/build.py
 
@@ -19,19 +22,22 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-import asm      # the assembler
-from genroms import write_image  # image I/O
+import asm       # the assembler
+import compile as hlc  # the .hl compiler
 
 
 def main():
     out_dir = os.path.join(ROOT, "programs")
-    names = sorted(f[:-4] for f in os.listdir(out_dir) if f.endswith(".asm"))
+    names = sorted(f[:-3] for f in os.listdir(out_dir) if f.endswith(".hl"))
     for name in names:
-        src = os.path.join(out_dir, name + ".asm")
-        mem, _rows = asm.assemble(src, 16)
-        dst = os.path.join(out_dir, name + ".hex")
-        write_image(dst, mem, "logisim")
-    print("build: %d program images written to programs/*.hex" % len(names))
+        src = os.path.join(out_dir, name + ".hl")
+        text = hlc.compile_to_asm(src, 16)
+        asm_path = os.path.join(out_dir, name + ".asm")
+        with open(asm_path, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        mem, _rows = asm.assemble(asm_path, 16)
+        asm.write_image(os.path.join(out_dir, name + ".bin"), mem, "bin")
+    print("build: %d program images written to programs/*.bin" % len(names))
 
 
 if __name__ == "__main__":

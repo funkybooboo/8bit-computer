@@ -102,7 +102,7 @@ computer. L4 does not need L3 to *start* (next section).
     }
     void main() { out(gcd(252, 105)); }
 
-This is exactly today's programs/gcd.asm (15 bytes), written by hand.
+This is exactly today's programs/gcd.hl (15 bytes), written by hand.
 Compiled with a calling convention, it will be roughly 10x that - the
 price of C. That price is the point: C exists for the thousand-line
 program no one will hand-assemble into 16 bytes, and that program is

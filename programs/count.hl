@@ -1,0 +1,6 @@
+; count.hl - count 0..255 forever, displaying each value
+; The ALU wraps naturally, so no conditional is needed.
+var n = 0
+while 1:
+    out n
+    n = n + 1

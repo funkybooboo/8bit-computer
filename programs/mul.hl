@@ -1,0 +1,11 @@
+; mul.hl - multiplication as a counting loop: 7 * 6
+; The hardware has no multiply; the language enforces that (e * e is
+; rejected), so the loop is written out: r += x, y times.
+var r = 0
+var x = 7
+var y = 6
+while y != 0:
+    r = r + x
+    out r
+    y = y - 1
+halt

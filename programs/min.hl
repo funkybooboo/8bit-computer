@@ -1,0 +1,8 @@
+; min.hl - clamp x to the limit: display min(x, limit)
+const limit = 10
+var x = 25
+if x >= limit:
+    out limit
+else:
+    out x
+halt

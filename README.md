@@ -27,7 +27,7 @@ works from this repo as cloned.
 |-----------|----------|
 | [docs/](docs/README.md) | The real documentation - one document per domain |
 | [roms/](roms/README.md) | The machine's ROM images: what every build runs |
-| [programs/](programs/README.md) | The program gallery (.asm sources) |
+| [programs/](programs/README.md) | The program gallery (.hl sources, compiled by tools/compile.py) |
 | [tools/](tools/README.md) | The assembler + the ROM generator (genroms.py) |
 | [digital/](digital/README.md) | The Digital build + its tools |
 | [web/](web/README.md) | The browser build + its build and test scripts |

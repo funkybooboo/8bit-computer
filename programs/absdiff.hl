@@ -1,0 +1,11 @@
+; absdiff.hl - the absolute difference |x - y|
+; The textbook use of a borrow flag: one subtraction both computes the
+; difference and picks its direction (the compiler reuses the compare's
+; subtraction for the output). |9 - 14| = 5.
+var x = 9
+var y = 14
+if x >= y:
+    out x - y
+else:
+    out y - x
+halt

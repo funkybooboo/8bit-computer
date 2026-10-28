@@ -1,0 +1,13 @@
+; bits.hl - a byte on the display, one bit at a time
+; The display shows bytes; this shows the byte's binary representation,
+; most significant first, the way a serial link sends it. Each lap
+; rotates the byte left through carry and displays the bit that came
+; off the top as 0 or 1. With 10110101 the display reads its digits.
+var s = 0b10110101
+while 1:
+    if s >= 128:
+        s = s * 2 + 1
+        out 1
+    else:
+        s = s * 2
+        out 0
