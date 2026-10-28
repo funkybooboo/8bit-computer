@@ -6,9 +6,9 @@ The browser app's program picker fetches ../programs/<name>.bin; those
 images are build artifacts (compiled from the .hl sources with the repo's
 compiler, then assembled) and are gitignored, so a fresh clone has none
 of them. This script builds all of them. Run it from anywhere; it is
-idempotent. The generated .asm files are kept next to the .hl sources
-for inspection (also gitignored - use tools/compile.py --stdout to
-look at one).
+idempotent. The generated .asm and .lst files are kept next to the .hl
+sources (also gitignored): the .lst is the front-panel entry table -
+the dipswitch bit groups for every address.
 
     python3 web/build.py
 
@@ -35,9 +35,12 @@ def main():
         asm_path = os.path.join(out_dir, name + ".asm")
         with open(asm_path, "w", encoding="utf-8") as fh:
             fh.write(text)
-        mem, _rows = asm.assemble(asm_path, 16)
-        asm.write_image(os.path.join(out_dir, name + ".bin"), mem, "bin")
-    print("build: %d program images written to programs/*.bin" % len(names))
+        mem, rows = asm.assemble(asm_path, 16)
+        asm.write_image(os.path.join(out_dir, name + ".bin"), mem, "raw")
+        used = sum(1 for _a, byte, _t in rows if byte is not None)
+        with open(os.path.join(out_dir, name + ".lst"), "w", encoding="utf-8") as fh:
+            fh.write(asm.format_listing(rows, used, 16))
+    print("build: %d program images written to programs/*.bin (+ .lst entry tables)" % len(names))
 
 
 if __name__ == "__main__":

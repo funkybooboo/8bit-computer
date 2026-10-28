@@ -80,7 +80,7 @@ the built `../programs/` images is fully static.
 | js/machine.js   | the machine: control-word bits (tools/genroms.py) + the cycle-accurate core |
 | js/main.js      | the UI: load, run, step, reset, register and OUT display        |
 | js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count.bin)    |
-| build.py        | builds programs/*.bin from the .hl sources (gitignored artifacts; keeps the generated .asm next to each .hl for inspection) |
+| build.py        | builds programs/*.bin from the .hl sources (gitignored artifacts; keeps the generated .asm and the .lst entry table next to each .hl) |
 | test/verify.py  | runs every program on js/machine.js against the frozen expectations |
 
 ## Phases

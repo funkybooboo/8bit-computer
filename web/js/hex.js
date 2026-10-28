@@ -74,21 +74,5 @@ export function parseImage(bytes, size) {
   if (u8[i] === 0x3a) return parseIntel(u8, size);
   const text = new TextDecoder("utf-8", { fatal: false }).decode(u8);
   if (/^\s*v2\.0/.test(text)) return parseLogisim(text, size);
-  if (isBinFormat(text)) return parseBin(text, size);
   return padOrTruncate(u8, size);  // raw binary
-}
-
-function isBinFormat(text) {
-  // every non-empty line is exactly two hex digits
-  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
-  return lines.length > 0 && lines.every((l) => /^[0-9a-fA-F]{2}$/.test(l.trim()));
-}
-
-function parseBin(text, size) {
-  const vals = [];
-  for (let line of text.split(/\r?\n/)) {
-    line = line.trim();
-    if (line) vals.push(parseInt(line, 16));
-  }
-  return padOrTruncate(Uint8Array.from(vals), size);
 }

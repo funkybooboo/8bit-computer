@@ -1123,8 +1123,14 @@ def main():
     print("compile: wrote %s.asm" % base)
     mem, rows = asm_assemble(base + ".asm", args.mem_size)
     used = sum(1 for _a, b, _t in rows if b is not None)
-    sys.stdout.write(asm.format_listing(rows, used, args.mem_size))
-    asm.write_image(base + ".bin", mem, "bin")
+    listing = asm.format_listing(rows, used, args.mem_size)
+    sys.stdout.write(listing)
+    # the listing is the front-panel entry table: keep it beside the
+    # program (the .bin is the bare machine image)
+    with open(base + ".lst", "w", encoding="utf-8") as fh:
+        fh.write(listing)
+    print("compile: wrote %s.lst (the dipswitch entry table)" % base)
+    asm.write_image(base + ".bin", mem, "raw")
     print("compile: wrote %d-byte image to %s.bin" % (len(mem), base))
 
 if __name__ == "__main__":

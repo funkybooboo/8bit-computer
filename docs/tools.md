@@ -61,19 +61,19 @@ logisim .hex plus Intel HEX for EEPROM burners; the roms are shared by
 every build, and each build uploads them its own way (Digital via
 `rom.py`, the web build by fetching them, the hardware by burning the
 Intel files). `--check` verifies the archived images are exactly these
-tables. The image formats themselves (logisim / Intel HEX / the .bin text
-form / raw binary) are also defined in this file; the web build's twin
-is web/js/hex.js.
+tables. The image formats themselves (raw binary / logisim / Intel HEX) are
+also defined in this file; the web build's twin is web/js/hex.js.
 
 ## compile.py - the .hl compiler
 
-    tools/compile.py programs/count.hl        # -> count.asm + count.bin (+ listing)
+    tools/compile.py programs/count.hl        # -> count.asm + count.lst + count.bin
     tools/compile.py programs/count.hl --stdout    # the generated .asm only
 
 Compiles [language.md](language.md) - the high-level language - to the
 assembly language, validates the result by assembling it, and writes
-the .asm beside the source (for inspection; gitignored) plus the .bin
-image. The language covers the whole machine (every opcode is reachable
+three files beside the source: the .asm (for inspection, gitignored),
+the .lst - the front-panel entry table, the dipswitch bit groups for
+every address - and the .bin, the bare 16-byte machine image. The language covers the whole machine (every opcode is reachable
 from some construct) and refuses at compile time what the hardware
 cannot do: e * e, division, boolean values, functions, arrays,
 programs that do not fit the 16 bytes. The compiler emits the corpus's
@@ -93,11 +93,10 @@ Two-pass assembler for the one-byte instruction format
 [assembly-language.md](assembly-language.md). Rejects anything the
 hardware cannot encode. The listing shows each byte in hex and in ones
 and zeros as the three hardware groups - RAM address | opcode | operand -
-which are also the dipswitch groups for program entry. The default
-image format is `bin`: one hex byte per line, address = line number -
-readable for hand entry and loadable by every build (the web build
-fetches these). Image formats are `genroms.py`'s (bin / logisim /
-intel / raw).
+which are also the dipswitch groups for program entry. The default image
+format is `raw` - bare binary, the .bin. Image formats are
+`genroms.py`'s (raw / logisim / intel; the last two exist for the
+machine's own ROM contents).
 
 ## Running programs: the web build and the expected outputs
 

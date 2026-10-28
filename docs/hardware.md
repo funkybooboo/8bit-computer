@@ -159,11 +159,12 @@ PROG_ADDR switch grounds the S net when closed (KiCad SW6), and the
 R63/D48 path pulls it high when open - so PROG_ADDR closed = program
 mode (PROG LED lit), open = run mode (PROG_hat lit).
 
-**Entering a program**: flip PROG_ADDR to program mode; for each byte of
-the listing (built with [tools.md](tools.md), asm.py) set PROG_ADDR_A0..3
-and PROG_DATA_0..7 and click PROG_WRITE; flip PROG_ADDR back to run
-mode, pulse RESET, start the clock (or single-step). The listing's
-ADDR/BYTE columns are the dipswitch settings.
+**Entering a program**: flip PROG_ADDR to program mode; for each byte
+of the listing (built with [tools.md](tools.md), compile.py - the .lst
+file beside each program) set PROG_ADDR_A0..3 and PROG_DATA_0..7 and
+click PROG_WRITE; flip PROG_ADDR back to run mode, pulse RESET, start
+the clock (or single-step). The listing's bits column shows the three
+dipswitch groups per address: address | opcode | operand.
 
 **The display**: the output register byte (U44.Q) addresses the display
 ROM (U45.A0..7) together with the multiplex counter (U37 -> U45.A8/A9),

@@ -96,7 +96,7 @@ def main():
             os.unlink(asm_path)
         with tempfile.NamedTemporaryFile(
                 "w", suffix=".bin", delete=False, encoding="utf-8") as fh:
-            write_image(fh.name, mem, "bin")
+            write_image(fh.name, mem, "raw")
             image_path = fh.name
         try:
             got_halt, got_values = run_web(image_path)

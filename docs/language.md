@@ -6,7 +6,8 @@ assembles to the `.bin` images the machine runs. One command does the
 whole chain:
 
     python3 tools/compile.py programs/count.hl
-    # -> programs/count.asm (kept for inspection) + programs/count.bin
+    # -> programs/count.asm (inspection) + programs/count.lst (the
+    #    dipswitch entry table) + programs/count.bin (the machine image)
 
 The language is a thin, honest layer over the machine
 ([instruction-set.md](instruction-set.md) is the ground truth). It
@@ -124,5 +125,6 @@ prevent.
 
 Every program in [../programs](../programs) is a `.hl` source; the
 generated `.asm` (kept by `compile.py`, gitignored) shows exactly what
-the machine will run, and [web/test/verify.py](../web/test/verify.py)
+the machine will run, and the `.lst` beside it is the front-panel
+entry table - the dipswitch bit groups, one line per address, and [web/test/verify.py](../web/test/verify.py)
 runs each program on the machine against the frozen expected outputs.

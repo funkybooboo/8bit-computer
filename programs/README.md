@@ -6,8 +6,8 @@ itself, with what each program shows and what it teaches, lives in
 
 Only the sources are tracked. Everything else here is a build artifact
 and is gitignored: `web/build.py` writes the .bin images the browser app
-serves (and the compiled .asm beside each source, for inspection), and
-`tools/compile.py` writes any image or listing on demand:
+serves plus the compiled .asm and the .lst dipswitch entry table beside
+each source, and `tools/compile.py` writes any of them on demand:
 
     python3 web/build.py                       # all program images, for the web app
     tools/asm.py programs/count.hl --out prog.hex --lst prog.lst
