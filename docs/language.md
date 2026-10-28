@@ -2,8 +2,9 @@
 
 `tools/compile.py` compiles `.hl` programs to the assembly language
 ([assembly-language.md](assembly-language.md)), which `tools/asm.py`
-assembles to the `.bin` images the machine runs. One command does the
-whole chain:
+assembles to the `.lst` entry table and the `.bin` image the machine
+runs - the full chain, with who produces what, is in
+[tools.md](tools.md), "The build chain". One command does all of it:
 
     python3 tools/compile.py programs/count.hl
     # -> programs/count.asm (inspection) + programs/count.lst (the

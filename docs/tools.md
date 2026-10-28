@@ -4,9 +4,9 @@ The software that serves the machine. [../tools/](../tools/) holds the
 machine-level tools (they work from any clone - no Digital, no JDK, no
 node needed); each build directory holds the tools that belong to it:
 
-- **tools/** - `asm.py` (the assembler) and `genroms.py` (the
-  instruction set and microcode in code, and the script that generates
-  the ROM images every build runs).
+- **tools/** - `compile.py` (the .hl compiler), `asm.py` (the
+  assembler) and `genroms.py` (the instruction set and microcode in
+  code, and the script that generates the ROM images every build runs).
 - **digital/** - the Digital build's own tools: `rom.py` (ROM data
   inside .dig circuits), `netlist.py` (netlists out of .dig
   circuits), `DigSim.java`/`digsim` (headless Digital simulation).
@@ -16,9 +16,32 @@ node needed); each build directory holds the tools that belong to it:
   outputs (below).
 
 The image files are the bridge between tools and targets: the assembler
-emits them (logisim hex / Intel HEX / raw), EEPROM burners and Digital's
-ROM editor load them, and [../roms/](../roms/README.md) archives the
-machine's own ROM images.
+emits them (raw binary / logisim hex / Intel HEX), EEPROM burners and
+Digital's ROM editor load them, and [../roms/](../roms/README.md) archives
+the machine's own ROM images.
+
+## The build chain
+
+From a program's source to the machine in two tools:
+
+    X.hl --compile.py--> X.asm --asm.py--> X.lst + X.bin
+
+- `compile.py` is the frontend: it compiles the .hl source to assembly
+  (the language: [language.md](language.md)) and hands the assembly to
+  the assembler - its only job is producing the `.asm`.
+- `asm.py` is the assembler: everything downstream of `.asm` is its
+  work. Its `assemble()` turns the text into the memory image,
+  `format_listing()` turns that into the `.lst` - the front-panel entry
+  table, one line per address with the three dipswitch bit groups -
+  and the image is written as the `.bin`, 16 bare bytes. Run alone on
+  any .asm it produces the same two files:
+  `asm.py X.asm --out X.bin --lst X.lst`.
+
+`compile.py` (and `web/build.py` for the whole corpus) just write those
+three files beside the source and print the listing; `compile.py` also
+runs the assembler once on what it generated, purely to reject a
+program that does not fit the hardware. Only the `.hl` is tracked -
+the `.asm`, `.lst` and `.bin` are gitignored build artifacts.
 
 ## The workflow
 
