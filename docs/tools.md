@@ -26,11 +26,6 @@ From a program's source to the machine in two tools:
 
     X.hl --compile.py--> X.asm --asm.py--> X.lst + X.bin
 
-The same chain runs in the browser: [../web/](../web/README.md) carries
-faithful JS ports of both tools (js/hlc.js, js/asm.js), checked
-byte-identical to these by web/test/test_tools.py - so a program built
-in the web app is the same program these tools build.
-
 - `compile.py` is the frontend: it compiles the .hl source to assembly
   (the language: [language.md](language.md)) and hands the assembly to
   the assembler - its only job is producing the `.asm`.

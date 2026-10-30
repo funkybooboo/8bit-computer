@@ -3,75 +3,48 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>8-bit computer - front panel</title>
+  <title>8-bit computer</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header>
     <h1>8-BIT COMPUTER</h1>
     <p>
-      Ben Eater's breadboard computer (with added opcodes) as the
-      machine itself - its modules, lamps and switches - running in a
-      browser. It executes the real control-ROM
-      images, <code>roms/control-rom1.hex</code> and
-      <code>roms/control-rom2.hex</code> - the same microcode the
-      hardware burns - so a program behaves here exactly the way it
-      behaves on the machine. Bring your own program (.hl, .asm or an
-      image); the docs are in the pane below the panel.
+      Ben Eater's breadboard computer (with a few additions), exactly
+      as it is wired in <a href="https://github.com/funkybooboo/8bit-computer"
+      rel="noopener">this repo</a> - running the same control-ROM images
+      the hardware burns, so it behaves here the way it behaves on the
+      bench. It powers on with empty RAM: enter a program with the
+      switches, then let it run.
     </p>
   </header>
 
-  <div id="deck"></div>
-  <p id="legend">
-    <b>PANEL KEY</b> - every unmarked module, lamp and switch is the
-    machine's own, as wired in the Digital build (PC top right, the
-    control logic - with RESET - bottom left, the bus rail between the
-    module columns; docs/hardware.md). <b>Dashed</b> elements - and the
-    bar above and the panes below - are this app's instruments: they
-    do not exist on the machine.
-  </p>
+  <p id="status"></p>
   <div id="panel"><canvas id="display-canvas"></canvas></div>
-
-  <p class="panecap">
-    Everything below is this app's tooling - the compiler, the entry
-    listing, the logs, the docs - none of it is on the machine.
-  </p>
-  <div id="panes">
-    <section id="p-your">
-      <h2>your program</h2>
-      <div id="your"></div>
-    </section>
-    <section id="p-listing">
-      <h2>listing - the entry table</h2>
-      <div id="listing"></div>
-    </section>
-    <section id="p-out">
-      <h2>out log</h2>
-      <pre id="outlog"></pre>
-    </section>
-    <section id="p-trace">
-      <h2>cycle trace</h2>
-      <pre id="trace"></pre>
-    </section>
-    <section id="p-docs">
-      <h2>docs</h2>
-      <div id="docs"></div>
-    </section>
-  </div>
 
   <footer>
     <p>
+      Entering a program, the way the hardware does it: PROG_ADDR
+      (on the MAR) to PROG, set PROG_ADDR_A and PROG_DATA from a
+      listing, PROG_WRITE (on the RAM) per byte, PROG_ADDR back to RUN,
+      RESET. In PROG mode the RAM DATA lamps read back the addressed
+      byte. STEP_MODE (on the CLOCK) picks the clock: AUTO runs at the
+      U1 rate, MANUAL makes STEP_PULSE single-step - the space bar
+      works too. RESET (on the CONTROL) clears everything but RAM.
+      Programs and their listings are written in
+      <a href="https://github.com/funkybooboo/8bit-computer"
+      rel="noopener">the repo</a>: the <a
+      href="https://github.com/funkybooboo/8bit-computer/tree/main/programs">program
+      sources</a>, the <a
+      href="https://github.com/funkybooboo/8bit-computer/blob/main/docs/README.md">docs</a>
+      (the language, the instruction set, the hardware) and the tools
+      that build the dipswitch tables.
+    </p>
+    <p>
       The machine itself - circuit design, architecture, schematics - is
       <a href="https://eater.net/8bit" rel="noopener">Ben Eater's</a>
-      published work; this web build is a reproduction of it for study,
-      running the same ROM images and the same program gallery as the
-      repo's other builds. This page is the repo's web build:
-      <a href="https://github.com/funkybooboo/8bit-computer"
-        rel="noopener">funkybooboo/8bit-computer</a> - fully static, no
-      backend, every file it fetches is in the repo. Space = STEP_PULSE
-      (one clock edge, MANUAL mode). The panel's parts and the
-      program-entry procedure: docs/hardware.md; the signals on the
-      control LEDs: docs/microcode.md.
+      published work; this page is a reproduction of it for study.
+      Fully static, no backend: every file it fetches is in the repo.
     </p>
   </footer>
 

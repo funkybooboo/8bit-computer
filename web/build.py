@@ -5,12 +5,10 @@ build.py - write the gallery's build artifacts next to their sources.
 For every programs/<name>.hl this writes <name>.asm, <name>.lst (the
 front-panel entry table - the dipswitch bit groups for every address)
 and <name>.bin (the bare machine image), all gitignored artifacts.
-These are for local work: inspection, manual entry from the .lst, and
-the headless runner (js/run.mjs takes an image path). The web app does
-NOT need them - it fetches the tracked .hl sources and compiles them in
-the browser with its own byte-identical port of this same toolchain
-(see web/README.md, "The toolchain in the browser"). Run it from
-anywhere; it is idempotent.
+These are for local work: inspection, manual entry from the .lst (the
+web app's only way to load a program - see web/README.md, "Entering a
+program: the switches"), and the headless runner (js/run.mjs takes an
+image path). Run it from anywhere; it is idempotent.
 
     python3 web/build.py
 

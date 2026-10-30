@@ -12,14 +12,17 @@ gallery from [programs/](programs/README.md), and each program's
 expected output is frozen so every build can be checked against the same
 answers.
 
-## Run a program in 30 seconds
+## Run the machine in 30 seconds
 
     python3 -m http.server    # from this directory
 
-then open <http://localhost:8000/web/>, pick "powers", and hit run:
-1, 2, 4, ..., 128, halting on the wrap. No hardware and no build
-steps needed; the web app compiles the gallery itself, in the browser,
-with the same toolchain the repo uses.
+then open <http://localhost:8000/web/>: the machine powers on with
+empty RAM. Build a listing to enter - `python3 web/build.py` writes
+the .lst dipswitch tables for the whole gallery, or
+`python3 tools/compile.py programs/count.hl` for one - then enter it
+with the switches (the app's footer walks the procedure), flip
+STEP_MODE to AUTO, and it runs. Or write your own program
+([docs/language.md](docs/language.md)) and enter that.
 
 ## What is where
 

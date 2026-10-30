@@ -1,24 +1,20 @@
-/* style.css - the front panel: a beige faceplate, red LEDs, keycaps,
-   dark readouts. The DOM is built by js/panel.js; every look lives
-   here and only here, so the panel can be restructured without
-   touching CSS. Retro by construction: monospace, lamps, switches. */
+/* style.css - the machine on a bench: a beige faceplate, red lamps,
+   keycaps, dipswitches, dark readouts. The DOM is built by js/panel.js
+   from the hardware's own parts list; every look lives here and only
+   here. Retro by construction: monospace, lamps, switches. */
 
 :root {
-  color-scheme: dark;  /* native dark selects, ranges, scrollbars */
+  color-scheme: dark;  /* native dark scrollbars */
   --bench: #17130e;           /* the workbench behind the panel */
   --plate: #cfc5b0;           /* the faceplate */
   --plate-cut: #bfb49b;       /* a module's cutout */
   --plate-line: #97896c;
   --ink: #241f16;
   --ink-dim: #5a523f;
-  --lcd-bg: #171007;          /* the dark readouts */
-  --lcd: #ffb52e;             /* their amber digits */
   --red: #ff4433; --red-off: #4d241c; --red-glow: #ff7a5e;
   --amber: #ffbe2e; --amber-off: #4d3c14;
   --green: #46e06a; --green-off: #17401f;
   --key: #e8dfca; --key-line: #8f8266;
-  --pane-bg: #0d0a07; --pane-line: #2c251b;
-  --pane-fg: #d8cfc0; --pane-dim: #9a8f78;
 }
 
 * { box-sizing: border-box; }
@@ -26,78 +22,33 @@
 body {
   margin: 0;
   background: radial-gradient(90rem 50rem at 50% -10rem, #221c14, var(--bench));
-  color: var(--pane-fg);
+  color: #9a8f78;
   font-family: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
   font-size: 14px;
   line-height: 1.45;
 }
 
-header, #deck, #panel, #panes, footer { margin: 0 1.4rem 1.1rem; }
-header { padding-top: 1rem; }
-header h1 { margin: 0; font-size: 1.25rem; letter-spacing: .3em; color: var(--lcd); }
-header p { margin: .4rem 0 0; max-width: 54rem; color: var(--pane-dim); }
-header code { color: var(--lcd); }
-footer { padding-bottom: 2rem; }
-footer p { margin: 0; max-width: 54rem; color: var(--pane-dim); font-size: .8rem; }
-footer a { color: var(--lcd); }
+header { margin: 1rem 1.4rem .2rem; }
+header h1 { margin: 0; font-size: 1.25rem; letter-spacing: .3em; color: #ffb52e; }
+header p { margin: .4rem 0 0; max-width: 54rem; }
+header a, footer a { color: #ffb52e; }
 
-/* the deck: this app's control room (nothing in it is on the machine;
- * the webtag says so) - program load, the app's keys, status readouts */
-#deck {
-  display: flex; flex-wrap: wrap; gap: .55rem; align-items: center;
-  background: var(--plate); border: 1px dashed var(--plate-line);
-  padding: .55rem .8rem;
+#status {
+  margin: 0 1.4rem .8rem; min-height: 1.4em; font-size: .78rem; color: #d8cfc0;
 }
-.webtag {
-  border: 1px dashed #a89457; color: #6f6248; font-size: .62rem;
-  letter-spacing: .08em; padding: .12rem .45rem;
-}
-.spacer { flex: 1; }
-#deck select {
-  font: inherit; background: var(--lcd-bg); color: var(--lcd);
-  border: 1px solid var(--key-line); padding: .1rem .4rem;
-}
-#deck .state { color: var(--ink-dim); font-size: .75rem; max-width: 26rem; min-height: 2.4em; text-align: right; }
-input[type="range"] { accent-color: var(--ink); width: 9rem; }
 
-/* the key between the deck and the panel */
-#legend {
-  margin: 0 1.4rem .5rem; color: var(--pane-dim); font-size: .72rem;
-  max-width: 60rem;
-}
-#legend b { color: var(--plate); }
-
-/* keycaps */
-button.key, label.key {
-  font: inherit; color: var(--ink); background: var(--key);
-  border: 1px solid var(--key-line); border-bottom-width: 3px;
-  padding: .18rem .75rem; cursor: pointer; letter-spacing: .05em;
-  user-select: none;
-  transition: background .08s, opacity .12s;
-}
-button.key:active, label.key:active { border-bottom-width: 1px; transform: translateY(2px); }
-button.key:focus-visible, label.key:focus-visible,
-.tg:focus-visible, .lever:focus-visible, select:focus-visible {
-  outline: 2px dashed var(--amber); outline-offset: 2px;
-}
-button.key.hot { background: #e9c79c; }
-button.key.lit {  /* the master clock is running */
-  background: var(--lcd); color: var(--lcd-bg); border-color: #7a6a3a;
-}
-.key.dim { opacity: .5; }  /* gated off, as wired (click says why) */
-label.key input { display: none; }
+/* ---------------------------------------------------------------- panel */
 
 /* the faceplate: the machine's own arrangement, as in the Digital
-   build - left column CLOCK, MAR, front panel, RAM, IR, CONTROL;
-   right column PC (top), A, ALU, B, OUTPUT; the BUS rail runs down
-   the middle between them, every module tapping it. Only the machine
-   is on the panel (the dashed convention below marks the few app
-   annotations attached to modules). */
+   build - left column CLOCK, MAR, RAM, IR, CONTROL; right column
+   PC (top), A, ALU, B, OUTPUT; the BUS rail runs down the middle
+   between them, every module tapping it. */
 #panel {
   user-select: none;  /* the panel is for touching, not selecting */
   display: grid;
   grid-template-columns: minmax(14rem, 1fr) 9rem minmax(14rem, 1fr);
   gap: .8rem;
+  margin: 0 1.4rem 1.1rem;
   background: var(--plate); border: 1px solid var(--plate-line);
   padding: .8rem;
 }
@@ -114,7 +65,6 @@ label.key input { display: none; }
   display: flex;
   flex-direction: column;
 }
-.module.web { border-style: dashed; }  /* an app module, if ever any */
 .cap {
   display: flex; justify-content: space-between; gap: 1.2rem;
   border-bottom: 1px solid var(--plate-line);
@@ -122,9 +72,8 @@ label.key input { display: none; }
 }
 .cap-t { color: var(--ink); font-weight: bold; font-size: .78rem; letter-spacing: .12em; }
 .cap-s { color: var(--ink-dim); font-size: .68rem; }
-.hint { margin: .45rem 0 0; color: var(--ink-dim); font-size: .68rem; max-width: 24rem; }
 
-/* LED banks: label, lamps, hex readout, optional note */
+/* lamp banks: label + lamps */
 .bank { display: flex; align-items: center; gap: .5rem; margin: .14rem 0; flex-wrap: wrap; }
 .leds { display: flex; gap: .26rem; }
 .led {
@@ -138,31 +87,18 @@ label.key input { display: none; }
 .led.a.on { background: var(--amber); box-shadow: 0 0 7px 1px var(--amber); }
 .led.g { background: var(--green-off); }
 .led.g.on { background: var(--green); box-shadow: 0 0 7px 1px var(--green); }
-.read {
-  background: var(--lcd-bg); color: var(--lcd);
-  padding: .02rem .4rem; font-size: .78rem; min-width: 3.2em;
-  text-align: center;
-  border: 1px dashed rgba(151, 137, 108, .8);  /* the app's, not a lamp */
-}
-.read.wide { min-width: 9em; text-align: left; }
+.leds .led:hover { border-color: var(--plate-line); }
 .note { color: var(--ink-dim); font-size: .7rem; min-width: 2.5em; }
 
-/* the web-only marking: dashed outlines on what is not on the machine
-   (the legend above the panel explains the convention) */
-.bank.web, .cells.web { outline: 1px dashed var(--plate-line); outline-offset: 3px; }
-.note.web { border-bottom: 1px dashed var(--plate-line); }
-
-/* named LED cells: the control lines, microsteps, flags */
+/* named lamp cells: the control lines, microsteps, flags */
 .cells { display: flex; gap: .42rem; flex-wrap: wrap; }
 .cell { display: flex; flex-direction: column; align-items: center; gap: .14rem; }
 .cell .cl { color: var(--ink-dim); font-size: .6rem; }
 
-/* the bus strip: lamps read left to right like every other bank, and
-   the wire itself runs the remaining height - the shared medium every
-   module on either side taps */
+/* the bus strip: lamps read left to right, and the wire itself runs
+   the remaining height - the shared medium every module taps */
 .module.mid .leds { justify-content: center; }
 .module.mid .bank { justify-content: center; }
-.module.mid .read, .module.mid .note { min-width: 0; }
 .module.mid .rail {
   flex: 1;
   width: 2px;
@@ -185,7 +121,7 @@ label.key input { display: none; }
   background: var(--key); border-radius: 1px;
   transition: top .06s, background .06s;
 }
-.lever.on i { top: 2px; background: var(--lcd); }
+.lever.on i { top: 2px; background: #ffb52e; }
 .tg { display: flex; align-items: center; gap: .45rem; cursor: pointer; user-select: none; }
 .tg .tlabel { color: var(--ink-dim); font-size: .68rem; }
 .tg .slot {
@@ -196,7 +132,21 @@ label.key input { display: none; }
   position: absolute; top: 1px; left: 1px; width: 16px; height: 10px;
   background: var(--key); border-radius: 4px; transition: left .08s;
 }
-.tg.on .knob { left: 11px; background: var(--lcd); }
+.tg.on .knob { left: 11px; background: #ffb52e; }
+
+/* keycaps */
+button.key {
+  font: inherit; color: var(--ink); background: var(--key);
+  border: 1px solid var(--key-line); border-bottom-width: 3px;
+  padding: .18rem .75rem; cursor: pointer; letter-spacing: .05em;
+  user-select: none;
+  transition: background .08s, opacity .12s;
+}
+button.key:active { border-bottom-width: 1px; transform: translateY(2px); }
+button.key:focus-visible, .tg:focus-visible, .lever:focus-visible {
+  outline: 2px dashed var(--amber); outline-offset: 2px;
+}
+.key.dim { opacity: .5; }  /* gated off, as wired */
 
 /* the display bezel */
 .segbezel {
@@ -207,111 +157,21 @@ label.key input { display: none; }
 }
 .segbezel canvas { display: block; width: 188px; height: 84px; }
 
-/* the RAM monitor */
-table.ram { border-collapse: collapse; font-size: .76rem; margin-top: .3rem; }
-table.ram th { color: var(--ink-dim); font-weight: normal; font-size: .6rem; text-align: left; padding: 0 .35rem; }
-table.ram td { color: var(--ink); padding: 0 .35rem; white-space: nowrap; }
-table.ram td.mark { width: 1em; color: #8c1d10; font-weight: bold; }
-table.ram tbody tr { cursor: pointer; }
-table.ram tr.cur td { color: #8c1d10; font-weight: bold; }
-table.ram tr.mar td { background: #a89b7f; }
+/* the range slider (the U1 rate) */
+input[type="range"] { accent-color: var(--ink); width: 8rem; }
 
-/* the panes: this app's tooling - none of it is on the machine */
-.panecap {
-  margin: 0 1.4rem .4rem; color: var(--pane-dim); font-size: .72rem;
-}
-#panes { display: flex; flex-wrap: wrap; gap: 1rem; align-items: stretch; }
-#panes section { flex: 1 1 24rem; min-width: 20rem; }
-#panes h2 {
-  margin: 0 0 .3rem; font-size: .72rem; letter-spacing: .14em;
-  color: var(--pane-dim); text-transform: uppercase;
-}
-#panes pre {
-  margin: 0; background: var(--pane-bg); border: 1px solid var(--pane-line);
-  color: var(--pane-fg); padding: .5rem .7rem; overflow: auto;
-  max-height: 24rem; font-size: .78rem;
-}
-#outlog { color: var(--green); }
-#trace { color: var(--pane-dim); }
+footer { margin: 0 1.4rem 2rem; }
+footer p { margin: .3rem 0 0; max-width: 54rem; font-size: .8rem; }
 
-/* your program: the editor */
-#your { display: flex; flex-direction: column; gap: .45rem; }
-#your textarea {
-  font: inherit; font-size: .8rem; background: var(--pane-bg);
-  color: var(--pane-fg); border: 1px solid var(--pane-line);
-  padding: .5rem .7rem; min-height: 11rem; resize: vertical;
-  white-space: pre;
-}
-#your select {
-  font: inherit; background: var(--pane-bg); color: var(--lcd);
-  border: 1px solid var(--pane-line); padding: .1rem .4rem;
-}
-#your .note { color: var(--pane-dim); font-size: .75rem; }
-#your .note.err { color: var(--red); }
-#your pre.genasm {
-  max-height: 10rem; color: var(--pane-dim);
-}
+/* ---------------------------------------------------------------- feel */
+* { scrollbar-width: thin; scrollbar-color: #3a3226 transparent; }
 
-/* the listing pane */
-.listing pre { max-height: 24rem; }
-.lst-line.cur { color: #ffd9d0; background: #3a2c12; }
-.lst-line.pick { cursor: pointer; }  /* a byte line: click = onto the switches */
-.lst-line.pick:hover { color: #fff; background: #3a2c12; }
-.lstnote { margin: 0 0 .4rem; color: var(--pane-dim); font-size: .72rem; }
-
-/* the docs pane */
-.docbar { margin-bottom: .4rem; }
-.docbar select {
-  font: inherit; font-size: .8rem; width: 100%;
-  background: var(--pane-bg); color: var(--lcd);
-  border: 1px solid var(--pane-line); padding: .25rem .4rem;
+@media (prefers-reduced-motion: reduce) {
+  .led, .lever i, button.key, .tg .knob { transition: none; }
 }
-.md {
-  background: var(--pane-bg); border: 1px solid var(--pane-line);
-  padding: .6rem .9rem; overflow: auto; max-height: 24rem;
-  font-size: .82rem;
-}
-.md h1, .md h2, .md h3, .md h4 { color: var(--lcd); margin: 1rem 0 .3rem; }
-.md h1 { font-size: 1.1rem; letter-spacing: .1em; }
-.md h1:first-child { margin-top: 0; }
-.md p { margin: .45rem 0; }
-.md a { color: var(--lcd); }
-.md code { color: var(--green); background: #1c1712; padding: 0 .2rem; }
-.md pre {
-  background: #1c1712; border: 1px solid var(--pane-line);
-  padding: .5rem .7rem; overflow: auto; color: var(--pane-fg);
-}
-.md table { border-collapse: collapse; margin: .5rem 0; font-size: .76rem; display: block; max-width: 100%; overflow: auto; }
-.md th, .md td { border: 1px solid var(--pane-line); padding: .15rem .45rem; text-align: left; vertical-align: top; }
-.md th { color: var(--lcd); }
-.md blockquote { margin: .5rem 0; padding: .2rem .8rem; border-left: 3px solid var(--plate-line); color: var(--pane-dim); }
-.md ul { margin: .45rem 0; padding-left: 1.4rem; }
-.md ul.sub { margin: 0; padding-left: 1.1rem; }
-.md li.nest { list-style: circle; }
-.md .err { color: var(--red); }
 
 @media (max-width: 720px) {
   header p { display: none; }
   #panel { grid-template-columns: 1fr; }
   .module.l, .module.r, .module.mid { grid-column: auto; grid-row: auto !important; }
-  #panes section { min-width: 100%; }
-}
-
-/* ---------------------------------------------------------------- feel
-   The small physical touches: nothing here changes what anything IS,
-   only how it settles under the hand. */
-
-/* thin dark scrollbars on the panes and the editor */
-* { scrollbar-width: thin; scrollbar-color: #3a3226 transparent; }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: #3a3226; border-radius: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-
-/* hovering a pickable listing line or a RAM row is already a cue;
-   make the lamp banks and switches answer the pointer too */
-.leds .led:hover { border-color: var(--plate-line); }
-table.ram tbody tr:hover td { background: #c4b89f; }
-
-@media (prefers-reduced-motion: reduce) {
-  .led, .lever i, button.key, label.key, .tg .knob { transition: none; }
 }
