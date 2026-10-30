@@ -40,18 +40,31 @@ footer { padding-bottom: 2rem; }
 footer p { margin: 0; max-width: 54rem; color: var(--pane-dim); font-size: .8rem; }
 footer a { color: var(--lcd); }
 
-/* the deck: program load, the clock keys, the speed */
+/* the deck: this app's control room (nothing in it is on the machine;
+ * the webtag says so) - program load, the app's keys, status readouts */
 #deck {
   display: flex; flex-wrap: wrap; gap: .55rem; align-items: center;
-  background: var(--plate); border: 1px solid var(--plate-line);
+  background: var(--plate); border: 1px dashed var(--plate-line);
   padding: .55rem .8rem;
 }
+.webtag {
+  border: 1px dashed #a89457; color: #6f6248; font-size: .62rem;
+  letter-spacing: .08em; padding: .12rem .45rem;
+}
+.spacer { flex: 1; }
 #deck select {
   font: inherit; background: var(--lcd-bg); color: var(--lcd);
   border: 1px solid var(--key-line); padding: .1rem .4rem;
 }
-#deck .state { margin-left: auto; color: var(--ink-dim); font-size: .75rem; max-width: 24rem; text-align: right; }
+#deck .state { color: var(--ink-dim); font-size: .75rem; max-width: 26rem; text-align: right; }
 input[type="range"] { accent-color: var(--ink); width: 9rem; }
+
+/* the key between the deck and the panel */
+#legend {
+  margin: 0 1.4rem .5rem; color: var(--pane-dim); font-size: .72rem;
+  max-width: 60rem;
+}
+#legend b { color: var(--plate); }
 
 /* keycaps */
 button.key, label.key {
@@ -64,19 +77,28 @@ button.key:active, label.key:active { border-bottom-width: 1px; transform: trans
 button.key.hot { background: #e9c79c; }
 label.key input { display: none; }
 
-/* the faceplate: modules in rows, the bus strip spanning them */
+/* the faceplate: the machine's own arrangement, as in the Digital
+   build - left column CLOCK, MAR, front panel, RAM, IR, CONTROL;
+   right column PC (top), A, ALU, B, OUTPUT; the BUS rail at the
+   bottom. Only the machine is on the panel (the dashed convention
+   below marks the few app annotations attached to modules). */
 #panel {
-  display: flex; flex-wrap: wrap; gap: .8rem; align-items: stretch;
+  display: grid;
+  grid-template-columns: minmax(15rem, 1fr) minmax(15rem, 1fr);
+  gap: .8rem;
   background: var(--plate); border: 1px solid var(--plate-line);
   padding: .8rem;
 }
 #panel > canvas { display: none; }  /* parked until buildPanel moves it */
+.module.l { grid-column: 1; }
+.module.r { grid-column: 2; }
 .module {
   background: var(--plate-cut); border: 1px solid var(--plate-line);
   box-shadow: inset 1px 1px 0 #d9cfb6;
   padding: .4rem .6rem .55rem;
 }
-.module.bus { flex: 1 1 100%; }  /* the bus strip spans the panel */
+.module.bus { grid-column: 1 / -1; }  /* the bus rail spans the bottom */
+.module.web { border-style: dashed; }  /* an app module, if ever any */
 .cap {
   display: flex; justify-content: space-between; gap: 1.2rem;
   border-bottom: 1px solid var(--plate-line);
@@ -103,9 +125,15 @@ label.key input { display: none; }
   background: var(--lcd-bg); color: var(--lcd);
   padding: .02rem .4rem; font-size: .78rem; min-width: 3.2em;
   text-align: center;
+  border: 1px dashed rgba(151, 137, 108, .8);  /* the app's, not a lamp */
 }
 .read.wide { min-width: 9em; text-align: left; }
 .note { color: var(--ink-dim); font-size: .7rem; min-width: 2.5em; }
+
+/* the web-only marking: dashed outlines on what is not on the machine
+   (the legend above the panel explains the convention) */
+.bank.web, .cells.web { outline: 1px dashed var(--plate-line); outline-offset: 3px; }
+.note.web { border-bottom: 1px dashed var(--plate-line); }
 
 /* named LED cells: the control lines, microsteps, flags */
 .cells { display: flex; gap: .42rem; flex-wrap: wrap; }
@@ -152,7 +180,10 @@ table.ram tbody tr { cursor: pointer; }
 table.ram tr.cur td { color: #8c1d10; font-weight: bold; }
 table.ram tr.mar td { background: #a89b7f; }
 
-/* the panes below the panel */
+/* the panes: this app's tooling - none of it is on the machine */
+.panecap {
+  margin: 0 1.4rem .4rem; color: var(--pane-dim); font-size: .72rem;
+}
 #panes { display: flex; flex-wrap: wrap; gap: 1rem; align-items: stretch; }
 #panes section { flex: 1 1 24rem; min-width: 20rem; }
 #panes h2 {
@@ -220,7 +251,9 @@ table.ram tr.mar td { background: #a89b7f; }
 .md li.nest { list-style: circle; }
 .md .err { color: var(--red); }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
   header p { display: none; }
+  #panel { grid-template-columns: 1fr; }
+  .module.l, .module.r { grid-column: auto; }
   #panes section { min-width: 100%; }
 }

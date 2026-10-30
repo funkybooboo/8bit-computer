@@ -16,11 +16,15 @@ function el(tag, cls, text) {
 }
 
 /** A module card on the faceplate: the caption strip + content.
- *  `sub` is the chip annotation (e.g. "U8 U9 - 74173"). */
-export function moduleCard(title, sub) {
-  const m = el("section", "module");
+ *  `sub` is the chip annotation (e.g. "U8 U9 - 74173"). A `web`
+ *  module is one of this app's conveniences - not on the machine -
+ *  and is drawn dashed with a caption that says so (the convention is
+ *  the legend above the panel). */
+export function moduleCard(title, sub, web) {
+  const m = el("section", "module" + (web ? " web" : ""));
   const cap = el("div", "cap");
   cap.append(el("span", "cap-t", title));
+  if (web && !sub) sub = "not on the machine";
   if (sub) cap.append(el("span", "cap-s", sub));
   m.append(cap);
   return m;
@@ -113,13 +117,16 @@ export function dipRow(label, bits, onChange) {
   };
 }
 
-/** A slide switch with a caption on each side; on = right side. */
-export function toggleSwitch(left, right, onChange) {
+/** A slide switch with a caption on each side; on = right side.
+ *  `label` (optional) names the panel net it drives (PROG_ADDR,
+ *  STEP_MODE, DEC_HEX...), like the hardware doc does. */
+export function toggleSwitch(left, right, onChange, label) {
   const wrap = el("div", "bank");
   const tg = el("span", "tg");
   const knobWrap = el("span", "slot");
   knobWrap.append(el("span", "knob"));
   tg.append(el("span", "tlabel", left), knobWrap, el("span", "tlabel", right));
+  if (label) wrap.append(el("span", "note", label));
   wrap.append(tg);
   let on = false;
   tg.addEventListener("click", () => {

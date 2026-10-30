@@ -10,20 +10,31 @@
   <header>
     <h1>8-BIT COMPUTER</h1>
     <p>
-      Ben Eater's breadboard computer (with added opcodes) as a front
+      Ben Eater's breadboard computer (with added opcodes) as its front
       panel, running in a browser. It executes the real control-ROM
       images, <code>roms/control-rom1.hex</code> and
       <code>roms/control-rom2.hex</code> - the same microcode the
       hardware burns - so a program behaves here exactly the way it
-      behaves on the machine. The LEDs, switches and display follow
-      docs/hardware.md; bring your own program (.hl, .asm or an image)
-      and read the docs in the pane below the panel.
+      behaves on the machine. Bring your own program (.hl, .asm or an
+      image); the docs are in the pane below the panel.
     </p>
   </header>
 
   <div id="deck"></div>
+  <p id="legend">
+    <b>PANEL KEY</b> - every unmarked module and control is the machine's
+    own front panel, arranged as in the Digital build (PC top right,
+    control logic bottom left, the bus rail at the bottom;
+    docs/hardware.md, "The front panel"). <b>Dashed</b> elements - and
+    the bar above and the panes below - are this app's instruments:
+    they do not exist on the machine.
+  </p>
   <div id="panel"><canvas id="display-canvas"></canvas></div>
 
+  <p class="panecap">
+    Everything below is this app's tooling - the compiler, the entry
+    listing, the logs, the docs - none of it is on the machine.
+  </p>
   <div id="panes">
     <section id="p-your">
       <h2>your program</h2>
@@ -56,10 +67,10 @@
       repo's other builds. This page is the repo's web build:
       <a href="https://github.com/funkybooboo/8bit-computer"
         rel="noopener">funkybooboo/8bit-computer</a> - fully static, no
-      backend, every file it fetches is in the repo. Space = one clock
-      cycle. The panel's parts and the program-entry procedure:
-      docs/hardware.md; the signals on the control LEDs:
-      docs/microcode.md.
+      backend, every file it fetches is in the repo. Space = STEP_PULSE
+      (one clock edge, MANUAL mode). The panel's parts and the
+      program-entry procedure: docs/hardware.md; the signals on the
+      control LEDs: docs/microcode.md.
     </p>
   </footer>
 

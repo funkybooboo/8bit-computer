@@ -97,34 +97,75 @@ function startMachine(ram) {
 const panel = $("panel");
 const out = {};
 
+// what is on the machine vs what is this app's: hardware parts are
+// unmarked; everything the machine does not have gets the dashed
+// "web" treatment (css/style.css) and the legend above the panel
+// explains it. The inventory of the real panel: docs/hardware.md,
+// "The front panel".
+function markWeb(el) {
+  el.classList.add("web");
+  return el;
+}
+
 function buildPanel() {
-  // the output module: the display, the register LEDs, the mode switch
+  // the output module: the display (the machine's own OUT readout),
+  // the DEC_HEX mode switch, and this app's extra readouts (marked)
   const mOut = moduleCard("OUTPUT", "U44 74273 / U45 28C16");
-  out.reg = ledBank("OUT", 8, "r");
-  out.mux = namedLeds(["C1", "C0"], "a", false);  // the U37 mux counter
-  out.decHex = toggleSwitch("DEC", "HEX", (on) => { decHex = !on; });
+  out.reg = ledBank("OUT", 8, "r");  // not on the machine: OUT shows on the display only
+  markWeb(out.reg.el);
+  out.mux = namedLeds(["C1", "C0"], "a", false);  // U37's counter: internal, not on the panel
+  markWeb(out.mux.el);
+  out.decHex = toggleSwitch("DEC", "HEX", (on) => { decHex = !on; }, "DEC_HEX");
   const bezel = document.createElement("div");
   bezel.className = "segbezel";
   bezel.append($("display-canvas"));
   mOut.append(bezel, out.reg.el, out.mux.el, out.decHex.el);
 
-  // the clock module: the clock LED, the halt lamp
+  // the clock module, as the hardware has it: the CLK LED, the
+  // STEP_MODE switch + STEP_PULSE key (manual clocking), RESET, and
+  // the master clock's rate (U1 - the 555's pot on the breadboard)
   const mClock = moduleCard("CLOCK", "U1..U6 - clock + gating");
   out.clk = namedLeds(["CLK"], "g", true);
-  out.halt = namedLeds(["HALT"], "r", true);
-  mClock.append(out.clk.el, out.halt.el);
+  out.halt = namedLeds(["HALT"], "r", true);  // the machine just stops; this lamp is the app's
+  markWeb(out.halt.el);
+  out.stepMode = toggleSwitch("AUTO", "MANUAL", (on) => {
+    clock.stepMode = on;
+    if (on) {  // U4.1: STEP_MODE disconnects the master clock
+      clock.auto = false;
+      runKey.textContent = "RUN";
+    }
+  }, "STEP_MODE");
+  out.stepPulse = keycap("STEP_PULSE", step);
+  out.resetKey = keycap("RESET", reset);
+  const rateRow = document.createElement("div");
+  rateRow.className = "bank";
+  const rateNote = document.createElement("span");
+  rateNote.className = "note";
+  rateNote.textContent = "U1 RATE";
+  rateNote.title = "the master clock's frequency - the 555's pot";
+  mClock.append(out.clk.el, out.halt.el, out.stepMode.el,
+    out.stepPulse, out.resetKey, rateRow);
+  rateRow.append(rateNote, hzSlider, hzRead);
+  const clockHint = document.createElement("p");
+  clockHint.className = "hint";
+  clockHint.textContent = "STEP_MODE MANUAL disconnects the master clock" +
+    " (U4.1); each STEP_PULSE click is then one clock edge. HLT gates" +
+    " the clock off entirely (U4.4). RESET clears PC/step/OUT/A/B/IR/" +
+    "MAR/flags - not RAM.";
+  mClock.append(clockHint);
 
   // the shared bus, full width
   const mBus = moduleCard("BUS", "U30 U36 U13 U7 U17 - one driver at a time");
   mBus.classList.add("bus");
   out.bus = ledBank("BUS", 8, "r", true);
+  if (out.bus.note) markWeb(out.bus.note);  // which driver: the app's annotation
 
   // the control module: both ROM banks, the microstep LEDs
   const mCtrl = moduleCard("CONTROL", "U47 U52 28C16 / U48 74161");
   out.rom1 = namedLeds(["HLT", "MI", "RI", "RO", "IO", "II", "AI", "AO"], "a", false);
   out.rom2 = namedLeds(["EO", "SU", "BI", "OI", "CE", "CO", "J", "FI"], "a", false);
   out.t = namedLeds(["T0", "T1", "T2", "T3", "T4", "T5", "T6"], "a", true);
-  out.q = namedLeds(["Q2", "Q1", "Q0"], "a", false);
+  out.q = namedLeds(["STEP_2", "STEP_1", "STEP_0"], "a", false);
 
   // the registers
   const mPc = moduleCard("PC", "U35 74161");
@@ -133,6 +174,7 @@ function buildPanel() {
   out.mar = ledBank("MAR", 4, "r");
   const mIr = moduleCard("INSTRUCTION", "U14 U15 74173");
   out.ir = ledBank("IR", 8, "r", true);
+  if (out.ir.note) markWeb(out.ir.note);  // the mnemonic: the app's annotation
   const mA = moduleCard("A REGISTER", "U8 U9 74173");
   out.a = ledBank("A", 8, "r");
   const mB = moduleCard("B REGISTER", "U11 U12 74173");
@@ -141,7 +183,7 @@ function buildPanel() {
   out.sum = ledBank("SUM", 8, "r");
   out.flags = namedLeds(["CF", "ZF"], "g", true);
 
-  // the RAM: the addressed byte's LEDs + the monitor table
+  // the RAM: the addressed byte's LEDs + this app's monitor (marked)
   const mRam = moduleCard("RAM", "U24 U25 74189 / U30 74245");
   out.ramAddr = ledBank("ADDR", 4, "r");
   out.ramData = ledBank("DATA", 8, "r");
@@ -150,17 +192,19 @@ function buildPanel() {
     prog.addrDips.set(addr);
     prog.dataDips.set(machine ? machine.ram[addr] : 0);
   });
+  markWeb(out.ram.el);
 
   // the front panel: program entry exactly as the hardware does it
+  // (the switches carry the hardware's own net names)
   const mPanel = moduleCard("FRONT PANEL", "program entry (docs/hardware.md)");
-  out.progMode = toggleSwitch("RUN", "PROG", (on) => { prog.mode = on; });
-  out.progLeds = namedLeds(["RUN", "PROG"], "a", true);
-  prog.addrDips = dipRow("ADDR", 4, (v) => { prog.addr = v; });
-  prog.dataDips = dipRow("DATA", 8, (v) => { prog.data = v; });
-  const writeKey = keycap("WRITE", () => {
+  out.progMode = toggleSwitch("RUN", "PROG", (on) => { prog.mode = on; }, "PROG_ADDR");
+  out.progLeds = namedLeds(["PROG", "PROG_hat"], "a", true);
+  prog.addrDips = dipRow("PROG_ADDR_A", 4, (v) => { prog.addr = v; });
+  prog.dataDips = dipRow("PROG_DATA", 8, (v) => { prog.data = v; });
+  const writeKey = keycap("PROG_WRITE", () => {
     if (!machine) return;
     if (!prog.mode) {
-      state("flip RUN/PROG to PROGRAM first - the write goes through U32");
+      state("flip PROG_ADDR to PROG first - the write goes through U32");
       return;
     }
     machine.ram[prog.addr] = prog.data;  // the write pulse, as wired
@@ -169,16 +213,10 @@ function buildPanel() {
   out.writeKey = writeKey;
   const hint = document.createElement("p");
   hint.className = "hint";
-  hint.textContent = "PROGRAM mode: set ADDR + DATA, press WRITE (a RAM" +
-    " row loads its address and byte into the switches). RESET does not" +
-    " clear RAM - load the program again for a power cycle.";
-
-  // the monitor: the observer's readouts (not part of the machine)
-  const mMon = moduleCard("MONITOR", "the observer's readouts");
-  out.monProgram = kvRow("program");
-  out.monState = kvRow("state");
-  out.monCycles = kvRow("cycles");
-  out.monInsns = kvRow("instructions");
+  hint.textContent = "PROG mode: set PROG_ADDR_A + PROG_DATA, press" +
+    " PROG_WRITE (a RAM row loads its address and byte into the" +
+    " switches). RESET does not clear RAM - load the program again for" +
+    " a power cycle.";
 
   mBus.append(out.bus.el);
   mCtrl.append(out.rom1.el, out.rom2.el, out.t.el, out.q.el);
@@ -191,14 +229,24 @@ function buildPanel() {
   mRam.append(out.ramAddr.el, out.ramData.el, out.ram.el);
   mPanel.append(out.progMode.el, out.progLeds.el,
     prog.addrDips.el, prog.dataDips.el, writeKey, hint);
-  mMon.append(out.monProgram.el, out.monState.el, out.monCycles.el,
-    out.monInsns.el);
-  mClock.append(out.clk.el, out.halt.el);
 
-  for (const m of [mOut, mClock, mMon, mBus, mCtrl, mPanel,
-    mPc, mMar, mIr, mA, mB, mAlu, mRam]) {
+  // the arrangement echoes the Digital build (and Ben's breadboards):
+  // left column top-to-bottom CLOCK, MAR, the front panel (the PROG
+  // dipswitches sit by the memory muxes there too), RAM, IR, CONTROL;
+  // right column PC (top), A, ALU, B, OUTPUT; the BUS rail spans the
+  // bottom. Nothing else is on the panel - the app's own readouts
+  // live in the deck above.
+  const place = (m, col) => {
+    m.classList.add(col);
     panel.append(m);
-  }
+  };
+  place(mClock, "l");  place(mPc, "r");
+  place(mMar, "l");   place(mA, "r");
+  place(mPanel, "l"); place(mAlu, "r");
+  place(mRam, "l");   place(mB, "r");
+  place(mIr, "l");    place(mOut, "r");
+  place(mCtrl, "l");
+  panel.append(mBus);  // the bus rail, spanning the bottom
 }
 
 function kvRow(label) {
@@ -223,14 +271,22 @@ function decodeByte(b) {
 
 // ---------------------------------------------------------------- deck
 
+// the deck is this app's control room: none of it is on the machine
+// (the machine's own controls are on the CLOCK and FRONT PANEL
+// modules). The keys that touch the machine respect its gating: RUN
+// only runs the master clock while STEP_MODE is AUTO.
 const runKey = keycap("RUN", () => {
   if (!machine || machine.halted) return;
+  if (clock.stepMode) {
+    state("the master clock is disconnected while STEP_MODE is MANUAL (U4.1) - flip it to AUTO");
+    return;
+  }
   clock.auto = !clock.auto;
   clock.acc = 0;
   runKey.textContent = clock.auto ? "PAUSE" : "RUN";
 }, "hot");
 
-let hzSlider, hzRead;
+let hzSlider, hzRead;  // created here, mounted on the CLOCK module
 
 function buildDeck() {
   const deck = $("deck");
@@ -244,6 +300,8 @@ function buildDeck() {
   select.addEventListener("change", () =>
     loadProgram(select.value).catch(showError));
 
+  // the U1 rate control (built here, placed on the clock module by
+  // buildPanel - it is on the machine, the 555's pot)
   hzSlider = document.createElement("input");
   hzSlider.type = "range";
   hzSlider.min = 0;
@@ -275,15 +333,22 @@ function buildDeck() {
   });
   fileKey.append(fileInput);
 
-  deck.append(span("note", "PROGRAM"), select,
+  // the app's status readouts (what the MONITOR module used to be -
+  // taken off the panel, where nothing but the machine belongs)
+  out.monProgram = kvRow("program");
+  out.monCycles = kvRow("cycles");
+  out.monInsns = kvRow("instructions");
+
+  const webtag = span("webtag", "THIS APP - NOT ON THE MACHINE");
+  const spacer = span("spacer", "");
+  deck.append(webtag, span("note", "PROGRAM"), select,
     keycap("LOAD", () => loadProgram(select.value).catch(showError)),
     runKey,
-    keycap("STEP", step),
     keycap("TURBO", turbo),
-    keycap("RESET", reset),
-    span("note", "CLOCK"), hzSlider, hzRead,
     traceTg.el,
     fileKey,
+    spacer,
+    out.monProgram.el, out.monCycles.el, out.monInsns.el,
     span("state", "", "state"));
   out.stateEl = deck.lastChild;
 }
@@ -336,8 +401,15 @@ function doCycle(trace) {
   }
 }
 
+/** STEP_PULSE, as gated on the machine (U5.1): one clock edge per
+ *  click, but only while STEP_MODE is MANUAL - in AUTO the button is
+ *  disconnected. */
 function step() {
   if (!machine || machine.halted) return;
+  if (!clock.stepMode) {
+    state("STEP_PULSE is disconnected while STEP_MODE is AUTO (U5.1) - flip STEP_MODE to MANUAL on the clock module");
+    return;
+  }
   doCycle(true);
   render();
 }
@@ -522,7 +594,7 @@ function render() {
   // clock + panel lamps
   out.clk.set(clock.phase ? 1 : 0);
   out.halt.set(m.halted ? 1 : 0);
-  out.progLeds.set(prog.mode ? 2 : 1);
+  out.progLeds.set(prog.mode ? 1 : 2);  // PROG lights in program mode, PROG_hat in run
 
   // the display (all four digits: the persistence-of-vision view)
   if (out.display) out.display.draw(m.out, decHex);
@@ -543,19 +615,16 @@ function render() {
       (traceLines.length ? "\n" : "");
   }
 
-  // the monitor
+  // the app's status readouts (the deck) + the state line
   out.monProgram.set(programName || "-");
   out.monCycles.set(String(m.cycles));
   out.monInsns.set(String(m.instructions));
-  out.monState.set(
-    m.halted ? "HALTED" :
-    prog.mode ? "PROGRAM mode" :
-    clock.auto ? "running " + hzText(clock.hz) :
-    "paused  T" + m.step);
   state(smokeStatus ||
     (m.halted ? "HALTED after " + m.cycles + " cycles - RESET to run again"
-    : clock.auto ? "running at " + hzText(clock.hz) + " - space = step"
-    : "STEP (or space) = one clock cycle, RUN = the master clock"));
+    : prog.mode ? "PROGRAM mode - the RAM is on the panel switches"
+    : clock.auto ? "running at " + hzText(clock.hz)
+    : clock.stepMode ? "MANUAL - STEP_PULSE (or space) is one clock edge"
+    : "AUTO - RUN starts the master clock, or flip STEP_MODE to MANUAL"));
 }
 
 // ---------------------------------------------------------------- the loop
@@ -595,13 +664,21 @@ async function runSmoke() {
     if (!ok) failed++;
   };
   await loadProgram("count");  // the program the checks below assume
-  // single-stepping first (reset clears the trace): two cycles, two
-  // trace lines, T2
+  // single-stepping first (reset clears the trace): STEP_MODE must be
+  // MANUAL - in AUTO the STEP_PULSE button is disconnected (U5.1)
+  out.stepMode.set(true);  // fires the switch's onChange
   reset();
   step();
   step();
   check("step trace + T counter",
     traceLines.length === 2 && machine.step === 2);
+  // the gating itself: back in AUTO, STEP_PULSE does nothing
+  const gatedAt = traceLines.length;  // (each check adds a line itself)
+  out.stepMode.set(false);
+  step();
+  check("STEP_MODE gates STEP_PULSE",
+    traceLines.length === gatedAt && machine.step === 2);
+  out.stepMode.set(true);
   // the machine: count runs to the cap and counts 0,1,2,... (checked
   // before the panel write, which deliberately corrupts a data cell)
   turbo();

@@ -47,12 +47,16 @@ Everything below is modeled as the hardware does it (references:
   (js/display.js decodes the ROM; the canvas draws all four digits, the
   persistence-of-vision view of the 500+ Hz multiplex, while the mux
   counter itself runs and shows on its panel LEDs)
-- **the front panel** (docs/hardware.md, "The front panel"): every LED the
-  hardware lists - BUS, PC, A, B, IR, SUM, CF/ZF, RAM address and data,
-  the microstep T0..T6 and counter bits, all 16 control lines, CLK - plus
-  the panel switches: RUN/PROG, the address and data dipswitches, WRITE,
-  DEC_HEX. In PROGRAM mode the RAM address/data muxes (U33/U26/U27, the
-  74157s) put the panel switches on, exactly as wired.
+- **the front panel** (docs/hardware.md, "The front panel"): every LED
+  the hardware lists - BUS, PC, A, B, IR, SUM, CF/ZF, RAM address and
+  data, the microstep T0..T6 and STEP counter bits, all 16 control
+  lines, CLK, PROG/PROG_hat - plus the panel switches with the
+  hardware's own names and gating: RESET, STEP_MODE + STEP_PULSE
+  (in AUTO the pulse button is disconnected, U5.1; in MANUAL the
+  master clock is, U4.1), PROG_ADDR, the PROG_ADDR_A and PROG_DATA
+  dipswitches, PROG_WRITE, DEC_HEX. In PROGRAM mode the RAM
+  address/data muxes (U33/U26/U27, the 74157s) put the panel switches
+  on, exactly as wired.
 
 The control-word bits are the tables from [tools/genroms.py]
 (../tools/genroms.py), the machine definition in code, and the cycle
@@ -60,17 +64,27 @@ model is the one documented in [docs/microcode.md](../docs/microcode.md).
 
 ## The app
 
-- **the deck** (top): program picker + LOAD; RUN/PAUSE (the master
-  clock), STEP (one clock pulse - the clock module's STEP_PULSE), TURBO
-  (run to the halt/cap, no animation), RESET; the CLOCK speed slider
-  (1 Hz to 2 kHz - slow enough to watch the control lines, fast enough
-  to reach a halt in a second); TRACE (log every cycle while the clock
-  runs); IMAGE FILE. Space = one clock cycle.
-- **the panel**: the modules in the machine's own terms, each with its
-  chip annotation (the OUT register and display, the clock, the bus, the
-  control logic, the registers, the ALU, the RAM, the front-panel
-  switches, the monitor). The control LEDs show the word for the cycle
-  about to execute, steady between edges, like the hardware's.
+- **the deck** (the dashed bar above the panel): this app's control
+  room - nothing in it is on the machine. The program picker + LOAD,
+  RUN/PAUSE (the app's time control - the hardware has no pause),
+  TURBO (run to the halt/cap without animation), TRACE, IMAGE FILE,
+  and the app's status readouts (program, cycles, instructions).
+  Space = one clock pulse (as STEP_PULSE, so it respects STEP_MODE).
+- **the panel**: the machine and only the machine, arranged as in the
+  Digital build and Ben's breadboards - left column CLOCK, MAR, the
+  front panel (the PROG dipswitches sit by the memory muxes there
+  too), RAM, IR, CONTROL; right column PC (top), A, ALU, B, OUTPUT;
+  the BUS rail across the bottom. Each module carries its chip
+  annotation, and the control LEDs show the word for the cycle about
+  to execute, steady between edges, like the hardware's. The clock
+  module carries the hardware's own controls: the CLK LED, STEP_MODE +
+  STEP_PULSE (the gating is real - in AUTO the button is disconnected,
+  U5.1; in MANUAL the master clock is, U4.1), RESET, and the U1 rate
+  (1 Hz to 2 kHz - the 555's pot). A legend above the panel states
+  the marking convention: unmarked = on the machine; dashed = this
+  app's (the hex readouts, the OUT LED bank - on the hardware OUT
+  shows on the display only - the mux counter LEDs, the halt lamp,
+  the RAM monitor, the driver/mnemonic annotations).
 - **your program**: paste .hl or .asm source (or a hex/logisim image),
   COMPILE + LOAD builds it in the browser with the repo's own toolchain
   (below) and puts it in RAM; the generated .asm is shown under the
@@ -88,10 +102,10 @@ model is the one documented in [docs/microcode.md](../docs/microcode.md).
 ### Entering a program by hand
 
 The hardware's own procedure (docs/hardware.md, "The front panel"):
-flip RUN/PROG to PROGRAM, set the address and data dipswitches, press
-WRITE (a RAM row click loads that row's address and byte into the
-switches), flip back to RUN, RESET, run. The listing pane's bits column
-is the dipswitch table.
+flip PROG_ADDR to PROG, set the PROG_ADDR_A and PROG_DATA dipswitches,
+press PROG_WRITE (a RAM row click loads that row's address and byte
+into the switches), flip back to RUN, RESET, then flip STEP_MODE to
+MANUAL and step with STEP_PULSE - or leave it AUTO and press RUN.
 
 ## The toolchain in the browser
 
