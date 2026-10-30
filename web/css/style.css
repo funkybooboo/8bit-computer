@@ -161,7 +161,17 @@ button.key:focus-visible, .tg:focus-visible, .lever:focus-visible {
 input[type="range"] { accent-color: var(--ink); width: 8rem; }
 
 footer { margin: 0 1.4rem 2rem; }
-footer p { margin: .3rem 0 0; max-width: 54rem; font-size: .8rem; }
+footer h2 {
+  margin: 1rem 0 .3rem; font-size: .72rem; letter-spacing: .14em;
+  color: #9a8f78; text-transform: uppercase;
+}
+footer ol { margin: .3rem 0; padding-left: 1.5rem; }
+footer li { margin: .35rem 0; max-width: 54rem; font-size: .82rem; }
+footer p { margin: .5rem 0 0; max-width: 54rem; font-size: .82rem; }
+footer code {
+  background: #241f16; padding: .05rem .3rem; border-radius: 3px;
+  color: #ffb52e; font-size: .78rem;
+}
 
 /* ---------------------------------------------------------------- feel */
 * { scrollbar-width: thin; scrollbar-color: #3a3226 transparent; }

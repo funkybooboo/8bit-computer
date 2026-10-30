@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Ben Eater's 8-bit breadboard computer running in the browser, entered and operated with the same switches as the hardware.">
   <title>8-bit computer</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -10,41 +12,52 @@
   <header>
     <h1>8-BIT COMPUTER</h1>
     <p>
-      Ben Eater's breadboard computer (with a few additions), exactly
-      as it is wired in <a href="https://github.com/funkybooboo/8bit-computer"
-      rel="noopener">this repo</a> - running the same control-ROM images
-      the hardware burns, so it behaves here the way it behaves on the
-      bench. It powers on with empty RAM: enter a program with the
-      switches, then let it run.
+      Ben Eater's breadboard computer, with a few extra instructions,
+      running in the browser on the same microcode the hardware runs.
+      It comes on with empty memory and the clock ticking. Enter a
+      program with the switches and press RESET - it is already
+      running.
     </p>
   </header>
 
-  <p id="status"></p>
+  <p id="status" aria-live="polite"></p>
   <div id="panel"><canvas id="display-canvas"></canvas></div>
 
   <footer>
+    <h2>Entering a program</h2>
+    <ol>
+      <li>
+        Get the switch settings for a program. The
+        <a href="https://github.com/funkybooboo/8bit-computer/tree/main/programs"
+          rel="noopener">programs</a> live in the repo -
+        <code>python3 tools/compile.py programs/count.hl</code> prints
+        the listing, one line per byte.
+      </li>
+      <li>Flip PROG_ADDR to PROG (on the MAR).</li>
+      <li>
+        For each line of the listing: set PROG_ADDR_A and PROG_DATA,
+        then press PROG_WRITE (on the RAM). The RAM DATA lamps show the
+        byte at the address you set, so you can check as you go.
+      </li>
+      <li>Flip PROG_ADDR back to RUN and press RESET (on the CONTROL).</li>
+    </ol>
     <p>
-      Entering a program, the way the hardware does it: PROG_ADDR
-      (on the MAR) to PROG, set PROG_ADDR_A and PROG_DATA from a
-      listing, PROG_WRITE (on the RAM) per byte, PROG_ADDR back to RUN,
-      RESET. In PROG mode the RAM DATA lamps read back the addressed
-      byte. STEP_MODE (on the CLOCK) picks the clock: AUTO runs at the
-      U1 rate, MANUAL makes STEP_PULSE single-step - the space bar
-      works too. RESET (on the CONTROL) clears everything but RAM.
-      Programs and their listings are written in
-      <a href="https://github.com/funkybooboo/8bit-computer"
-      rel="noopener">the repo</a>: the <a
-      href="https://github.com/funkybooboo/8bit-computer/tree/main/programs">program
-      sources</a>, the <a
-      href="https://github.com/funkybooboo/8bit-computer/blob/main/docs/README.md">docs</a>
-      (the language, the instruction set, the hardware) and the tools
-      that build the dipswitch tables.
+      The clock lives on the CLOCK module: AUTO runs at whatever
+      the rate knob says, MANUAL stops it and hands you STEP_PULSE -
+      one press, one tick, and the space bar works the same. The
+      DEC_HEX switch on the OUTPUT picks decimal or hex on the display.
+      RESET clears the registers but never the memory, so what you
+      entered stays entered.
     </p>
     <p>
-      The machine itself - circuit design, architecture, schematics - is
-      <a href="https://eater.net/8bit" rel="noopener">Ben Eater's</a>
-      published work; this page is a reproduction of it for study.
-      Fully static, no backend: every file it fetches is in the repo.
+      The machine is <a href="https://eater.net/8bit" rel="noopener">Ben
+      Eater's</a> design; this page is a reproduction of it, built in
+      <a href="https://github.com/funkybooboo/8bit-computer"
+        rel="noopener">this repo</a> - the
+      <a href="https://github.com/funkybooboo/8bit-computer/tree/main/programs"
+        rel="noopener">programs</a>, the
+      <a href="https://github.com/funkybooboo/8bit-computer/blob/main/docs/README.md"
+        rel="noopener">docs</a> and the tools all live there.
     </p>
   </footer>
 

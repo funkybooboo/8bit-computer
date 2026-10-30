@@ -94,6 +94,7 @@ function buildPanel() {
   hzSlider.min = 0;
   hzSlider.max = 100;
   hzSlider.value = 18;  // ~4 Hz
+  hzSlider.setAttribute("aria-label", "clock rate");
   const hzRead = document.createElement("span");
   hzRead.className = "note";
   const hzText = (hz) =>
@@ -134,12 +135,16 @@ function buildPanel() {
   out.pc = ledBank("PC", 4, "r");
   mPc.append(out.pc.el);
 
-  // the MAR: the address latch, and the program-address side of
-  // program entry - the PROG_ADDR mode switch (it selects the panel
-  // side of all four muxes, U26 U27 U32 U33) and the address
-  // dipswitches, which wire into U33 here
+  // the MAR: the address latch. Its outputs are the RAM address nets
+  // A0..A3 (through the U33 mux) - the address lamps are here, driven
+  // by the MAR in run mode and by the PROG_ADDR_A switches in program
+  // mode, exactly as wired. Plus the program-address side of program
+  // entry: the PROG_ADDR mode switch (it selects the panel side of all
+  // four muxes, U26 U27 U32 U33) and the address dipswitches (U33.A)
   const mMar = moduleCard("MAR", "U34 74173 / U33 74157");
   out.mar = ledBank("MAR", 4, "r");
+  out.mar.el.title = "the RAM address nets A0..A3: the MAR in run mode," +
+    " the PROG_ADDR_A switches in program mode";
   out.progMode = toggleSwitch("RUN", "PROG", (on) => { prog.mode = on; }, "PROG_ADDR");
   out.progLeds = namedLeds(["PROG", "PROG_hat"], "a", true);
   prog.addrDips = dipRow("PROG_ADDR_A", 4, (v) => { prog.addr = v; });
@@ -159,24 +164,22 @@ function buildPanel() {
   out.flags = namedLeds(["CF", "ZF"], "g", true);
   mAlu.append(out.sum.el, out.flags.el);
 
-  // the RAM: the addressed byte's lamps (in PROG mode they show the
-  // addressed dipswitch byte - the verification readback), and the
-  // program-data side of entry (PROG_DATA through U26/U27, the write
-  // through U32)
+  // the RAM: the data at the addressed byte (the RAM_DATA_0..7 nets -
+  // in PROG mode the readback for hand entry), and the program-data
+  // side of entry (PROG_DATA through U26/U27, the write through U32)
   const mRam = moduleCard("RAM", "U24 U25 74189 / U30 74245 / U26 U27 U32");
-  out.ramAddr = ledBank("ADDR", 4, "r");
   out.ramData = ledBank("DATA", 8, "r");
   prog.dataDips = dipRow("PROG_DATA", 8, (v) => { prog.data = v; });
   out.writeKey = keycap("PROG_WRITE", () => {
     if (!machine) return;
     if (!prog.mode) {
-      status("the write is disconnected while PROG_ADDR is RUN - flip it to PROG (the write goes through U32)");
+      status("PROG_WRITE does nothing while PROG_ADDR is RUN - flip it to PROG to enter a program");
       return;
     }
     machine.ram[prog.addr] = prog.data;  // the write pulse, as wired
     render();
   });
-  mRam.append(out.ramAddr.el, out.ramData.el, prog.dataDips.el, out.writeKey);
+  mRam.append(out.ramData.el, prog.dataDips.el, out.writeKey);
 
   // the arrangement mirrors the Digital build (and Ben's breadboards):
   // left column CLOCK, MAR, RAM, IR, CONTROL; right column PC (top),
@@ -220,7 +223,7 @@ function doCycle() {
 function step() {
   if (!machine || machine.halted) return;
   if (!clock.stepMode) {
-    status("STEP_PULSE is disconnected while STEP_MODE is AUTO (U5.1) - flip STEP_MODE to MANUAL");
+    status("STEP_PULSE does nothing while STEP_MODE is AUTO - flip it to MANUAL to single-step");
     return;
   }
   doCycle();
@@ -264,10 +267,11 @@ function render() {
   out.t.set(1 << m.step);
   out.q.set(m.step);
 
-  // RAM: the 74157 muxes put the panel switches on in program mode -
-  // and the DATA lamps are the readback for hand entry
+  // the RAM address nets A0..A3: the MAR in run mode, the panel
+  // switches in program mode (the 74157 muxes) - and the DATA lamps
+  // are the readback for hand entry
   const eff = prog.mode ? prog.addr : m.mar;
-  out.ramAddr.set(eff);
+  out.mar.set(eff);
   out.ramData.set(m.ram[eff]);
 
   out.clk.set(clock.phase ? 1 : 0);
@@ -281,7 +285,7 @@ function render() {
   if (out.display) out.display.draw(m.out, decHex);
 
   status(stickyStatus ||
-    (m.halted ? "HLT - the clock is gated off (U4.4). RESET to run again." : ""));
+    (m.halted ? "Halted - the clock is stopped. RESET runs it again." : ""));
 }
 
 // ---------------------------------------------------------------- the loop
@@ -352,8 +356,7 @@ async function init() {
   try {
     await loadRoms();
   } catch (e) {
-    status("could not load the ROM images: " + e +
-      " - serve the repo root with an HTTP server (see web/README.md)");
+    status("Could not load the machine's ROM images - this page needs to be served from the repo (see web/README.md): " + e);
     return;
   }
   out.display = makeDisplay($("display-canvas"), displayRom);

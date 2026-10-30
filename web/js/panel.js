@@ -138,6 +138,7 @@ export function toggleSwitch(left, right, onChange, label) {
 /** A keycap button. */
 export function keycap(label, onClick, cls) {
   const b = el("button", "key" + (cls ? " " + cls : ""), label);
+  b.type = "button";
   if (onClick) b.addEventListener("click", onClick);
   return b;
 }

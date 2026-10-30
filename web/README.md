@@ -75,7 +75,10 @@ Everything below is modeled as the hardware does it (references:
   wired.
 
 The panel carries every lamp the hardware lists - BUS, PC, A, B, IR,
-SUM, CF/ZF, RAM address and data, the microsteps T0..T6 and STEP
+SUM, CF/ZF, the RAM data (the RAM_DATA nets; the address lamps live
+on the MAR - they are the RAM address nets A0..A3, driven by the MAR
+in run mode and by the switches in program mode), the microsteps
+T0..T6 and STEP
 counter bits, all 16 control lines, CLK, PROG/PROG_hat - and nothing
 else: no readouts, no conveniences, nothing the machine does not have.
 The arrangement mirrors the Digital build: left column CLOCK, MAR, RAM,
