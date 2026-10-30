@@ -19,7 +19,7 @@ import { assemble as assembleAsm, MNEMONICS, AsmError } from "./asm.js";
 import { makeDocsViewer, renderMarkdown } from "./docs.js";
 import {
   moduleCard, ledBank, namedLeds, dipRow, toggleSwitch, keycap,
-  ramMonitor, listingPane,
+  ramMonitor, listingPane, ledColumn,
 } from "./panel.js";
 
 // the programs this build serves: the tracked .hl sources in programs/,
@@ -154,11 +154,18 @@ function buildPanel() {
     "MAR/flags - not RAM.";
   mClock.append(clockHint);
 
-  // the shared bus, full width
-  const mBus = moduleCard("BUS", "U30 U36 U13 U7 U17 - one driver at a time");
-  mBus.classList.add("bus");
-  out.bus = ledBank("BUS", 8, "r", true);
-  if (out.bus.note) markWeb(out.bus.note);  // which driver: the app's annotation
+  // the shared bus, as the rail it is: a vertical strip of the 8 BUS
+  // lamps running down the middle between the module columns, every
+  // module on either side tapping it (the driver note below the lamps
+  // is this app's annotation)
+  const mBus = moduleCard("BUS", "U30 U36 U13 U7 U17");
+  mBus.classList.add("mid");
+  out.bus = ledColumn(8, "r");
+  const busFoot = document.createElement("div");
+  busFoot.className = "bank";
+  busFoot.append(out.bus.read, out.bus.note);
+  markWeb(out.bus.note);
+  mBus.append(out.bus.el, busFoot);
 
   // the control module: both ROM banks, the microstep LEDs
   const mCtrl = moduleCard("CONTROL", "U47 U52 28C16 / U48 74161");
@@ -233,20 +240,24 @@ function buildPanel() {
   // the arrangement echoes the Digital build (and Ben's breadboards):
   // left column top-to-bottom CLOCK, MAR, the front panel (the PROG
   // dipswitches sit by the memory muxes there too), RAM, IR, CONTROL;
-  // right column PC (top), A, ALU, B, OUTPUT; the BUS rail spans the
-  // bottom. Nothing else is on the panel - the app's own readouts
-  // live in the deck above.
-  const place = (m, col) => {
+  // right column PC (top), A, ALU, B, OUTPUT; the BUS rail runs down
+  // the middle between them. Rows are placed explicitly (implicit-row
+  // spanning is unreliable), so the pairing is stable. Nothing else
+  // is on the panel - the app's own readouts live in the deck above.
+  const ROWS = 6;
+  const place = (m, col, row) => {
     m.classList.add(col);
+    m.style.gridRow = String(row);
     panel.append(m);
   };
-  place(mClock, "l");  place(mPc, "r");
-  place(mMar, "l");   place(mA, "r");
-  place(mPanel, "l"); place(mAlu, "r");
-  place(mRam, "l");   place(mB, "r");
-  place(mIr, "l");    place(mOut, "r");
-  place(mCtrl, "l");
-  panel.append(mBus);  // the bus rail, spanning the bottom
+  mBus.style.gridRow = "1 / span " + ROWS;
+  panel.append(mBus);  // the rail first: middle column, full height
+  place(mClock, "l", 1);  place(mPc, "r", 1);
+  place(mMar, "l", 2);   place(mA, "r", 2);
+  place(mPanel, "l", 3); place(mAlu, "r", 3);
+  place(mRam, "l", 4);   place(mB, "r", 4);
+  place(mIr, "l", 5);    place(mOut, "r", 5);
+  place(mCtrl, "l", 6);
 }
 
 function kvRow(label) {

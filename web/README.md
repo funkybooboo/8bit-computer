@@ -74,7 +74,8 @@ model is the one documented in [docs/microcode.md](../docs/microcode.md).
   Digital build and Ben's breadboards - left column CLOCK, MAR, the
   front panel (the PROG dipswitches sit by the memory muxes there
   too), RAM, IR, CONTROL; right column PC (top), A, ALU, B, OUTPUT;
-  the BUS rail across the bottom. Each module carries its chip
+  the BUS rail runs down the middle between the module columns, every
+  module tapping it. Each module carries its chip
   annotation, and the control LEDs show the word for the cycle about
   to execute, steady between edges, like the hardware's. The clock
   module carries the hardware's own controls: the CLK LED, STEP_MODE +

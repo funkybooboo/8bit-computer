@@ -84,6 +84,35 @@ export function namedLeds(names, color, lsbFirst) {
   };
 }
 
+/** A vertical LED column (MSB at the top, each lamp labeled with its
+ *  bit) - the bus rail that runs between the module columns, the way
+ *  the shared bus runs between the modules on the machine. Same
+ *  interface as ledBank. */
+export function ledColumn(bits, color) {
+  const leds = [];
+  const box = el("div", "colbank");
+  for (let i = bits - 1; i >= 0; i--) {
+    const row = el("div", "colrow");
+    const l = el("span", "led " + color);
+    row.append(l, el("span", "cl", String(i)));
+    box.append(row);
+    leds[i] = l;
+  }
+  const read = el("span", "read");
+  const note = el("span", "note");
+  return {
+    el: box,
+    read,
+    note,
+    set(v) {
+      for (let i = 0; i < bits; i++) {
+        leds[i].classList.toggle("on", ((v >> i) & 1) === 1);
+      }
+      read.textContent = "0x" + v.toString(16).padStart(bits / 4, "0");
+    },
+  };
+}
+
 /** A bank of dipswitch levers (MSB on the left), clickable to flip.
  *  get()/set() read and load the switch byte. */
 export function dipRow(label, bits, onChange) {
