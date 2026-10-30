@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<circuit>
+  <version>1</version>
+  <attributes>
+    <entry>
+      <string>Description</string>
+      <string>Silent wrong value: an enabled Driver (S=1) reads a floating 4-bit net and drives it onto a net with only a pull-up resistor. Stock: RESULT shows a random value every run, no error. Patched: RESULT is always 15 (pull-up wins).</string>
+    </entry>
+  </attributes>
+  <visualElements>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>SD</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>4</int>
+        </entry>
+      </elementAttributes>
+      <pos x="60" y="20"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>SD2</string>
+        </entry>
+      </elementAttributes>
+      <pos x="100" y="-40"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Driver</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>4</int>
+        </entry>
+      </elementAttributes>
+      <pos x="100" y="20"/>
+    </visualElement>
+    <visualElement>
+      <elementName>In</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>S</string>
+        </entry>
+      </elementAttributes>
+      <pos x="60" y="80"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Driver</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>4</int>
+        </entry>
+      </elementAttributes>
+      <pos x="200" y="100"/>
+    </visualElement>
+    <visualElement>
+      <elementName>PullUp</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Bits</string>
+          <int>4</int>
+        </entry>
+      </elementAttributes>
+      <pos x="300" y="100"/>
+    </visualElement>
+    <visualElement>
+      <elementName>Out</elementName>
+      <elementAttributes>
+        <entry>
+          <string>Label</string>
+          <string>RESULT</string>
+        </entry>
+        <entry>
+          <string>Bits</string>
+          <int>4</int>
+        </entry>
+      </elementAttributes>
+      <pos x="340" y="100"/>
+    </visualElement>
+  </visualElements>
+  <wires>
+    <wire>
+      <p1 x="60" y="20"/>
+      <p2 x="80" y="20"/>
+    </wire>
+    <wire>
+      <p1 x="100" y="-40"/>
+      <p2 x="100" y="0"/>
+    </wire>
+    <wire>
+      <p1 x="120" y="20"/>
+      <p2 x="120" y="100"/>
+    </wire>
+    <wire>
+      <p1 x="120" y="100"/>
+      <p2 x="180" y="100"/>
+    </wire>
+    <wire>
+      <p1 x="60" y="80"/>
+      <p2 x="200" y="80"/>
+    </wire>
+    <wire>
+      <p1 x="220" y="100"/>
+      <p2 x="300" y="100"/>
+    </wire>
+    <wire>
+      <p1 x="300" y="100"/>
+      <p2 x="340" y="100"/>
+    </wire>
+  </wires>
+</circuit>
