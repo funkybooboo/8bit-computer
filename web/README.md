@@ -1,12 +1,12 @@
-# web/ - the emulator, as a front panel
+# web/ - the emulator, as the machine itself
 
 The machine emulated in a browser - the repo's emulator (there is no
 separate one): the same machine as [digital/Computer.dig](../digital/Computer.dig),
-running the same ROM images, presented as the front panel the hardware
-has - LEDs, switches, a multiplexed display, keys - in pure HTML, CSS
-and JavaScript, no build tools, no frameworks, no network dependencies -
-a static directory any web server can host, so anyone can run the
-computer in a browser.
+running the same ROM images, presented as the machine itself - its
+modules, lamps and switches, laid out as the Digital build lays them
+out - in pure HTML, CSS and JavaScript, no build tools, no frameworks,
+no network dependencies - a static directory any web server can host,
+so anyone can run the computer in a browser.
 
 ## The one rule: real ROM images, not an ISA re-implementation
 
@@ -47,16 +47,18 @@ Everything below is modeled as the hardware does it (references:
   (js/display.js decodes the ROM; the canvas draws all four digits, the
   persistence-of-vision view of the 500+ Hz multiplex, while the mux
   counter itself runs and shows on its panel LEDs)
-- **the front panel** (docs/hardware.md, "The front panel"): every LED
-  the hardware lists - BUS, PC, A, B, IR, SUM, CF/ZF, RAM address and
-  data, the microstep T0..T6 and STEP counter bits, all 16 control
-  lines, CLK, PROG/PROG_hat - plus the panel switches with the
-  hardware's own names and gating: RESET, STEP_MODE + STEP_PULSE
-  (in AUTO the pulse button is disconnected, U5.1; in MANUAL the
-  master clock is, U4.1), PROG_ADDR, the PROG_ADDR_A and PROG_DATA
-  dipswitches, PROG_WRITE, DEC_HEX. In PROGRAM mode the RAM
-  address/data muxes (U33/U26/U27, the 74157s) put the panel switches
-  on, exactly as wired.
+- **the machine's controls** (docs/hardware.md, "The front panel" -
+  the wiring of the switches and lamps): every LED the hardware
+  lists - BUS, PC, A, B, IR, SUM, CF/ZF, RAM address and data, the
+  microstep T0..T6 and STEP counter bits, all 16 control lines, CLK,
+  PROG/PROG_hat - plus the switches with the hardware's own names,
+  homes and gating: RESET on the CONTROL (U51's reset shaping),
+  STEP_MODE + STEP_PULSE on the CLOCK (in AUTO the pulse button is
+  disconnected, U5.1; in MANUAL the master clock is, U4.1), PROG_ADDR
+  and the PROG_ADDR_A dipswitches on the MAR (U33), PROG_DATA and
+  PROG_WRITE on the RAM (U26/U27, U32), DEC_HEX on the OUTPUT. In
+  PROGRAM mode the RAM address/data muxes (U33/U26/U27, the 74157s)
+  put the panel switches on, exactly as wired.
 
 The control-word bits are the tables from [tools/genroms.py]
 (../tools/genroms.py), the machine definition in code, and the cycle
@@ -71,42 +73,57 @@ model is the one documented in [docs/microcode.md](../docs/microcode.md).
   and the app's status readouts (program, cycles, instructions).
   Space = one clock pulse (as STEP_PULSE, so it respects STEP_MODE).
 - **the panel**: the machine and only the machine, arranged as in the
-  Digital build and Ben's breadboards - left column CLOCK, MAR, the
-  front panel (the PROG dipswitches sit by the memory muxes there
-  too), RAM, IR, CONTROL; right column PC (top), A, ALU, B, OUTPUT;
-  the BUS rail runs down the middle between the module columns, every
-  module tapping it. Each module carries its chip
-  annotation, and the control LEDs show the word for the cycle about
-  to execute, steady between edges, like the hardware's. The clock
-  module carries the hardware's own controls: the CLK LED, STEP_MODE +
-  STEP_PULSE (the gating is real - in AUTO the button is disconnected,
-  U5.1; in MANUAL the master clock is, U4.1), RESET, and the U1 rate
-  (1 Hz to 2 kHz - the 555's pot). A legend above the panel states
-  the marking convention: unmarked = on the machine; dashed = this
-  app's (the hex readouts, the OUT LED bank - on the hardware OUT
-  shows on the display only - the mux counter LEDs, the halt lamp,
-  the RAM monitor, the driver/mnemonic annotations).
+  Digital build and Ben's breadboards - left column CLOCK, MAR, RAM,
+  IR, CONTROL; right column PC (top), A, ALU, B, OUTPUT; the BUS runs
+  down the middle between the module columns, its lamps reading left
+  to right and the wire itself drawn running the panel's height -
+  every module taps it. Each module carries its chip annotation, and
+  the control LEDs show the word for the cycle about to execute,
+  steady between edges, like the hardware's. The switches sit where
+  they wire: STEP_MODE + STEP_PULSE and the U1 rate (1 Hz to 2 kHz,
+  the 555's pot) on the CLOCK (the gating is real - in AUTO the
+  pulse button is disconnected, U5.1; in MANUAL the master clock is,
+  U4.1); RESET on the CONTROL (it is U51's reset shaping there);
+  PROG_ADDR and the PROG_ADDR_A dipswitches on the MAR (U33);
+  PROG_DATA and PROG_WRITE on the RAM (U26/U27, U32); DEC_HEX on the
+  OUTPUT. A legend above the panel states the marking convention:
+  unmarked = on the machine; dashed = this app's (the hex readouts,
+  the OUT LED bank - on the hardware OUT shows on the display only -
+  the mux counter LEDs, the halt lamp, the RAM monitor, the
+  driver/mnemonic annotations).
 - **your program**: paste .hl or .asm source (or a hex/logisim image),
   COMPILE + LOAD builds it in the browser with the repo's own toolchain
   (below) and puts it in RAM; the generated .asm is shown under the
   editor. IMAGE FILE accepts .hl, .asm, .bin, .hex and .lst files.
-- **listing**: the program's entry table - the dipswitch bit groups for
-  every address - as compiled in the browser, with the current PC line
-  highlighted. The same table web/build.py writes next to each source
-  for manual entry and inspection.
+- **listing**: the program's entry table - one line per address with
+  the three dipswitch groups - as compiled in the browser, the current
+  PC line highlighted. A line that carries a byte is clickable: it
+  puts that address and byte straight onto the PROG switches, because
+  the table IS the hand-entry procedure. The same table web/build.py
+  writes next to each source.
 - **out log / cycle trace**: the OUT stream and, when stepping (or with
   TRACE on), every cycle's control lines and state.
 - **docs**: the repo's own documentation (docs/*.md) rendered in the
   page, cross-links working inside the reader - the machine's docs are
   one click from the machine.
 
-### Entering a program by hand
+### Loading a program: three ways, one destination
 
-The hardware's own procedure (docs/hardware.md, "The front panel"):
-flip PROG_ADDR to PROG, set the PROG_ADDR_A and PROG_DATA dipswitches,
-press PROG_WRITE (a RAM row click loads that row's address and byte
-into the switches), flip back to RUN, RESET, then flip STEP_MODE to
-MANUAL and step with STEP_PULSE - or leave it AUTO and press RUN.
+All three end with the same bytes in RAM - the gallery and the
+compiler are conveniences that do what the switches do byte by byte:
+
+1. **by hand, the hardware's way** - flip PROG_ADDR (on the MAR) to
+   PROG, set PROG_ADDR_A and PROG_DATA from the listing (clicking a
+   listing line or a RAM row loads its bits onto the switches), press
+   PROG_WRITE per byte; flip back to RUN, RESET, run.
+2. **from the gallery** - pick a prewritten program in the deck and
+   LOAD: it is fetched as .hl source and compiled in the browser with
+   the repo's own toolchain, byte-identical to the repo's build.
+3. **your own** - paste .hl or .asm (or an image) in the pane below
+   and COMPILE + LOAD.
+
+Whichever way, the listing pane then shows the bytes - and way 1 can
+reproduce way 2 or 3 by hand, line by line.
 
 ## The toolchain in the browser
 
@@ -162,7 +179,7 @@ reproduce them exactly.
 | js/hlc.js       | the .hl compiler, the JS twin of tools/compile.py              |
 | js/asm.js       | the assembler, the JS twin of tools/asm.py                     |
 | js/display.js   | the display: output-display.hex decode + the seven-segment canvas |
-| js/panel.js     | the front panel's parts: LED banks, switches, the RAM monitor, the listing pane |
+| js/panel.js     | the panel's parts: LED banks, switches, the RAM monitor, the listing pane |
 | js/docs.js      | the docs reader: a small markdown renderer + in-page navigation |
 | js/main.js      | the app: the clock, the keys, the wiring, the render loop, the self-test |
 | js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count.bin)    |

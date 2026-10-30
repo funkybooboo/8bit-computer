@@ -31,20 +31,22 @@ export function moduleCard(title, sub, web) {
 }
 
 /** A labeled bank of `bits` LEDs (MSB on the left) with a hex readout
- *  and an optional trailing note (the BUS driver). set(v) lights it. */
+ *  and an optional trailing note (the BUS driver). set(v) lights it.
+ *  The label may be empty (the module caption already names it). */
 export function ledBank(label, bits, color, note) {
   const leds = [];
   const box = el("div", "leds");
   for (let i = bits - 1; i >= 0; i--) {
     const l = el("span", "led " + color);
-    l.title = label + " bit " + i;
+    l.title = (label || "") + " bit " + i;
     box.append(l);
     leds[i] = l;
   }
   const row = el("div", "bank");
   const read = el("span", "read");
   const trail = note ? el("span", "note") : null;
-  row.append(el("span", "note", label), box, read, trail);
+  if (label) row.append(el("span", "note", label));
+  row.append(box, read, trail);
   return {
     el: row,
     read,
@@ -80,35 +82,6 @@ export function namedLeds(names, color, lsbFirst) {
       for (let i = 0; i < n; i++) {
         cells[i].classList.toggle("on", ((mask >> i) & 1) === 1);
       }
-    },
-  };
-}
-
-/** A vertical LED column (MSB at the top, each lamp labeled with its
- *  bit) - the bus rail that runs between the module columns, the way
- *  the shared bus runs between the modules on the machine. Same
- *  interface as ledBank. */
-export function ledColumn(bits, color) {
-  const leds = [];
-  const box = el("div", "colbank");
-  for (let i = bits - 1; i >= 0; i--) {
-    const row = el("div", "colrow");
-    const l = el("span", "led " + color);
-    row.append(l, el("span", "cl", String(i)));
-    box.append(row);
-    leds[i] = l;
-  }
-  const read = el("span", "read");
-  const note = el("span", "note");
-  return {
-    el: box,
-    read,
-    note,
-    set(v) {
-      for (let i = 0; i < bits; i++) {
-        leds[i].classList.toggle("on", ((v >> i) & 1) === 1);
-      }
-      read.textContent = "0x" + v.toString(16).padStart(bits / 4, "0");
     },
   };
 }
@@ -220,12 +193,19 @@ export function ramMonitor(decode, onRow) {
   };
 }
 
-/** The listing pane: the .lst entry table (built by web/build.py or
- *  js/asm.js), with the current PC line highlighted. */
-export function listingPane() {
+/** The listing pane: the program's entry table - one line per RAM
+ *  address with the three dipswitch groups. Lines that carry a byte
+ *  are clickable: onLine(addr, byte) puts them on the panel switches,
+ *  which is what the table is FOR - entering the program by hand.
+ *  The current PC line is highlighted. */
+export function listingPane(onLine) {
   const wrap = el("div");
   const body = el("div", "listing");
   wrap.append(body);
+  const intro = el("p", "lstnote",
+    "the bytes in RAM, however they got there - picked from the gallery," +
+    " compiled below, or entered by hand. A line's bits column is its" +
+    " dipswitch settings; click a line to put them on the switches.");
   let byAddr = new Map();
   let current = null;
   return {
@@ -237,21 +217,27 @@ export function listingPane() {
       body.replaceChildren();
       if (!text) {
         body.append(el("pre", null, "(no listing - load a program from the gallery,\n" +
-          "or assemble one of your own below)"));
+          "or compile one of your own below)"));
         return;
       }
       const pre = el("pre");
       for (const line of text.replace(/\n$/, "").split("\n")) {
         const span = el("span", "lst-line", line + "\n");
         pre.append(span);
-        const m = /^([0-9a-f]{2})\s/.exec(line);
+        const m = /^([0-9a-f]{2})\s+([0-9a-f]{2}|--)/.exec(line);
         if (m) {
           const a = parseInt(m[1], 16);
           if (!byAddr.has(a)) byAddr.set(a, []);
           byAddr.get(a).push(span);
+          if (m[2] !== "--" && onLine) {
+            // a real byte: the line IS a dipswitch setting - click to load
+            span.classList.add("pick");
+            span.addEventListener("click", () =>
+              onLine(a, parseInt(m[2], 16)));
+          }
         }
       }
-      body.append(pre);
+      body.append(intro, pre);
     },
     /** Highlight the row for `addr` (label rows too). */
     mark(addr) {

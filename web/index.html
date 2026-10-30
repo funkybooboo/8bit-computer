@@ -10,8 +10,9 @@
   <header>
     <h1>8-BIT COMPUTER</h1>
     <p>
-      Ben Eater's breadboard computer (with added opcodes) as its front
-      panel, running in a browser. It executes the real control-ROM
+      Ben Eater's breadboard computer (with added opcodes) as the
+      machine itself - its modules, lamps and switches - running in a
+      browser. It executes the real control-ROM
       images, <code>roms/control-rom1.hex</code> and
       <code>roms/control-rom2.hex</code> - the same microcode the
       hardware burns - so a program behaves here exactly the way it
@@ -22,12 +23,12 @@
 
   <div id="deck"></div>
   <p id="legend">
-    <b>PANEL KEY</b> - every unmarked module and control is the machine's
-    own front panel, arranged as in the Digital build (PC top right,
-    control logic bottom left, the bus rail running down the middle
-    between the modules; docs/hardware.md, "The front panel").
-    <b>Dashed</b> elements - and the bar above and the panes below -
-    are this app's instruments: they do not exist on the machine.
+    <b>PANEL KEY</b> - every unmarked module, lamp and switch is the
+    machine's own, as wired in the Digital build (PC top right, the
+    control logic - with RESET - bottom left, the bus rail between the
+    module columns; docs/hardware.md). <b>Dashed</b> elements - and the
+    bar above and the panes below - are this app's instruments: they
+    do not exist on the machine.
   </p>
   <div id="panel"><canvas id="display-canvas"></canvas></div>
 

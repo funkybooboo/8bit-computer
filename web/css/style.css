@@ -85,7 +85,7 @@ label.key input { display: none; }
    annotations attached to modules). */
 #panel {
   display: grid;
-  grid-template-columns: minmax(14rem, 1fr) 8rem minmax(14rem, 1fr);
+  grid-template-columns: minmax(14rem, 1fr) 9rem minmax(14rem, 1fr);
   gap: .8rem;
   background: var(--plate); border: 1px solid var(--plate-line);
   padding: .8rem;
@@ -98,7 +98,7 @@ label.key input { display: none; }
   box-shadow: inset 1px 1px 0 #d9cfb6;
   padding: .4rem .6rem .55rem;
 }
-.module.mid {  /* the bus rail: middle column, full height */
+.module.mid {  /* the bus: full-height strip in the middle column */
   grid-column: 2;
   display: flex;
   flex-direction: column;
@@ -145,16 +145,20 @@ label.key input { display: none; }
 .cell { display: flex; flex-direction: column; align-items: center; gap: .14rem; }
 .cell .cl { color: var(--ink-dim); font-size: .6rem; }
 
-/* the bus rail's vertical lamp column */
-.colbank {
+/* the bus strip: lamps read left to right like every other bank, and
+   the wire itself runs the remaining height - the shared medium every
+   module on either side taps */
+.module.mid .leds { justify-content: center; }
+.module.mid .bank { justify-content: center; }
+.module.mid .read, .module.mid .note { min-width: 0; }
+.module.mid .rail {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;  /* the lamps run the rail's height */
-  padding: .2rem 0;
+  width: 2px;
+  min-height: 1rem;
+  align-self: center;
+  margin-top: .6rem;
+  background: #8a7a52;
 }
-.colrow { display: flex; align-items: center; gap: .4rem; }
-.colrow .cl { color: var(--ink-dim); font-size: .6rem; }
 
 /* switches: dip levers and slide toggles */
 .dips { display: flex; gap: .3rem; }
@@ -235,6 +239,9 @@ table.ram tr.mar td { background: #a89b7f; }
 /* the listing pane */
 .listing pre { max-height: 24rem; }
 .lst-line.cur { color: #ffd9d0; background: #3a2c12; }
+.lst-line.pick { cursor: pointer; }  /* a byte line: click = onto the switches */
+.lst-line.pick:hover { color: #fff; background: #3a2c12; }
+.lstnote { margin: 0 0 .4rem; color: var(--pane-dim); font-size: .72rem; }
 
 /* the docs pane */
 .docbar { margin-bottom: .4rem; }
@@ -271,6 +278,5 @@ table.ram tr.mar td { background: #a89b7f; }
   header p { display: none; }
   #panel { grid-template-columns: 1fr; }
   .module.l, .module.r, .module.mid { grid-column: auto; grid-row: auto !important; }
-  .colbank { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: .5rem; }
   #panes section { min-width: 100%; }
 }

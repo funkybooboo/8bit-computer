@@ -19,7 +19,7 @@ import { assemble as assembleAsm, MNEMONICS, AsmError } from "./asm.js";
 import { makeDocsViewer, renderMarkdown } from "./docs.js";
 import {
   moduleCard, ledBank, namedLeds, dipRow, toggleSwitch, keycap,
-  ramMonitor, listingPane, ledColumn,
+  ramMonitor, listingPane,
 } from "./panel.js";
 
 // the programs this build serves: the tracked .hl sources in programs/,
@@ -122,8 +122,8 @@ function buildPanel() {
   mOut.append(bezel, out.reg.el, out.mux.el, out.decHex.el);
 
   // the clock module, as the hardware has it: the CLK LED, the
-  // STEP_MODE switch + STEP_PULSE key (manual clocking), RESET, and
-  // the master clock's rate (U1 - the 555's pot on the breadboard)
+  // STEP_MODE switch + STEP_PULSE key (manual clocking), and the
+  // master clock's rate (U1 - the 555's pot on the breadboard)
   const mClock = moduleCard("CLOCK", "U1..U6 - clock + gating");
   out.clk = namedLeds(["CLK"], "g", true);
   out.halt = namedLeds(["HALT"], "r", true);  // the machine just stops; this lamp is the app's
@@ -136,7 +136,6 @@ function buildPanel() {
     }
   }, "STEP_MODE");
   out.stepPulse = keycap("STEP_PULSE", step);
-  out.resetKey = keycap("RESET", reset);
   const rateRow = document.createElement("div");
   rateRow.className = "bank";
   const rateNote = document.createElement("span");
@@ -144,41 +143,57 @@ function buildPanel() {
   rateNote.textContent = "U1 RATE";
   rateNote.title = "the master clock's frequency - the 555's pot";
   mClock.append(out.clk.el, out.halt.el, out.stepMode.el,
-    out.stepPulse, out.resetKey, rateRow);
+    out.stepPulse, rateRow);
   rateRow.append(rateNote, hzSlider, hzRead);
   const clockHint = document.createElement("p");
   clockHint.className = "hint";
   clockHint.textContent = "STEP_MODE MANUAL disconnects the master clock" +
     " (U4.1); each STEP_PULSE click is then one clock edge. HLT gates" +
-    " the clock off entirely (U4.4). RESET clears PC/step/OUT/A/B/IR/" +
-    "MAR/flags - not RAM.";
+    " the clock off entirely (U4.4).";
   mClock.append(clockHint);
 
-  // the shared bus, as the rail it is: a vertical strip of the 8 BUS
-  // lamps running down the middle between the module columns, every
-  // module on either side tapping it (the driver note below the lamps
-  // is this app's annotation)
+  // the shared bus, as the rail it is: the 8 BUS lamps between the
+  // module columns, every module on either side tapping it (the hex
+  // readout and the driver note are this app's annotations)
   const mBus = moduleCard("BUS", "U30 U36 U13 U7 U17");
   mBus.classList.add("mid");
-  out.bus = ledColumn(8, "r");
-  const busFoot = document.createElement("div");
-  busFoot.className = "bank";
-  busFoot.append(out.bus.read, out.bus.note);
+  out.bus = ledBank("", 8, "r", true);
   markWeb(out.bus.note);
-  mBus.append(out.bus.el, busFoot);
+  const rail = document.createElement("div");
+  rail.className = "rail";  // the wire itself, running the panel's height
+  rail.title = "the shared bus - every module taps it";
+  mBus.append(out.bus.el, rail);
 
-  // the control module: both ROM banks, the microstep LEDs
-  const mCtrl = moduleCard("CONTROL", "U47 U52 28C16 / U48 74161");
+  // the control unit: both ROM banks, the microstep LEDs, and the
+  // RESET key (it wires into U51 here - the reset shaping, which
+  // clears every register's RES pin)
+  const mCtrl = moduleCard("CONTROL", "U47 U52 28C16 / U48 74161 / U51 7400");
   out.rom1 = namedLeds(["HLT", "MI", "RI", "RO", "IO", "II", "AI", "AO"], "a", false);
   out.rom2 = namedLeds(["EO", "SU", "BI", "OI", "CE", "CO", "J", "FI"], "a", false);
   out.t = namedLeds(["T0", "T1", "T2", "T3", "T4", "T5", "T6"], "a", true);
   out.q = namedLeds(["STEP_2", "STEP_1", "STEP_0"], "a", false);
+  out.resetKey = keycap("RESET", reset);
+  const ctrlHint = document.createElement("p");
+  ctrlHint.className = "hint";
+  ctrlHint.textContent = "RESET (U51's ~CLR/CLR nets) clears PC, the step" +
+    " counter, the output register and every 74173 - A, B, IR, MAR," +
+    " flags. RAM is not on the reset net: RESET does not erase the" +
+    " program.";
+  mCtrl.append(out.rom1.el, out.rom2.el, out.t.el, out.q.el,
+    out.resetKey, ctrlHint);
 
   // the registers
   const mPc = moduleCard("PC", "U35 74161");
   out.pc = ledBank("PC", 4, "r");
-  const mMar = moduleCard("MAR", "U34 74173");
+  const mMar = moduleCard("MAR", "U34 74173 / U33 74157");
   out.mar = ledBank("MAR", 4, "r");
+  // the program-address side of program entry: the PROG_ADDR mode
+  // switch (it selects the panel side of all four muxes, U26 U27 U32
+  // U33) and the address dipswitches, which wire into U33 here
+  out.progMode = toggleSwitch("RUN", "PROG", (on) => { prog.mode = on; }, "PROG_ADDR");
+  out.progLeds = namedLeds(["PROG", "PROG_hat"], "a", true);
+  prog.addrDips = dipRow("PROG_ADDR_A", 4, (v) => { prog.addr = v; });
+  mMar.append(out.mar.el, out.progMode.el, out.progLeds.el, prog.addrDips.el);
   const mIr = moduleCard("INSTRUCTION", "U14 U15 74173");
   out.ir = ledBank("IR", 8, "r", true);
   if (out.ir.note) markWeb(out.ir.note);  // the mnemonic: the app's annotation
@@ -190,8 +205,11 @@ function buildPanel() {
   out.sum = ledBank("SUM", 8, "r");
   out.flags = namedLeds(["CF", "ZF"], "g", true);
 
-  // the RAM: the addressed byte's LEDs + this app's monitor (marked)
-  const mRam = moduleCard("RAM", "U24 U25 74189 / U30 74245");
+  // the RAM: the addressed byte's LEDs, the program-data side of
+  // program entry (PROG_DATA through U26/U27, PROG_WRITE through
+  // U32), and this app's monitor (marked)
+  const mRam = moduleCard("RAM",
+    "U24 U25 74189 / U30 74245 / entry muxes U26 U27 U32");
   out.ramAddr = ledBank("ADDR", 4, "r");
   out.ramData = ledBank("DATA", 8, "r");
   out.ram = ramMonitor(decodeByte, (addr) => {
@@ -200,13 +218,6 @@ function buildPanel() {
     prog.dataDips.set(machine ? machine.ram[addr] : 0);
   });
   markWeb(out.ram.el);
-
-  // the front panel: program entry exactly as the hardware does it
-  // (the switches carry the hardware's own net names)
-  const mPanel = moduleCard("FRONT PANEL", "program entry (docs/hardware.md)");
-  out.progMode = toggleSwitch("RUN", "PROG", (on) => { prog.mode = on; }, "PROG_ADDR");
-  out.progLeds = namedLeds(["PROG", "PROG_hat"], "a", true);
-  prog.addrDips = dipRow("PROG_ADDR_A", 4, (v) => { prog.addr = v; });
   prog.dataDips = dipRow("PROG_DATA", 8, (v) => { prog.data = v; });
   const writeKey = keycap("PROG_WRITE", () => {
     if (!machine) return;
@@ -218,33 +229,32 @@ function buildPanel() {
     render();
   });
   out.writeKey = writeKey;
-  const hint = document.createElement("p");
-  hint.className = "hint";
-  hint.textContent = "PROG mode: set PROG_ADDR_A + PROG_DATA, press" +
-    " PROG_WRITE (a RAM row loads its address and byte into the" +
-    " switches). RESET does not clear RAM - load the program again for" +
-    " a power cycle.";
+  const ramHint = document.createElement("p");
+  ramHint.className = "hint";
+  ramHint.textContent = "entering a program by hand, as the hardware" +
+    " does it: PROG_ADDR -> PROG (on the MAR), set PROG_ADDR_A +" +
+    " PROG_DATA from a listing line (click one, or a RAM row)," +
+    " PROG_WRITE per byte - the same bytes the gallery and the" +
+    " compiler load for you.";
 
-  mBus.append(out.bus.el);
-  mCtrl.append(out.rom1.el, out.rom2.el, out.t.el, out.q.el);
   mPc.append(out.pc.el);
-  mMar.append(out.mar.el);
   mIr.append(out.ir.el);
   mA.append(out.a.el);
   mB.append(out.b.el);
   mAlu.append(out.sum.el, out.flags.el);
-  mRam.append(out.ramAddr.el, out.ramData.el, out.ram.el);
-  mPanel.append(out.progMode.el, out.progLeds.el,
-    prog.addrDips.el, prog.dataDips.el, writeKey, hint);
+  mRam.append(out.ramAddr.el, out.ramData.el, out.ram.el,
+    prog.dataDips.el, writeKey, ramHint);
 
   // the arrangement echoes the Digital build (and Ben's breadboards):
-  // left column top-to-bottom CLOCK, MAR, the front panel (the PROG
-  // dipswitches sit by the memory muxes there too), RAM, IR, CONTROL;
-  // right column PC (top), A, ALU, B, OUTPUT; the BUS rail runs down
-  // the middle between them. Rows are placed explicitly (implicit-row
-  // spanning is unreliable), so the pairing is stable. Nothing else
-  // is on the panel - the app's own readouts live in the deck above.
-  const ROWS = 6;
+  // left column top-to-bottom CLOCK, MAR, RAM (carrying the
+  // program-entry switches, which wire into its muxes there), IR,
+  // CONTROL; right column PC (top), A, ALU, B, OUTPUT; the BUS rail
+  // runs down the middle between them, its lamps reading left to
+  // right like every other bank. Rows are placed explicitly
+  // (implicit-row spanning is unreliable), so the pairing is stable.
+  // Nothing else is on the panel - the app's own readouts live in the
+  // deck above.
+  const ROWS = 5;
   const place = (m, col, row) => {
     m.classList.add(col);
     m.style.gridRow = String(row);
@@ -254,10 +264,9 @@ function buildPanel() {
   panel.append(mBus);  // the rail first: middle column, full height
   place(mClock, "l", 1);  place(mPc, "r", 1);
   place(mMar, "l", 2);   place(mA, "r", 2);
-  place(mPanel, "l", 3); place(mAlu, "r", 3);
-  place(mRam, "l", 4);   place(mB, "r", 4);
-  place(mIr, "l", 5);    place(mOut, "r", 5);
-  place(mCtrl, "l", 6);
+  place(mRam, "l", 3);   place(mAlu, "r", 3);
+  place(mIr, "l", 4);    place(mB, "r", 4);
+  place(mCtrl, "l", 5);  place(mOut, "r", 5);
 }
 
 function kvRow(label) {
@@ -352,7 +361,7 @@ function buildDeck() {
 
   const webtag = span("webtag", "THIS APP - NOT ON THE MACHINE");
   const spacer = span("spacer", "");
-  deck.append(webtag, span("note", "PROGRAM"), select,
+  deck.append(webtag, span("note", "GALLERY"), select,
     keycap("LOAD", () => loadProgram(select.value).catch(showError)),
     runKey,
     keycap("TURBO", turbo),
@@ -735,7 +744,15 @@ async function init() {
   buildDeck();
   buildPanel();
   buildYourProgram();
-  listing = listingPane();
+  // the listing pane: clicking a byte line loads its dipswitch
+  // settings onto the PROG switches - the entry table is the entry
+  // procedure, whatever loaded the program
+  listing = listingPane((addr, byte) => {
+    prog.addrDips.set(addr);
+    prog.dataDips.set(byte);
+    state("switches set from listing line " + addr.toString(16).padStart(2, "0") +
+      " - flip PROG_ADDR to PROG and press PROG_WRITE to enter it by hand");
+  });
   $("listing").append(listing.el);
   makeDocsViewer($("docs"), "../docs/");
   listing.set(null);
