@@ -1,88 +1,226 @@
-/* style.css - dark, monospace, nothing clever. */
+/* style.css - the front panel: a beige faceplate, red LEDs, keycaps,
+   dark readouts. The DOM is built by js/panel.js; every look lives
+   here and only here, so the panel can be restructured without
+   touching CSS. Retro by construction: monospace, lamps, switches. */
 
 :root {
-  --bg: #14171c;
-  --panel: #1d2128;
-  --fg: #cdd3dd;
-  --muted: #7d8590;
-  --accent: #66d9ef;
-  --out: #a6e22e;
+  --bench: #17130e;           /* the workbench behind the panel */
+  --plate: #cfc5b0;           /* the faceplate */
+  --plate-cut: #bfb49b;       /* a module's cutout */
+  --plate-line: #97896c;
+  --ink: #241f16;
+  --ink-dim: #5a523f;
+  --lcd-bg: #171007;          /* the dark readouts */
+  --lcd: #ffb52e;             /* their amber digits */
+  --red: #ff4433; --red-off: #4d241c; --red-glow: #ff7a5e;
+  --amber: #ffbe2e; --amber-off: #4d3c14;
+  --green: #46e06a; --green-off: #17401f;
+  --key: #e8dfca; --key-line: #8f8266;
+  --pane-bg: #0d0a07; --pane-line: #2c251b;
+  --pane-fg: #d8cfc0; --pane-dim: #9a8f78;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
+  background: var(--bench);
+  color: var(--pane-fg);
   font-family: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #2a2f39;
-}
-header h1 { margin: 0 0 .4rem; font-size: 1.4rem; color: var(--accent); }
-header p { margin: 0; color: var(--muted); max-width: 46rem; }
-code { color: var(--accent); }
+header, #deck, #panel, #panes, footer { margin: 0 1.4rem 1.1rem; }
+header { padding-top: 1rem; }
+header h1 { margin: 0; font-size: 1.25rem; letter-spacing: .3em; color: var(--lcd); }
+header p { margin: .4rem 0 0; max-width: 54rem; color: var(--pane-dim); }
+header code { color: var(--lcd); }
+footer { padding-bottom: 2rem; }
+footer p { margin: 0; max-width: 54rem; color: var(--pane-dim); font-size: .8rem; }
+footer a { color: var(--lcd); }
 
-main {
-  padding: 1rem 1.5rem;
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-  align-items: start;
+/* the deck: program load, the clock keys, the speed */
+#deck {
+  display: flex; flex-wrap: wrap; gap: .55rem; align-items: center;
+  background: var(--plate); border: 1px solid var(--plate-line);
+  padding: .55rem .8rem;
+}
+#deck select {
+  font: inherit; background: var(--lcd-bg); color: var(--lcd);
+  border: 1px solid var(--key-line); padding: .1rem .4rem;
+}
+#deck .state { margin-left: auto; color: var(--ink-dim); font-size: .75rem; max-width: 24rem; text-align: right; }
+input[type="range"] { accent-color: var(--ink); width: 9rem; }
+
+/* keycaps */
+button.key, label.key {
+  font: inherit; color: var(--ink); background: var(--key);
+  border: 1px solid var(--key-line); border-bottom-width: 3px;
+  padding: .18rem .75rem; cursor: pointer; letter-spacing: .05em;
+  user-select: none;
+}
+button.key:active, label.key:active { border-bottom-width: 1px; transform: translateY(2px); }
+button.key.hot { background: #e9c79c; }
+label.key input { display: none; }
+
+/* the faceplate: modules in rows, the bus strip spanning them */
+#panel {
+  display: flex; flex-wrap: wrap; gap: .8rem; align-items: stretch;
+  background: var(--plate); border: 1px solid var(--plate-line);
+  padding: .8rem;
+}
+#panel > canvas { display: none; }  /* parked until buildPanel moves it */
+.module {
+  background: var(--plate-cut); border: 1px solid var(--plate-line);
+  box-shadow: inset 1px 1px 0 #d9cfb6;
+  padding: .4rem .6rem .55rem;
+}
+.module.bus { flex: 1 1 100%; }  /* the bus strip spans the panel */
+.cap {
+  display: flex; justify-content: space-between; gap: 1.2rem;
+  border-bottom: 1px solid var(--plate-line);
+  margin-bottom: .45rem; padding-bottom: .2rem;
+}
+.cap-t { color: var(--ink); font-weight: bold; font-size: .78rem; letter-spacing: .12em; }
+.cap-s { color: var(--ink-dim); font-size: .68rem; }
+.hint { margin: .45rem 0 0; color: var(--ink-dim); font-size: .68rem; max-width: 24rem; }
+
+/* LED banks: label, lamps, hex readout, optional note */
+.bank { display: flex; align-items: center; gap: .5rem; margin: .14rem 0; flex-wrap: wrap; }
+.leds { display: flex; gap: .26rem; }
+.led {
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.35); flex: none;
+}
+.led.r { background: var(--red-off); }
+.led.r.on { background: var(--red); box-shadow: 0 0 7px 1px var(--red-glow); }
+.led.a { background: var(--amber-off); }
+.led.a.on { background: var(--amber); box-shadow: 0 0 7px 1px var(--amber); }
+.led.g { background: var(--green-off); }
+.led.g.on { background: var(--green); box-shadow: 0 0 7px 1px var(--green); }
+.read {
+  background: var(--lcd-bg); color: var(--lcd);
+  padding: .02rem .4rem; font-size: .78rem; min-width: 3.2em;
+  text-align: center;
+}
+.read.wide { min-width: 9em; text-align: left; }
+.note { color: var(--ink-dim); font-size: .7rem; min-width: 2.5em; }
+
+/* named LED cells: the control lines, microsteps, flags */
+.cells { display: flex; gap: .42rem; flex-wrap: wrap; }
+.cell { display: flex; flex-direction: column; align-items: center; gap: .14rem; }
+.cell .cl { color: var(--ink-dim); font-size: .6rem; }
+
+/* switches: dip levers and slide toggles */
+.dips { display: flex; gap: .3rem; }
+.lever {
+  width: 11px; height: 23px; background: #241f16;
+  border: 1px solid rgba(0,0,0,.45); border-radius: 2px;
+  cursor: pointer; position: relative; flex: none;
+}
+.lever i {
+  position: absolute; left: 1px; right: 1px; top: 12px; height: 9px;
+  background: var(--key); border-radius: 1px;
+}
+.lever.on i { top: 2px; background: var(--lcd); }
+.tg { display: flex; align-items: center; gap: .45rem; cursor: pointer; user-select: none; }
+.tg .tlabel { color: var(--ink-dim); font-size: .68rem; }
+.tg .slot {
+  width: 30px; height: 14px; background: #241f16;
+  border: 1px solid rgba(0,0,0,.45); border-radius: 7px; position: relative;
+}
+.tg .knob {
+  position: absolute; top: 1px; left: 1px; width: 16px; height: 10px;
+  background: var(--key); border-radius: 4px; transition: left .08s;
+}
+.tg.on .knob { left: 11px; background: var(--lcd); }
+
+/* the display bezel */
+.segbezel {
+  background: #0d0a07; border: 1px solid rgba(0,0,0,.55);
+  padding: 6px 9px; margin-bottom: .35rem; width: max-content;
+}
+.segbezel canvas { display: block; width: 188px; height: 84px; }
+
+/* the RAM monitor */
+table.ram { border-collapse: collapse; font-size: .76rem; margin-top: .3rem; }
+table.ram th { color: var(--ink-dim); font-weight: normal; font-size: .6rem; text-align: left; padding: 0 .35rem; }
+table.ram td { color: var(--ink); padding: 0 .35rem; white-space: nowrap; }
+table.ram td.mark { width: 1em; color: #8c1d10; font-weight: bold; }
+table.ram tbody tr { cursor: pointer; }
+table.ram tr.cur td { color: #8c1d10; font-weight: bold; }
+table.ram tr.mar td { background: #a89b7f; }
+
+/* the panes below the panel */
+#panes { display: flex; flex-wrap: wrap; gap: 1rem; align-items: stretch; }
+#panes section { flex: 1 1 24rem; min-width: 20rem; }
+#panes h2 {
+  margin: 0 0 .3rem; font-size: .72rem; letter-spacing: .14em;
+  color: var(--pane-dim); text-transform: uppercase;
+}
+#panes pre {
+  margin: 0; background: var(--pane-bg); border: 1px solid var(--pane-line);
+  color: var(--pane-fg); padding: .5rem .7rem; overflow: auto;
+  max-height: 24rem; font-size: .78rem;
+}
+#outlog { color: var(--green); }
+#trace { color: var(--pane-dim); }
+
+/* your program: the editor */
+#your { display: flex; flex-direction: column; gap: .45rem; }
+#your textarea {
+  font: inherit; font-size: .8rem; background: var(--pane-bg);
+  color: var(--pane-fg); border: 1px solid var(--pane-line);
+  padding: .5rem .7rem; min-height: 11rem; resize: vertical;
+  white-space: pre;
+}
+#your select {
+  font: inherit; background: var(--pane-bg); color: var(--lcd);
+  border: 1px solid var(--pane-line); padding: .1rem .4rem;
+}
+#your .note { color: var(--pane-dim); font-size: .75rem; }
+#your .note.err { color: var(--red); }
+#your pre.genasm {
+  max-height: 10rem; color: var(--pane-dim);
 }
 
-section {
-  background: var(--panel);
-  border: 1px solid #2a2f39;
-  border-radius: 6px;
-  padding: .8rem 1rem;
-}
-section h2 {
-  margin: 0 0 .6rem;
-  font-size: .85rem;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--muted);
-}
+/* the listing pane */
+.listing pre { max-height: 24rem; }
+.lst-line.cur { color: #ffd9d0; background: #3a2c12; }
 
-#controls { grid-column: 1 / -1; }
-#controls label { margin-right: .8rem; }
-#controls p { margin: .4rem 0 0; color: var(--muted); }
-#name { color: var(--accent) !important; }
-
-button, select, input[type="file"] {
-  font: inherit;
-  color: var(--fg);
-  background: #262c35;
-  border: 1px solid #3a4150;
-  border-radius: 4px;
-  padding: .25rem .7rem;
-  cursor: pointer;
+/* the docs pane */
+.docbar { margin-bottom: .4rem; }
+.docbar select {
+  font: inherit; font-size: .8rem; width: 100%;
+  background: var(--pane-bg); color: var(--lcd);
+  border: 1px solid var(--pane-line); padding: .25rem .4rem;
 }
-button:hover, select:hover { border-color: var(--accent); }
-#run { border-color: #3f7d4a; }
-button:disabled { opacity: .5; cursor: default; }
-
-table { border-collapse: collapse; }
-th {
-  text-align: left;
-  color: var(--muted);
-  font-weight: normal;
-  padding: .1rem 1rem .1rem 0;
-  white-space: nowrap;
+.md {
+  background: var(--pane-bg); border: 1px solid var(--pane-line);
+  padding: .6rem .9rem; overflow: auto; max-height: 24rem;
+  font-size: .82rem;
 }
-td { color: var(--accent); }
-
-pre {
-  margin: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  min-height: 1.5em;
+.md h1, .md h2, .md h3, .md h4 { color: var(--lcd); margin: 1rem 0 .3rem; }
+.md h1 { font-size: 1.1rem; letter-spacing: .1em; }
+.md h1:first-child { margin-top: 0; }
+.md p { margin: .45rem 0; }
+.md a { color: var(--lcd); }
+.md code { color: var(--green); background: #1c1712; padding: 0 .2rem; }
+.md pre {
+  background: #1c1712; border: 1px solid var(--pane-line);
+  padding: .5rem .7rem; overflow: auto; color: var(--pane-fg);
 }
-#outs { color: var(--out); }
-#trace { color: var(--muted); font-size: .85rem; }
+.md table { border-collapse: collapse; margin: .5rem 0; font-size: .76rem; display: block; max-width: 100%; overflow: auto; }
+.md th, .md td { border: 1px solid var(--pane-line); padding: .15rem .45rem; text-align: left; vertical-align: top; }
+.md th { color: var(--lcd); }
+.md blockquote { margin: .5rem 0; padding: .2rem .8rem; border-left: 3px solid var(--plate-line); color: var(--pane-dim); }
+.md ul { margin: .45rem 0; padding-left: 1.4rem; }
+.md ul.sub { margin: 0; padding-left: 1.1rem; }
+.md li.nest { list-style: circle; }
+.md .err { color: var(--red); }
+
+@media (max-width: 640px) {
+  header p { display: none; }
+  #panes section { min-width: 100%; }
+}

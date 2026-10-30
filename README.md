@@ -56,3 +56,16 @@ works from this repo as cloned.
 The computer itself - circuit design, architecture, schematics - is
 Ben Eater's published work; this repo is a personal reproduction of it
 for study. All credit for the machine belongs to him.
+
+Other projects this one stands on or learned from, with credit due:
+
+- [hneemann/Digital](https://github.com/hneemann/Digital) - the logic
+  simulator the [digital/](digital/) build is wired and verified in.
+- [ngdrascal/8bitsim](https://github.com/ngdrascal/8bitsim) - a Digital
+  build of Ben's computer, a helpful reference while wiring this one;
+  its microcode image was used to cross-check the control ROMs
+  (docs/microcode.md).
+- [kapilpokhrel/eater-8bitemu](https://github.com/kapilpokhrel/eater-8bitemu) -
+  a terminal emulator of the stock machine with its own assembler - the
+  proof that an emulator with a real front panel is worth building.
+  Nothing in this repo is derived from its code.

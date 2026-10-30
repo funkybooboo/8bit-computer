@@ -1054,7 +1054,8 @@ class Gen:
                 return node.v == desc[1]
             return isinstance(node, Name) and self.consts.get(node.name) == desc[1]
         if desc[0] == "cell":
-            v = node.v if isinstance(node, Num) else self.consts.get(node.name)
+            v = node.v if isinstance(node, Num) else (
+                self.consts.get(node.name) if isinstance(node, Name) else None)
             return v is not None and self.const_cell(v) == desc[1]
         return False
 
