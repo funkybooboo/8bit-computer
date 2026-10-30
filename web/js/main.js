@@ -22,9 +22,10 @@ import {
   ramMonitor, listingPane,
 } from "./panel.js";
 
-// the programs this build serves: programs/<name>.bin images, built from
-// the .hl sources by web/build.py (they are gitignored build artifacts -
-// run it on a fresh clone before serving)
+// the programs this build serves: the tracked .hl sources in programs/,
+// fetched and compiled in the browser by the same toolchain the repo
+// uses (js/hlc.js + js/asm.js, byte-identical by test/test_tools.py) -
+// so a statically hosted bare clone works with nothing prebuilt
 const PROGRAMS = [
   "absdiff", "bits", "bothflags", "count", "countdown", "decrement",
   "div", "fib", "gcd", "half", "larger", "lcg", "memory", "min",
@@ -70,16 +71,14 @@ async function loadRoms() {
 }
 
 async function loadProgram(name) {
-  const ram = await fetchImage("../programs/" + name + ".bin", MEM_SIZE);
+  // the tracked source, compiled in the browser: the fetched file is
+  // static, and the build is the repo's own (byte-identical, tested)
+  const r = await fetch("../programs/" + name + ".hl");
+  if (!r.ok) throw new Error("fetch " + name + ".hl: " + r.status);
+  const { mem, listing: lst } = compileHl(await r.text());
   programName = name;
-  startMachine(ram);
-  try {
-    const r = await fetch("../programs/" + name + ".lst");
-    if (!r.ok) throw new Error(r.status);
-    listing.set(await r.text());  // the entry table web/build.py wrote
-  } catch (_e) {
-    listing.set(null);
-  }
+  listing.set(lst);
+  startMachine(mem);
 }
 
 function startMachine(ram) {

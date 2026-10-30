@@ -75,9 +75,10 @@ model is the one documented in [docs/microcode.md](../docs/microcode.md).
   COMPILE + LOAD builds it in the browser with the repo's own toolchain
   (below) and puts it in RAM; the generated .asm is shown under the
   editor. IMAGE FILE accepts .hl, .asm, .bin, .hex and .lst files.
-- **listing**: the program's entry table (the .lst web/build.py writes,
-  or the one just assembled) with the current PC line highlighted - the
-  same table used to enter a program through the dipswitches.
+- **listing**: the program's entry table - the dipswitch bit groups for
+  every address - as compiled in the browser, with the current PC line
+  highlighted. The same table web/build.py writes next to each source
+  for manual entry and inspection.
 - **out log / cycle trace**: the OUT stream and, when stepping (or with
   TRACE on), every cycle's control lines and state.
 - **docs**: the repo's own documentation (docs/*.md) rendered in the
@@ -105,19 +106,24 @@ is the dipswitch table.
 
 ## Run it locally
 
-The app fetches the ROM images from the repo and the program images
-from ../programs/ (build artifacts - build them first). From the repo
-root:
+A bare clone is enough - nothing is prebuilt and no backend is needed:
+every file the app fetches is in the repo (the ROM images, the docs,
+the .hl sources), and the programs are compiled in the browser. From
+the repo root:
 
-    python3 web/build.py        # writes programs/*.bin from the .hl sources
     python3 -m http.server
 
-then open <http://localhost:8000/web/>. (An HTTP server, not `file://`.)
-Hosting elsewhere is the same story: this directory plus `../roms/`,
-`../docs/` and the built `../programs/` images is fully static. Open the
-app with `?smoke=1` to run its built-in self-check (the machine, the
-panel write path, the toolchain, the docs renderer - results in the
-trace pane).
+then open <http://localhost:8000/web/>. (An HTTP server, not
+`file://` - the app fetches its files.) Any static host works the same
+way; GitHub Pages serving the repo as-is does too, since every fetch
+is a relative path into the repo. Open the app with `?smoke=1` to run
+its built-in self-check (the machine, the panel write path, the
+toolchain, the docs renderer - results in the trace pane).
+
+web/build.py remains for local work: it writes the .bin images and the
+.lst entry tables next to the .hl sources (gitignored artifacts) for
+inspection, manual entry and the headless runner - the web app does
+not need them.
 
 ## Tests
 
@@ -145,7 +151,7 @@ reproduce them exactly.
 | js/docs.js      | the docs reader: a small markdown renderer + in-page navigation |
 | js/main.js      | the app: the clock, the keys, the wiring, the render loop, the self-test |
 | js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count.bin)    |
-| build.py        | builds programs/*.bin from the .hl sources (gitignored artifacts; keeps the generated .asm and the .lst entry table next to each .hl) |
+| build.py        | optional: writes programs/*.bin + .lst artifacts next to the .hl sources for inspection, manual entry and the headless runner (the web app does not need them) |
 | test/verify.py  | runs every program on js/machine.js against the frozen expectations |
 | test/test_tools.py + run_tools.mjs | the JS toolchain vs the repo toolchain, byte for byte |
 | test/test_display.mjs | the display ROM decode against known patterns            |
@@ -165,3 +171,7 @@ reproduce them exactly.
 
 The machine itself was finished at phase 1; phases 2 and 3 were
 presentation and self-sufficiency.
+
+One constraint throughout: the app is fully static - no backend, no
+build step, no network dependencies beyond the repo's own files - so
+any web server (or GitHub Pages) can host it straight from a clone.

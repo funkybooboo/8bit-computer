@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-build.py - build the program images the web app serves.
+build.py - write the gallery's build artifacts next to their sources.
 
-The web app's program picker fetches ../programs/<name>.bin; those
-images are build artifacts (compiled from the .hl sources with the repo's
-compiler, then assembled) and are gitignored, so a fresh clone has none
-of them. This script builds all of them. Run it from anywhere; it is
-idempotent. The generated .asm and .lst files are kept next to the .hl
-sources (also gitignored): the .lst is the front-panel entry table -
-the dipswitch bit groups for every address.
+For every programs/<name>.hl this writes <name>.asm, <name>.lst (the
+front-panel entry table - the dipswitch bit groups for every address)
+and <name>.bin (the bare machine image), all gitignored artifacts.
+These are for local work: inspection, manual entry from the .lst, and
+the headless runner (js/run.mjs takes an image path). The web app does
+NOT need them - it fetches the tracked .hl sources and compiles them in
+the browser with its own byte-identical port of this same toolchain
+(see web/README.md, "The toolchain in the browser"). Run it from
+anywhere; it is idempotent.
 
     python3 web/build.py
 

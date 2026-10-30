@@ -14,12 +14,12 @@ answers.
 
 ## Run a program in 30 seconds
 
-    python3 web/build.py      # build the program images the app serves
     python3 -m http.server    # from this directory
 
 then open <http://localhost:8000/web/>, pick "powers", and hit run:
-1, 2, 4, ..., 128, halting on the wrap. No hardware needed; everything
-works from this repo as cloned.
+1, 2, 4, ..., 128, halting on the wrap. No hardware and no build
+steps needed; the web app compiles the gallery itself, in the browser,
+with the same toolchain the repo uses.
 
 ## What is where
 
