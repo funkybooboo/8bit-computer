@@ -17,11 +17,11 @@ answers.
     python3 -m http.server    # from this directory
 
 then open <http://localhost:8000/web/>: the machine powers on with
-empty RAM. Build a listing to enter - `python3 web/build.py` writes
-the .lst dipswitch tables for the whole gallery, or
-`python3 tools/compile.py programs/count.hl` for one - then enter it
-with the switches (the app's footer walks the procedure), flip
-STEP_MODE to AUTO, and it runs. Or write your own program
+empty RAM and the clock ticking. Build a listing to enter -
+`python3 web/build.py` writes the .lst dipswitch tables for the whole
+gallery, or `python3 tools/compile.py programs/count.hl` for one -
+then enter it with the switches (the app's footer walks the
+procedure) and press RESET. Or write your own program
 ([docs/language.md](docs/language.md)) and enter that.
 
 ## What is where

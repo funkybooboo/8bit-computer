@@ -124,7 +124,7 @@ machine's own ROM contents).
 
 ## Running programs: the web build and the expected outputs
 
-    python3 web/build.py     # compile + assemble the programs the app serves
+    python3 web/build.py     # write the .lst entry tables + .bin images (hand entry, the headless runner)
     python3 -m http.server   # from the repo root; open http://localhost:8000/web/
     node web/js/run.mjs programs/count.bin    # headless CLI on the same machine model
     python3 web/test/verify.py  # every program vs its frozen expectations
