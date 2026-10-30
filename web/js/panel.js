@@ -208,6 +208,7 @@ export function listingPane(onLine) {
     " dipswitch settings; click a line to put them on the switches.");
   let byAddr = new Map();
   let current = null;
+  let lastAddr = -1, lastScroll = 0;
   return {
     el: wrap,
     /** Show listing text (or a plain note when there is none). */
@@ -239,11 +240,23 @@ export function listingPane(onLine) {
       }
       body.append(intro, pre);
     },
-    /** Highlight the row for `addr` (label rows too). */
+    /** Highlight the row for `addr` (label rows too); while the
+     *  machine runs, keep the current line in view - scrolling the
+     *  listing only, never the page. */
     mark(addr) {
       if (current) current.forEach((s) => s.classList.remove("cur"));
       current = byAddr.get(addr) || null;
-      if (current) current.forEach((s) => s.classList.add("cur"));
+      if (!current) return;
+      current.forEach((s) => s.classList.add("cur"));
+      if (addr === lastAddr && performance.now() - lastScroll < 500) return;
+      lastAddr = addr;
+      lastScroll = performance.now();
+      const span = current[0];
+      const pre = span.parentElement;
+      const pr = pre.getBoundingClientRect(), sr = span.getBoundingClientRect();
+      if (sr.top < pr.top + 4 || sr.bottom > pr.bottom - 4) {
+        pre.scrollTop += sr.top - pr.top - pr.height / 3;
+      }
     },
   };
 }

@@ -71,6 +71,7 @@ async function loadRoms() {
 }
 
 async function loadProgram(name) {
+  state("loading " + name + "...");
   // the tracked source, compiled in the browser: the fetched file is
   // static, and the build is the repo's own (byte-identical, tested)
   const r = await fetch("../programs/" + name + ".hl");
@@ -319,6 +320,7 @@ function buildDeck() {
   }
   select.addEventListener("change", () =>
     loadProgram(select.value).catch(showError));
+  select.value = "count";  // the friendliest first program: it counts
 
   // the U1 rate control (built here, placed on the clock module by
   // buildPanel - it is on the machine, the 555's pot)
@@ -468,6 +470,12 @@ function buildYourProgram() {
   const area = document.createElement("textarea");
   area.spellcheck = false;
   area.value = EXAMPLE;
+  area.addEventListener("keydown", (ev) => {
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === "Enter") {
+      ev.preventDefault();
+      go();  // defined below
+    }
+  });
   const modeSel = document.createElement("select");
   for (const [v, t] of [["auto", "auto-detect"], ["hl", ".hl source"],
     ["asm", ".asm source"], ["image", "image (hex / logisim text)"]]) {
@@ -510,7 +518,8 @@ function buildYourProgram() {
     }
   };
 
-  box.append(area, modeSel, keycap("COMPILE + LOAD", go), status, asmPre);
+  box.append(area, modeSel, keycap("COMPILE + LOAD", go),
+    span("note", "CTRL+ENTER"), status, asmPre);
   editor.area = area;
   editor.load = go;
 }
@@ -623,17 +632,30 @@ function render() {
   listing.mark(m.pc);
   if (m.outputs.length !== outCount) {
     outCount = m.outputs.length;
+    const log = $("outlog");
+    const pinned = log.scrollHeight - log.scrollTop - log.clientHeight < 48;
     const shown = m.outputs.slice(-OUT_MAX);
-    $("outlog").textContent =
+    log.textContent =
       (m.outputs.length > OUT_MAX ? "(last " + OUT_MAX + " of " : "(") +
       m.outputs.length + " OUTs)\n" +
       shown.map((v) => String(v).padStart(3) + "  (0x" + hex2(v) + ")").join("\n");
+    if (pinned) log.scrollTop = log.scrollHeight;  // follow the stream
   }
   if (traceDirty) {
     traceDirty = false;
-    $("trace").textContent = traceLines.join("\n") +
+    const tr = $("trace");
+    const pinned = tr.scrollHeight - tr.scrollTop - tr.clientHeight < 48;
+    tr.textContent = traceLines.join("\n") +
       (traceLines.length ? "\n" : "");
+    if (pinned) tr.scrollTop = tr.scrollHeight;
   }
+
+  // the keys tell their own gating story: lit while running, dim
+  // while disconnected (clicking still says why)
+  runKey.classList.toggle("lit", clock.auto);
+  runKey.classList.toggle("dim", clock.stepMode || m.halted);
+  out.stepPulse.classList.toggle("dim", !clock.stepMode || m.halted);
+  out.writeKey.classList.toggle("dim", !prog.mode);
 
   // the app's status readouts (the deck) + the state line
   out.monProgram.set(programName || "-");
@@ -774,7 +796,7 @@ async function init() {
     step();
   });
 
-  await loadProgram(PROGRAMS[0]).catch(showError);  // absdiff (the picker's default)
+  await loadProgram("count").catch(showError);  // the picker's default
   if (new URLSearchParams(location.search).get("smoke")) {
     await runSmoke();
   }

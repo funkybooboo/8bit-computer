@@ -4,6 +4,7 @@
    touching CSS. Retro by construction: monospace, lamps, switches. */
 
 :root {
+  color-scheme: dark;  /* native dark selects, ranges, scrollbars */
   --bench: #17130e;           /* the workbench behind the panel */
   --plate: #cfc5b0;           /* the faceplate */
   --plate-cut: #bfb49b;       /* a module's cutout */
@@ -24,7 +25,7 @@
 
 body {
   margin: 0;
-  background: var(--bench);
+  background: radial-gradient(90rem 50rem at 50% -10rem, #221c14, var(--bench));
   color: var(--pane-fg);
   font-family: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
   font-size: 14px;
@@ -56,7 +57,7 @@ footer a { color: var(--lcd); }
   font: inherit; background: var(--lcd-bg); color: var(--lcd);
   border: 1px solid var(--key-line); padding: .1rem .4rem;
 }
-#deck .state { color: var(--ink-dim); font-size: .75rem; max-width: 26rem; text-align: right; }
+#deck .state { color: var(--ink-dim); font-size: .75rem; max-width: 26rem; min-height: 2.4em; text-align: right; }
 input[type="range"] { accent-color: var(--ink); width: 9rem; }
 
 /* the key between the deck and the panel */
@@ -72,9 +73,18 @@ button.key, label.key {
   border: 1px solid var(--key-line); border-bottom-width: 3px;
   padding: .18rem .75rem; cursor: pointer; letter-spacing: .05em;
   user-select: none;
+  transition: background .08s, opacity .12s;
 }
 button.key:active, label.key:active { border-bottom-width: 1px; transform: translateY(2px); }
+button.key:focus-visible, label.key:focus-visible,
+.tg:focus-visible, .lever:focus-visible, select:focus-visible {
+  outline: 2px dashed var(--amber); outline-offset: 2px;
+}
 button.key.hot { background: #e9c79c; }
+button.key.lit {  /* the master clock is running */
+  background: var(--lcd); color: var(--lcd-bg); border-color: #7a6a3a;
+}
+.key.dim { opacity: .5; }  /* gated off, as wired (click says why) */
 label.key input { display: none; }
 
 /* the faceplate: the machine's own arrangement, as in the Digital
@@ -84,6 +94,7 @@ label.key input { display: none; }
    is on the panel (the dashed convention below marks the few app
    annotations attached to modules). */
 #panel {
+  user-select: none;  /* the panel is for touching, not selecting */
   display: grid;
   grid-template-columns: minmax(14rem, 1fr) 9rem minmax(14rem, 1fr);
   gap: .8rem;
@@ -117,8 +128,9 @@ label.key input { display: none; }
 .bank { display: flex; align-items: center; gap: .5rem; margin: .14rem 0; flex-wrap: wrap; }
 .leds { display: flex; gap: .26rem; }
 .led {
-  width: 11px; height: 11px; border-radius: 50%;
+  width: 12px; height: 12px; border-radius: 50%;
   border: 1px solid rgba(0,0,0,.35); flex: none;
+  transition: background .06s, box-shadow .06s;  /* lamps settle, not snap */
 }
 .led.r { background: var(--red-off); }
 .led.r.on { background: var(--red); box-shadow: 0 0 7px 1px var(--red-glow); }
@@ -167,9 +179,11 @@ label.key input { display: none; }
   border: 1px solid rgba(0,0,0,.45); border-radius: 2px;
   cursor: pointer; position: relative; flex: none;
 }
+.lever:hover { border-color: var(--plate-line); }
 .lever i {
   position: absolute; left: 1px; right: 1px; top: 12px; height: 9px;
   background: var(--key); border-radius: 1px;
+  transition: top .06s, background .06s;
 }
 .lever.on i { top: 2px; background: var(--lcd); }
 .tg { display: flex; align-items: center; gap: .45rem; cursor: pointer; user-select: none; }
@@ -187,6 +201,8 @@ label.key input { display: none; }
 /* the display bezel */
 .segbezel {
   background: #0d0a07; border: 1px solid rgba(0,0,0,.55);
+  border-radius: 4px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.8);
   padding: 6px 9px; margin-bottom: .35rem; width: max-content;
 }
 .segbezel canvas { display: block; width: 188px; height: 84px; }
@@ -279,4 +295,23 @@ table.ram tr.mar td { background: #a89b7f; }
   #panel { grid-template-columns: 1fr; }
   .module.l, .module.r, .module.mid { grid-column: auto; grid-row: auto !important; }
   #panes section { min-width: 100%; }
+}
+
+/* ---------------------------------------------------------------- feel
+   The small physical touches: nothing here changes what anything IS,
+   only how it settles under the hand. */
+
+/* thin dark scrollbars on the panes and the editor */
+* { scrollbar-width: thin; scrollbar-color: #3a3226 transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #3a3226; border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* hovering a pickable listing line or a RAM row is already a cue;
+   make the lamp banks and switches answer the pointer too */
+.leds .led:hover { border-color: var(--plate-line); }
+table.ram tbody tr:hover td { background: #c4b89f; }
+
+@media (prefers-reduced-motion: reduce) {
+  .led, .lever i, button.key, label.key, .tg .knob { transition: none; }
 }

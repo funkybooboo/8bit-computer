@@ -106,6 +106,11 @@ model is the one documented in [docs/microcode.md](../docs/microcode.md).
 - **docs**: the repo's own documentation (docs/*.md) rendered in the
   page, cross-links working inside the reader - the machine's docs are
   one click from the machine.
+- **the feel**: lamps settle instead of snapping; the keys tell their
+  own gating (lit while the clock runs, dim while a switch disconnects
+  them - click one anyway and the state line says why); the listing
+  and the logs follow execution; CTRL+ENTER compiles the editor;
+  prefers-reduced-motion is respected.
 
 ### Loading a program: three ways, one destination
 
