@@ -521,7 +521,7 @@
             <parentIdentifier>ff9653b6-eb34-4013-8766-f4580a7c2df8</parentIdentifier>
           </TiePointID>
         </anyType>
-        <anyType xsi:type="xsd:double">0.002</anyType>
+        <anyType xsi:type="xsd:double">0.0001</anyType>
         <anyType xsi:type="xsd:int">0</anyType>
         <anyType xsi:type="xsd:boolean">true</anyType>
       </data>
