@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 #
-# sync-crumb.sh
-# Copy CRUMB (.cru) circuit files between the Steam/Proton prefix and this repo.
+# sync-crumb-to-repo.sh
+# Copy CRUMB (.cru) circuit files from the Steam/Proton prefix into this repo.
 #
 # Usage:
-#   ./sync-crumb.sh              pull  game -> repo
-#   ./sync-crumb.sh --push       push  repo -> game   (close the game first!)
-#   ./sync-crumb.sh --dry-run    show what would be copied, change nothing
-#   ./sync-crumb.sh --delete     mirror exactly (remove repo files no longer in game)
+#   ./sync-crumb-to-repo.sh            pull  game -> repo
+#   ./sync-crumb-to-repo.sh --dry-run  show what would be copied, change nothing
+#   ./sync-crumb-to-repo.sh --delete   mirror exactly (remove repo files no longer in game)
+#
+# The opposite direction (repo -> game) is sync-repo-to-crumb.sh.
 #
 set -euo pipefail
 
@@ -21,16 +22,14 @@ SAVE_DIR="$PREFIX/drive_c/users/steamuser/Documents"
 DEST="${CRUMB_REPO:-/home/nate/Projects/8bit-computer/crumb}"
 
 DRY_RUN=0
-PUSH=0
 DELETE=0
 
 for arg in "$@"; do
     case "$arg" in
     --dry-run | -n) DRY_RUN=1 ;;
-    --push) PUSH=1 ;;
     --delete) DELETE=1 ;;
     -h | --help)
-        grep '^#' "$0" | sed 's/^# \{0,1\}//' | sed -n '1,11p'
+        grep '^#' "$0" | sed 's/^# \{0,1\}//' | sed -n '2,10p'
         exit 0
         ;;
     *)
@@ -60,34 +59,21 @@ RSYNC_OPTS=(-a --prune-empty-dirs --include='*/' --include='*.cru' --exclude='*'
 [[ $DRY_RUN -eq 1 ]] && RSYNC_OPTS+=(--dry-run)
 [[ $DELETE -eq 1 ]] && RSYNC_OPTS+=(--delete)
 
-if [[ $PUSH -eq 1 ]]; then
-    SRC="$DEST/"
-    TGT="$SAVE_DIR/"
-    echo "pushing:  $DEST"
-    echo "       -> $SAVE_DIR"
-else
-    SRC="$SAVE_DIR/"
-    TGT="$DEST/"
-    echo "pulling:  $SAVE_DIR"
-    echo "       -> $DEST"
-fi
+echo "pulling:  $SAVE_DIR"
+echo "       -> $DEST"
 echo
 
 # ---- copy --------------------------------------------------------------------
 if command -v rsync >/dev/null 2>&1; then
-    rsync "${RSYNC_OPTS[@]}" "$SRC" "$TGT"
+    rsync "${RSYNC_OPTS[@]}" "$SAVE_DIR/" "$DEST/"
 else
     echo "note: rsync not found, falling back to find+cp (flattens subfolders)"
-    if [[ $PUSH -eq 1 ]]; then
-        find "$DEST" -type f -iname '*.cru' -exec cp -v -- {} "$SAVE_DIR/" \;
-    else
-        find "$SAVE_DIR" -type f -iname '*.cru' -exec cp -v -- {} "$DEST/" \;
-    fi
+    find "$SAVE_DIR" -type f -iname '*.cru' -exec cp -v -- {} "$DEST/" \;
 fi
 
 # ---- summary -----------------------------------------------------------------
 echo
-if [[ $PUSH -eq 0 && $DRY_RUN -eq 0 ]]; then
+if [[ $DRY_RUN -eq 0 ]]; then
     count=$(find "$DEST" -type f -iname '*.cru' | wc -l)
     echo "circuits now in $DEST: $count"
     find "$DEST" -type f -iname '*.cru' -printf '  %P\n'
