@@ -12,79 +12,40 @@ with empty RAM (16 NOPs) and the clock running, like the bench machine
 with the power on - and a program gets in exactly one way, the way the
 hardware does it:
 
-## Entering a program: the switches
+## Entering a program
 
-1. Build a listing for the program you want (see below) - its bits
-   column is the dipswitch table.
-2. PROG_ADDR (on the MAR) to PROG. In program mode the panel muxes put
-   the switches on: the RAM DATA lamps now read back the byte at the
-   PROG_ADDR_A address - how you verify what you entered.
-3. For each line: set PROG_ADDR_A and PROG_DATA, press PROG_WRITE (on
-   the RAM).
-4. PROG_ADDR back to RUN, RESET (on the CONTROL), and STEP_MODE (on
-   the CLOCK) to AUTO - or MANUAL and single-step with STEP_PULSE
-   (the space bar works too).
-
-Writing programs is the repo's job, not the app's: the program sources
-are [programs/](../programs/README.md) (the .hl language:
+The procedure - the dipswitch groups, the readback lamps, the mode
+switch - is the machine's own: [../docs/hardware.md](../docs/hardware.md),
+"Front panel" (the app's footer walks it too). Writing programs is
+the repo's job, not the app's: the sources are
+[programs/](../programs/README.md) (the .hl language:
 [docs/language.md](../docs/language.md)), and the listings are one
 command away - `python3 tools/compile.py programs/count.hl` writes
 `count.lst` (the entry table) next to the source, or
-`python3 web/build.py` does the whole gallery. The footer of the app
-links to all of this.
+`python3 web/build.py` does the whole gallery.
 
 ## What makes it a close emulation
 
-Everything below is modeled as the hardware does it (references:
-[docs/microcode.md](../docs/microcode.md), [docs/hardware.md](../docs/hardware.md)):
+The one rule: js/machine.js runs the actual control-ROM images
+([roms/control-rom1.hex](../roms/control-rom1.hex) and
+[roms/control-rom2.hex](../roms/control-rom2.hex)) - the same images
+the Digital build carries and the hardware burns - asserting the
+control word at (step, opcode, CF, ZF) every cycle. Nothing is
+special-cased per instruction: if the microcode is wrong, programs
+fail here exactly the way they fail on the machine. The rest of the
+fidelity story (the two-edge clock, bus discipline, pre-edge
+latching, RESET as wired, the display path, where every control
+wires) is the machine's own documentation -
+[../docs/microcode.md](../docs/microcode.md) and
+[../docs/hardware.md](../docs/hardware.md) - and the design notes at
+the top of js/machine.js and js/display.js.
 
-- the **one rule**: js/machine.js runs the actual control-ROM images
-  ([roms/control-rom1.hex](../roms/control-rom1.hex) and
-  [roms/control-rom2.hex](../roms/control-rom2.hex)) - the same images
-  the Digital build carries and the hardware burns. Every clock cycle
-  it looks up the 16-bit control word at (step, opcode, CF, ZF) and
-  asserts the control signals. Nothing is special-cased per
-  instruction; if the microcode is wrong, programs fail here exactly
-  the way they fail on the machine.
-- the **two-edge clock**: one cycle is `risingEdge()` +
-  `fallingEdge()` - every register latches on the CLK edge, and only
-  the microstep counter (U48) advances on the inverted edge, which is
-  why the control word is stable for the whole cycle
-- **bus discipline**: at most one bus driver per cycle; more is an
-  error (the emulator throws), not silent last-writer-wins
-- **pre-edge latching**: every register latches from the state before
-  the edge; the ALU computes A + ~B + 1 for SUB
-- **RESET as wired** through U51: clears the PC, the step counter, the
-  output register and every 74173 (A, B, IR, MAR, flags) - and does
-  NOT clear RAM, which is not on the reset net
-- **the display** (U37/U38/U44/U45): the output register byte
-  addresses the real [roms/output-display.hex](../roms/output-display.hex)
-  through the mux-counter pages, so the four digits show decimal or
-  hex exactly what the hardware shows - the DEC_HEX switch included
-  (js/display.js decodes the ROM; the canvas draws all four digits,
-  the persistence-of-vision view of the 500+ Hz multiplex)
-- **the controls, where they wire** (docs/hardware.md, "The front
-  panel"): STEP_MODE + STEP_PULSE and the U1 rate (the 555's pot) on
-  the CLOCK; RESET on the CONTROL (U51's reset shaping); PROG_ADDR and
-  the PROG_ADDR_A dipswitches on the MAR (U33); PROG_DATA and
-  PROG_WRITE on the RAM (U26/U27, U32); DEC_HEX on the OUTPUT. The
-  gating is real: in AUTO the STEP_PULSE button is disconnected
-  (U5.1); in MANUAL the master clock is (U4.1); HLT gates the clock
-  off entirely (U4.4). In PROGRAM mode the RAM address/data muxes
-  (U33/U26/U27, the 74157s) put the panel switches on, exactly as
-  wired.
-
-The panel carries every lamp the hardware lists - BUS, PC, A, B, IR,
-SUM, CF/ZF, the RAM data (the RAM_DATA nets; the address lamps live
-on the MAR - they are the RAM address nets A0..A3, driven by the MAR
-in run mode and by the switches in program mode), the microsteps
-T0..T6 and STEP
-counter bits, all 16 control lines, CLK, PROG/PROG_hat - and nothing
-else: no readouts, no conveniences, nothing the machine does not have.
-The arrangement mirrors the Digital build: left column CLOCK, MAR, RAM,
+The panel carries every lamp the hardware lists and nothing else -
+no readouts, no conveniences, nothing the machine does not have
+([../docs/hardware.md](../docs/hardware.md), "Front panel"). The
+arrangement mirrors the Digital build: left column CLOCK, MAR, RAM,
 IR, CONTROL; right column PC (top), A, ALU, B, OUTPUT; the BUS runs
-down the middle between them, the wire itself drawn running the
-panel's height.
+down the middle, the wire itself drawn running the panel's height.
 
 ## Run it locally
 
