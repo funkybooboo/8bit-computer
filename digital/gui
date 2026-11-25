@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # gui - launch the Digital GUI with the Driver high-Z fix built in.
 #
-# Digital 0.31's Driver element (the tri-state buffer inside the 74245 and
-# other bus chips) turns a high-Z input into a random-noise output. With the
-# shared bus that noise burns nets, the burn closes the whole model, and the
-# machine freezes at mid-init garbage (the "random numbers"). Driver.java in
+# Digital 0.31's Driver element turns a high-Z input into random noise;
+# on this shared-bus circuit that burns nets and freezes the whole model
+# (the full story: ../docs/tools.md, "Digital 0.31 notes"). Driver.java in
 # this directory is the fixed source (high-Z in -> high-Z out); this script
 # compiles it against the stock Digital.jar, patches a copy, and launches it.
 #

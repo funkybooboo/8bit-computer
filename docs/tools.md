@@ -187,70 +187,54 @@ wiring notes, in [hardware.md](hardware.md)).
     digital/digsim --dig digital/Computer.dig --toggle 'MUX\_CLK:8' --render
 
 Runs any .dig headless through Digital's own model (compiles DigSim.java
-against Digital.jar; needs a JDK and Digital.jar, auto-located or set via
-DIGITAL_JAR / JAVA_HOME). Options in command-line order: `--set NAME=VALUE`,
-`--edge NAME`, `--toggle NAME:N`, `--steps N`, `--render` (seven-segment
-display state during toggles), `--watch LABEL.pin` or `--watch x,y`,
-`--dump [FILTER]`, `--pins [FILTER]` (element pins with real positions),
-`--nets` (Digital's own flattened nets - the view that exposed the
-library bugs below), `--setpos X,Y=VALUE` (drive a DipSwitch or Button
-output by element position - switches are not model inputs, so --set
-cannot reach them; e.g. `--setpos -220,3020=1`), `--switch NAME=0|1`
-(open/close a SwitchDT by Label; closed connects the common pin to the
-B1 throw - this is how PROG_ADDR/RESET/PROG_WRITE are driven headless).
-`--help` (or no arguments) prints the option list. Labels with
-underscores are stored backslash-escaped
-(`BUS\_1`); --set accepts both forms.
+against Digital.jar; needs a JDK and Digital.jar, auto-located or set
+via DIGITAL_JAR / JAVA_HOME). The full option list:
+`digital/digsim --help` (the same list, with the details, is DigSim.java's
+header). Two facts worth knowing up front: Switch/DipSwitch/Button
+elements are not model inputs, so switches are driven by label
+(`--switch NAME=0|1`) or by position (`--setpos X,Y=VALUE`) rather
+than `--set`; and labels containing underscores are stored
+backslash-escaped (`BUS\_1`), which --set accepts in both forms.
 
 Reflection-based (ModelCreator.netList), so it is Digital-version
 specific (tested on 0.31).
 
 ## Digital 0.31 notes
 
-Bugs in Digital 0.31's bundled DIL chip library - they affect
-*simulating* this circuit, not the circuit's correctness (the wiring
-matches the KiCad reference pin for pin; the facts below were observed
-with digsim --nets):
+Bugs in Digital 0.31's bundled DIL chip library. They affect
+*simulating* Computer.dig, not the circuit's correctness (the wiring
+matches the KiCad reference pin for pin; observed with digsim --nets):
 
-- **74173**: the model's RES input is active-HIGH; the real chip's MR is
-  active LOW. In simulations hold the clear input at 0 and pulse 1.
-- **74245**: the direction-enable And gates use input-inversion bubbles,
-  and the model drops the inversions on one of the two gates (which one
-  varies with the surrounding netlist). Net effect: a "disabled" 74245
-  wrongly drives one direction, so A/B nets cross-couple. Modules whose
-  bus side had no other drivers simulated correctly; modules with
-  bus-side loads fought the wrongly-enabled transceiver. This makes the
-  shared bus of Computer.dig unreliable in Digital 0.31 simulation -
-  a newer Digital release is the fix (patching a local 74245.dig copy
-  was investigated and dropped; program behavior is verified against
-  the frozen expected outputs instead, via web/test/verify.py). The
-  display path (MUX_CLK multiplexing) does simulate.
-- **Driver (core, FIXED HERE)**: the tri-state Driver element - the
-  buffer inside the 74245/74189 models and the multiplexer output path
-  - converted a high-Z input into a random-noise *driven* output
-  (`getValue()` returns random bits for high-Z). At model init, with
-  all inputs at 0, the B->A transceivers started enabled, read the
-  floating side, and drove noise onto nets that were also driven by
-  real sources: a bus burn, and Digital swallows the BurnException and
-  closes the *entire model* (every later input change is silently
-  ignored - the machine shows frozen mid-init garbage, different every
-  run). This was the root cause of the "74157 mixes bus and dipswitch"
-  observation above and of all panel-entry corruption; the 74157 and
-  74245 chip models themselves are correct. The fix is
-  [Driver.java](../digital/Driver.java): propagate the input's high-Z
-  to the output. `digital/gui` builds a patched Digital.jar on demand
-  (cache: ~/.cache/digital-patched/Digital.jar) and launches the GUI;
-  point digsim at the same jar with
-  `DIGITAL_JAR=~/.cache/digital-patched/Digital.jar`. With the fix,
-  front-panel entry writes and reads back every byte deterministically.
-- **Burn-on-transition (core, unfixed)**: on some model builds a
-  transient two-driver overlap during clock-edge settling still trips
-  the burn check and closes the model mid-run (order-dependent, about
-  half of headless runs). If the machine freezes at garbage in the
-  GUI, stop and restart the simulation - the next build usually runs
-  clean through the whole program.
-- **Switch/DipSwitch/Button** elements are not model inputs, so
-  `digsim --set` cannot drive them; test those paths in the GUI.
+- **74173**: the model's RES is active-HIGH; the real chip's MR is
+  active LOW. In simulation, hold the clear input at 0 and pulse 1.
+- **74245**: the model drops the input inversion on one of the two
+  direction-enable gates (which one varies with the netlist), so a
+  "disabled" 74245 still drives one direction and A/B nets
+  cross-couple. The shared bus is unreliable in 0.31 simulation; a
+  newer Digital release is the fix (a local 74245.dig patch was tried
+  and dropped). Program behavior is verified against the frozen
+  expected outputs (web/test/verify.py) instead. The display path
+  (MUX_CLK multiplexing) does simulate.
+- **Driver (core, FIXED HERE)**: the tri-state Driver element (the
+  buffer inside the 74245/74189 models and the multiplexer output
+  path) turned a high-Z input into a random-noise driven output. At
+  model init the enabled transceivers read the floating side and drove
+  noise onto nets with real drivers - a bus burn; Digital swallows the
+  BurnException and closes the entire model (frozen mid-init garbage,
+  different every run). Root cause of the panel-entry corruption; the
+  74157 and 74245 models themselves are correct. Fix:
+  [Driver.java](../digital/Driver.java) propagates the input's high-Z
+  to the output. `digital/gui` builds a patched jar on demand (cache:
+  ~/.cache/digital-patched/Digital.jar) - point digsim at the same jar
+  with `DIGITAL_JAR=~/.cache/digital-patched/Digital.jar`. With the
+  fix, panel entry writes and reads back every byte deterministically.
+- **Burn-on-transition (unfixed)**: a transient two-driver overlap
+  during clock-edge settling can still trip the burn check and close
+  the model mid-run (order-dependent, about half of headless runs).
+  If the machine freezes at garbage, stop and restart the simulation.
+- **Switch/DipSwitch/Button** elements are not model inputs;
+  `digsim --set` cannot drive them (use --switch / --setpos, or the
+  GUI).
 
 Running Computer.dig in the Digital GUI: toolbar play button or space;
 the master clock U1 runs at its Frequency attribute (double-click to
