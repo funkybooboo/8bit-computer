@@ -4,53 +4,73 @@
 # (mise.local.toml, if you ever create one, is personal and gitignored.)
 
 [tasks.web]
-description = "the machine in a browser: serve the repo, open /web/"
+description = "serve the repo root and open web/ in the browser - the emulator, no build step; the machine powers on empty, programs go in through the panel switches"
 run = "python3 -m http.server & server=$!; sleep 1; xdg-open http://localhost:8000/web/; wait $server"
 
 [tasks.digital]
-description = "the Digital build: launch the GUI with the Driver fix"
+description = "launch the Digital GUI with the Driver high-Z fix (builds the patched jar on demand) - the pin-exact wiring, simulated"
 run = "digital/gui"
 
 [tasks.simulate]
-description = "headless Digital simulation (args: --dig digital/Computer.dig --list)"
+description = "run a .dig headless through Digital's own model, switches and all (args: --dig digital/Computer.dig --list; full options: digital/digsim --help)"
 run = "digital/digsim"
 
 [tasks.build]
-description = "the gallery: build every entry listing (.lst) + image (.bin + .asm)"
+description = "compile every .hl to its .asm, .lst (the dipswitch entry table) and .bin beside the source - for inspection, hand entry and the headless runner (gitignored artifacts)"
 run = "python3 programs/build.py"
 
 [tasks.verify]
-description = "every program vs its frozen expected output - the contract"
+description = "run every gallery program on the web build and check it against the frozen expectations - the repo's definition of correct (docs/tools.md, 'Running programs')"
 run = "python3 programs/verify.py"
 
 [tasks.compile]
-description = "compile one program (mise run compile programs/count_up.hl)"
+description = "compile one .hl program to .asm + .lst + .bin beside the source, rejecting anything the hardware cannot do (mise run compile programs/count_up.hl)"
 run = "python3 tools/compile.py"
 
 [tasks.run]
-description = "run one program image headless (mise run run programs/gcd.bin)"
+description = "run one program image headless on the same cycle model the browser uses - prints each OUT, exits 0 iff it halted (mise run run programs/gcd.bin)"
 run = "node web/js/run.mjs"
 
+[tasks.asm]
+description = "the assembler direct: listing or image from a .asm, or disassemble a .bin (mise run asm --dis programs/gcd.bin)"
+run = "python3 tools/asm.py"
+
 [tasks.display]
-description = "the display ROM decode vs known patterns"
+description = "check the display ROM decode against known digit patterns - proof the web build reads output-display.hex exactly as the hardware does"
 run = "node web/test/test_display.mjs"
 
 [tasks.check-roms]
-description = "the archived ROM images match the generator's tables"
+description = "verify the images archived in roms/ are exactly the generator's tables - catches drift between roms/ and tools/genroms.py"
 run = "python3 tools/genroms.py --check"
 
+[tasks.generate-roms]
+description = "rewrite the images in roms/ from MICROSTEPS in tools/genroms.py - run after editing the microcode, then rom to inject them into Computer.dig"
+run = "python3 tools/genroms.py --generate"
+
+[tasks.rom]
+description = "EEPROM data in/out of Computer.dig: presets, dump, write (inject an image or preset), export (mise run rom presets lists them)"
+run = "python3 digital/rom.py"
+
+[tasks.netlist-digital]
+description = "print the netlist of a .dig circuit - every pin and the net it is on (args: --dig digital/Computer.dig); the wiring half of the pin-exact check"
+run = "python3 digital/netlist.py"
+
+[tasks.netlist-kicad]
+description = "print the reference nets from Ben's KiCad project (args: --net kicad/8bit-computer.net --refs U44,U45); compare with netlist-digital pin by pin"
+run = "python3 kicad/netlist.py"
+
 [tasks.test]
-description = "everything: verify + display + check-roms"
+description = "everything at once: verify + display + check-roms"
 depends = ["verify", "display", "check-roms"]
 
 [tasks.microcode]
-description = "print the instruction/microstep table - the machine's definition"
+description = "print the instruction/microstep table - the machine's definition in code, and the source of truth for what every instruction does"
 run = "python3 tools/genroms.py"
 
 [tasks.crumb-pull]
-description = "copy the .cru files from the CRUMB install into the repo (safe direction)"
+description = "copy the .cru files from the CRUMB install into the repo - the safe direction (--dry-run shows what would move)"
 run = "crumb/pull-from-crumb.sh"
 
 [tasks.crumb-push]
-description = "push the repo's .cru files into CRUMB (close the game first)"
+description = "push the repo's .cru files into CRUMB, overwriting the game's copies - refuses while the game is open (--dry-run first)"
 run = "crumb/push-to-crumb.sh"
