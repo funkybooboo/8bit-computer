@@ -2,15 +2,16 @@
 """
 build.py - write the gallery's build artifacts next to their sources.
 
-For every programs/<name>.hl this writes <name>.asm, <name>.lst (the
-front-panel entry table - the dipswitch bit groups for every address)
-and <name>.bin (the bare machine image), all gitignored artifacts.
-These are for local work: inspection, manual entry from the .lst (the
-web app's only way to load a program - see web/README.md, "Entering a
-program: the switches"), and the headless runner (js/run.mjs takes an
-image path). Run it from anywhere; it is idempotent.
+For every <name>.hl in this directory this writes <name>.asm,
+<name>.lst (the front-panel entry table - the dipswitch bit groups
+for every address) and <name>.bin (the bare machine image), all
+gitignored artifacts. These are for local work: inspection, manual
+entry from the .lst (the web app's only way to load a program - see
+web/README.md, "Entering a program"), and the headless runner
+(web/js/run.mjs takes an image path). Run it from anywhere; it is
+idempotent.
 
-    python3 web/build.py
+    python3 programs/build.py
 
 (the control ROM images are different: roms/*.hex are the machine's own
 contents and are tracked - nothing to build there)
@@ -27,7 +28,7 @@ import compile as hlc  # the .hl compiler
 
 
 def main():
-    out_dir = os.path.join(ROOT, "programs")
+    out_dir = HERE
     names = sorted(f[:-3] for f in os.listdir(out_dir) if f.endswith(".hl"))
     for name in names:
         src = os.path.join(out_dir, name + ".hl")

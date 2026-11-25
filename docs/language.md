@@ -127,5 +127,5 @@ prevent.
 Every program in [../programs](../programs) is a `.hl` source; the
 generated `.asm` (kept by `compile.py`, gitignored) shows exactly what
 the machine will run, and the `.lst` beside it is the front-panel
-entry table - the dipswitch bit groups, one line per address, and [web/test/verify.py](../web/test/verify.py)
+entry table - the dipswitch bit groups, one line per address, and [programs/verify.py](../programs/verify.py)
 runs each program on the machine against the frozen expected outputs.

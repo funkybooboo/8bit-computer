@@ -11,7 +11,7 @@ machine: the web build and its test ([tools.md](tools.md),
 "Running programs").
 
 Every program's expected output is frozen in
-web/test/verify.py's expectations table - the contract every build
+[verify.py](../programs/verify.py)'s expectations table - the contract every build
 of the machine must reproduce. Each program compiles into the
 machine's 16 bytes of RAM (code + data together); the byte counts
 below are the compiler's output - divide, gcd, halve and multiply use 15 of

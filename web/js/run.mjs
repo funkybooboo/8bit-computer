@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// run.mjs - headless entry point, used only by web/test/verify.py.
+// run.mjs - headless entry point, used only by programs/verify.py.
 //
 //   node web/js/run.mjs <program-image> [--rom1 FILE] [--rom2 FILE]
 //                       [--max-cycles N]
 //
 // Runs the program on js/machine.js (the same cycle model as the web
 // app) and prints one line per OUT on stdout, the summary on stderr, exit
-// 0 iff the program halted - the contract web/test/verify.py checks
+// 0 iff the program halted - the contract programs/verify.py checks
 // against its frozen expectations table.
 
 import { readFileSync } from "node:fs";

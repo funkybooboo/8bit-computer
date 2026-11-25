@@ -12,8 +12,9 @@ node needed); each build directory holds the tools that belong to it:
   circuits), `DigSim.java`/`digsim` (headless Digital simulation).
 - **kicad/** - `netlist.py`: the netlist out of Ben's KiCad project,
   the wiring reference for any build target, Digital or breadboard.
-- **web/** - the web build, plus its test against the expected
-  outputs (below).
+- **web/** - the web build (the app and its display test).
+- **programs/** - `build.py` (the gallery's entry listings and images)
+  and `verify.py` (the expectations check, below).
 
 Image files carry the work between the tools and the builds: the assembler
 emits them (raw binary / logisim hex / Intel HEX), EEPROM burners and
@@ -37,7 +38,7 @@ From a program's source to the machine in two tools:
   any .asm it produces the same two files:
   `asm.py X.asm --out X.bin --lst X.lst`.
 
-`compile.py` (and `web/build.py` for the whole gallery) just write those
+`compile.py` (and `programs/build.py` for the whole gallery) just write those
 three files beside the source and print the listing; `compile.py` also
 runs the assembler once on what it generated, purely to reject a
 program that does not fit the hardware. Only the `.hl` is tracked -
@@ -116,15 +117,15 @@ machine's own ROM contents).
 
 ## Running programs: the web build and the expected outputs
 
-    python3 web/build.py     # write the .lst entry tables + .bin images (hand entry, the headless runner)
+    python3 programs/build.py  # write the .lst entry tables + .bin images (hand entry, the headless runner)
     python3 -m http.server   # from the repo root; open http://localhost:8000/web/
     node web/js/run.mjs programs/count_up.bin    # headless CLI on the same machine model
-    python3 web/test/verify.py  # every program vs its frozen expectations
+    python3 programs/verify.py  # every program vs its frozen expectations
 
 The web build runs the same control-ROM images the hardware burns, so a
 program behaves there exactly the way it behaves on the machine. What
 "correct" means is defined by the expectations frozen in
-web/test/verify.py's table: for every program, the halt status, the
+programs/verify.py's table: for every program, the halt status, the
 OUT count within 20,000 cycles, and the first 32 OUT values - and every
 build of the machine must reproduce them exactly. Changing a program's
 intended behavior means updating that table deliberately.
@@ -147,7 +148,7 @@ The data itself is machine-level: presets and images come from
 `genroms.py` and [../roms/](../roms/README.md). Changing the
 microcode: edit MICROSTEPS in `tools/genroms.py`, `--generate` into
 [../roms/](../roms/README.md), `write` into Computer.dig with `rom.py`,
-then `tools/genroms.py --check` and `web/test/verify.py` before touching
+then `tools/genroms.py --check` and `programs/verify.py` before touching
 hardware.
 
 ## digital/netlist.py - netlist extraction
@@ -205,7 +206,7 @@ matches the KiCad reference pin for pin; observed with digsim --nets):
   cross-couple. The shared bus is unreliable in 0.31 simulation; a
   newer Digital release is the fix (a local 74245.dig patch was tried
   and dropped). Program behavior is verified against the frozen
-  expected outputs (web/test/verify.py) instead. The display path
+  expected outputs (programs/verify.py) instead. The display path
   (MUX_CLK multiplexing) still simulates correctly.
 - **Driver (core, FIXED HERE)**: the tri-state Driver element (the
   buffer inside the 74245/74189 models and the multiplexer output

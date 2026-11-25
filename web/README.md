@@ -22,7 +22,7 @@ is the repo's job, not the app's: the sources are
 [docs/language.md](../docs/language.md)), and the listings are one
 command away - `python3 tools/compile.py programs/count_up.hl` writes
 `count_up.lst` (the entry table) next to the source, or
-`python3 web/build.py` does the whole gallery.
+`python3 programs/build.py` does the whole gallery.
 
 ## What makes it a close emulation
 
@@ -62,12 +62,12 @@ way: a program entered through the switches, the gating, the clock
 
 ## Tests
 
-    python3 web/test/verify.py      # every gallery program on js/machine.js
+    python3 programs/verify.py      # every gallery program on js/machine.js
     node web/test/test_display.mjs  # the display ROM decode vs known patterns
 
 Correctness is defined by the frozen expectations in
-[test/verify.py](test/verify.py) - the contract every build must
-reproduce ([../docs/tools.md](../docs/tools.md), "Running programs").
+[../programs/verify.py](../programs/verify.py) - the contract every
+build must reproduce ([../docs/tools.md](../docs/tools.md), "Running programs").
 
 ## What is here
 
@@ -81,6 +81,4 @@ reproduce ([../docs/tools.md](../docs/tools.md), "Running programs").
 | js/panel.js     | the parts as DOM: modules, lamp banks, switches, keys           |
 | js/main.js      | the wiring: the clock, the panel, the render loop, the self-test |
 | js/run.mjs      | headless CLI runner (node web/js/run.mjs programs/count_up.bin)    |
-| build.py        | writes programs/*.bin + .lst artifacts next to the .hl sources for inspection, manual entry and the headless runner (the web app does not need them) |
-| test/verify.py  | runs every program on js/machine.js against the frozen expectations |
 | test/test_display.mjs | the display ROM decode against known patterns            |

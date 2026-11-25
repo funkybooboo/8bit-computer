@@ -15,7 +15,7 @@ unchanged, verified by comparing every .hl against its .asm
 predecessor before the .asm sources were retired).
 
 Usage:
-  python3 web/test/verify.py
+  python3 programs/verify.py
 
 Exit status: 0 iff every program matches.
 """
@@ -27,7 +27,7 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))  # the repo root
+ROOT = os.path.dirname(HERE)  # the repo root
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 import asm      # noqa: E402 - to build the image node runs
 import compile as hlc  # noqa: E402 - the .hl compiler
@@ -66,7 +66,7 @@ EXPECTED = {
 def run_web(image_path):
     """Run js/machine.js on the program image via js/run.mjs."""
     p = subprocess.run(
-        ["node", os.path.join(HERE, "..", "js", "run.mjs"), image_path,
+        ["node", os.path.join(ROOT, "web", "js", "run.mjs"), image_path,
          "--rom1", os.path.join(ROOT, "roms", "control-rom1.hex"),
          "--rom2", os.path.join(ROOT, "roms", "control-rom2.hex"),
          "--max-cycles", str(CAP)],

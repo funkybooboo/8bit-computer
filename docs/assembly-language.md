@@ -79,7 +79,7 @@ does not have to be maintained by hand.
 
 count_up.hl compiled - `count_up.asm` is the compiler's output, written
 beside the source (a gitignored artifact; `tools/compile.py` or
-`web/build.py` writes it) - count 0..255 forever:
+`programs/build.py` writes it) - count 0..255 forever:
 
         LDI 0        ; A = 0 (the counter)
 loop:   OUT          ; display A

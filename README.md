@@ -22,7 +22,7 @@ Every build runs the same control-ROM images ([roms/](roms/README.md),
 generated from one place: [tools/genroms.py](tools/genroms.py)) and
 the same program gallery ([programs/](programs/README.md)). Each
 program's expected output is frozen in
-[web/test/verify.py](web/test/verify.py) - the contract every build
+[programs/verify.py](programs/verify.py) - the contract every build
 is checked against ([docs/tools.md](docs/tools.md), "Running
 programs").
 
@@ -44,7 +44,7 @@ listing:
 
 ```bash
 python3 tools/compile.py programs/count_up.hl   # writes programs/count_up.lst
-python3 web/build.py                         # ...or the whole gallery
+python3 programs/build.py                   # ...or the whole gallery
 ```
 
 Enter it on the panel (the procedure: [docs/hardware.md](docs/hardware.md),

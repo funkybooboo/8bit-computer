@@ -21,7 +21,7 @@
 //
 // The control-word bits below come from tools/genroms.py (ROM1_BITS /
 // ROM2_BITS, the machine definition in code) - one source of truth,
-// kept in sync by web/test/verify.py's run against its frozen
+// kept in sync by programs/verify.py's run against its frozen
 // expectations table.
 
 export const ROM1_BITS = {  // U47
