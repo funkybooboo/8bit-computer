@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# sync-repo-to-crumb.sh
+# push-to-crumb.sh
 # Push .cru circuit files from this repo INTO the CRUMB Steam/Proton install.
 # Overwrites the game's copies - refuses to run while CRUMB is open.
 #
 # Usage:
-#   ./sync-repo-to-crumb.sh            push  repo -> game   (close the game first!)
-#   ./sync-repo-to-crumb.sh --dry-run  show what would be copied, change nothing
+#   ./push-to-crumb.sh            push  repo -> game   (close the game first!)
+#   ./push-to-crumb.sh --dry-run  show what would be copied, change nothing
 #
 set -euo pipefail
 

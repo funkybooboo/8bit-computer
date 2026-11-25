@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# sync-crumb-to-repo.sh
+# pull-from-crumb.sh
 # Copy CRUMB (.cru) circuit files from the Steam/Proton prefix into this repo.
 #
 # Usage:
-#   ./sync-crumb-to-repo.sh            pull  game -> repo
-#   ./sync-crumb-to-repo.sh --dry-run  show what would be copied, change nothing
-#   ./sync-crumb-to-repo.sh --delete   mirror exactly (remove repo files no longer in game)
+#   ./pull-from-crumb.sh            pull  game -> repo
+#   ./pull-from-crumb.sh --dry-run  show what would be copied, change nothing
+#   ./pull-from-crumb.sh --delete   mirror exactly (remove repo files no longer in game)
 #
-# The opposite direction (repo -> game) is sync-repo-to-crumb.sh.
+# The opposite direction (repo -> game) is push-to-crumb.sh.
 #
 set -euo pipefail
 
