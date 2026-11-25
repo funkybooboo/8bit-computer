@@ -1219,7 +1219,7 @@
             <parentIdentifier>1baa8dd2-ca85-41ea-9c7f-ff6610c925e4</parentIdentifier>
           </TiePointID>
         </anyType>
-        <anyType xsi:type="xsd:double">1E-06</anyType>
+        <anyType xsi:type="xsd:double">4.5E-07</anyType>
         <anyType xsi:type="xsd:int">1</anyType>
         <anyType xsi:type="xsd:boolean">true</anyType>
       </data>
