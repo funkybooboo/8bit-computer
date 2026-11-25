@@ -1,0 +1,56 @@
+# mise tasks - the repo's common workflows, one command each. What
+# each underlying command DOES is documented in docs/tools.md; these
+# are shortcuts. `mise tasks` lists them, `mise run <task>` runs one.
+# (mise.local.toml, if you ever create one, is personal and gitignored.)
+
+[tasks.web]
+description = "the machine in a browser: serve the repo, open /web/"
+run = "python3 -m http.server & server=$!; sleep 1; xdg-open http://localhost:8000/web/; wait $server"
+
+[tasks.digital]
+description = "the Digital build: launch the GUI with the Driver fix"
+run = "digital/gui"
+
+[tasks.digsim]
+description = "headless Digital simulation (args: --dig digital/Computer.dig --list)"
+run = "digital/digsim"
+
+[tasks.build]
+description = "the gallery: build every entry listing (.lst) + image (.bin + .asm)"
+run = "python3 programs/build.py"
+
+[tasks.verify]
+description = "every program vs its frozen expected output - the contract"
+run = "python3 programs/verify.py"
+
+[tasks.compile]
+description = "compile one program (mise run compile programs/count_up.hl)"
+run = "python3 tools/compile.py"
+
+[tasks.run]
+description = "run one program image headless (mise run run programs/gcd.bin)"
+run = "node web/js/run.mjs"
+
+[tasks.display]
+description = "the display ROM decode vs known patterns"
+run = "node web/test/test_display.mjs"
+
+[tasks.check-roms]
+description = "the archived ROM images match the generator's tables"
+run = "python3 tools/genroms.py --check"
+
+[tasks.test]
+description = "everything: verify + display + check-roms"
+depends = ["verify", "display", "check-roms"]
+
+[tasks.roms]
+description = "print the instruction/microstep table - the machine's definition"
+run = "python3 tools/genroms.py"
+
+[tasks.crumb-pull]
+description = "copy the .cru files from the CRUMB install into the repo (safe direction)"
+run = "crumb/pull-from-crumb.sh"
+
+[tasks.crumb-push]
+description = "push the repo's .cru files into CRUMB (close the game first)"
+run = "crumb/push-to-crumb.sh"

@@ -1,5 +1,8 @@
 __pycache__/
 
+# mise local overrides - personal, never committed
+mise.local.toml
+
 # build and run artifacts - generated, never committed. programs/build.py
 # writes the .bin, .lst and .asm artifacts beside each .hl source for the
 # whole gallery, and tools/compile.py writes the same three on demand:
