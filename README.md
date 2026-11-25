@@ -38,7 +38,7 @@ python3 -m http.server
 Open <http://localhost:8000/web/>. It powers on like the real machine:
 empty RAM (16 NOPs), clock ticking.
 
-With [mise](https://mise.jdx.dev/): `mise run open-web` serves and opens it in
+With [mise](https://mise.jdx.dev/): `mise run web` serves and opens it in
 one command. The repo's other common workflows are mise tasks too -
 `mise tasks` lists them.
 

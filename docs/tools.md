@@ -122,7 +122,7 @@ machine's own ROM contents).
     node web/js/run.mjs programs/count_up.bin    # headless CLI on the same machine model
     python3 programs/verify.py  # every program vs its frozen expectations
 
-mise wraps the repo's common commands as tasks: `mise run open-web`
+mise wraps the repo's common commands as tasks: `mise run web`
 (the serve-and-open above), `mise run test` (every check at once),
 `mise tasks` for the rest.
 
