@@ -105,3 +105,11 @@ Other projects this one stands on or learned from:
   a terminal emulator of the stock machine, proof that an emulator
   with a real front panel is worth building. Nothing in this repo is
   derived from its code.
+- [Mike Bushell](https://www.youtube.com/watch?v=KYTkgplXpXE) - the
+  creator of CRUMB. His complete build of Ben's computer in CRUMB
+  ([Building Ben Eater's 8-bit computer... in a breadboard simulator](
+  https://www.youtube.com/watch?v=KYTkgplXpXE); the .cru save is linked
+  in that video's description) is committed at
+  [crumb/Computer-Mike-Bushell.cru](crumb/Computer-Mike-Bushell.cru)
+  and used as the authoritative in-game reference for the
+  [crumb/](crumb/) build, including his verified 555 timing values.
