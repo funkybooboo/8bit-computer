@@ -1,42 +1,17 @@
 #!/usr/bin/env python3
 """
-asm.py - two-pass assembler and disassembler for the 8-bit computer's
-machine language, plus the tiny assembly language defined for it.
+asm.py - two-pass assembler and disassembler for the machine's assembly
+language: .asm in, the .lst entry table and the image files out. Every
+instruction is one byte, [opcode:4][operand:4]; anything the hardware
+cannot encode is rejected, not truncated.
 
-Machine model (full reference: ../docs/instruction-set.md):
+Language: ../docs/assembly-language.md. Instructions:
+../docs/instruction-set.md. The opcode numbers come from genroms.py -
+the machine's definition, shared with the microcode.
 
-  - every instruction is ONE byte: [opcode:4][operand:4]
-  - RAM is 16 x 8 bits (MAR and PC are 4 bits); program and data share it
-  - the operand nibble is a RAM address (LDA/ADD/SUB/STA/JMP/JC/JZ/JNC/JNZ,
-    range 0-15) or a 4-bit immediate loaded zero-extended (LDI/ADDI/SUBI,
-    0-15); DBL ignores its operand nibble
-  - opcode:   0     1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
-    mnemonic: NOP   LDA  ADD  SUB  STA  LDI  JMP  JC   JZ   JNC  JNZ  ADDI SUBI DBL  OUT  HLT
-    (JNC/JNZ/ADDI/SUBI/DBL are this project's additions, see
-    ../docs/additions.md, "Added: five opcodes"; the original
-    Ben Eater set is the rest)
-
-Assembly language (full reference: ../docs/assembly-language.md):
-
-  - one statement per line:  [label:] mnemonic [operand] [; comment]
-  - directives:  .DB val[,val...]   (emit raw data bytes)
-                .ORG addr          (set the next address, forward only)
-                name: .EQU val     (named constant, usable as any operand)
-  - numbers: decimal, 0x1F, 0b1010, 'A' (ASCII char literal); labels are
-    identifiers
-  - mnemonics and directives are case-insensitive, labels are not
-  - every instruction assembles to exactly one byte; the assembler rejects
-    anything the hardware cannot encode (operand out of 0-15, program
-    larger than RAM, ...)
-
-Examples:
   asm.py programs/count.asm                       # listing to stdout
   asm.py programs/count.asm --out count.bin --lst count.lst
   asm.py --dis count.bin                          # disassemble an image
-  asm.py --dis count.bin --all                    # ... including trailing NOPs
-
-The listing is the front-panel entry table (the bits column shows the
-three dipswitch groups per address); the image file is bare binary.
 """
 
 import argparse

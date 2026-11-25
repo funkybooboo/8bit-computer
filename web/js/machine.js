@@ -78,15 +78,10 @@ export class Machine {
     return [t & 0xff, t > 0xff ? 1 : 0];
   }
 
-  // -- the clock, as the hardware shapes it -----------------------------
-  //
-  // One full cycle is two edges. The registers step on the CLK edge
-  // (risingEdge); the microstep counter U48 clocks on the INVERTED edge
-  // (fallingEdge), so it advances BETWEEN register edges - which is why
-  // the control word selected by (step, opcode, CF, ZF) is stable for the
-  // whole cycle. Nothing is special-cased per instruction: if the ROM
-  // images are wrong, programs fail here exactly the way they fail on
-  // the machine.
+  // -- the clock, as the hardware shapes it: one cycle = two edges,
+  // registers on the CLK edge, the microstep counter U48 on the inverted
+  // edge (why the control word is stable per cycle: docs/microcode.md,
+  // "Timing") ---------------------------------------------------------
 
   /** The edge the registers step on. Latches every register from the
    *  pre-edge state, per the word selected by the current step.

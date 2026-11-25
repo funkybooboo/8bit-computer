@@ -169,14 +169,9 @@ SEG_BLANK = 0x00
 def output_display(swap_banks=False):
     """U45: 4-digit multiplexed decimal/hex display ROM (28C16, 2 KiB).
 
-    Address = A10*1024 + A9*512 + A8*256 + value, where A8/A9 are the 7476
-    mux-counter outputs that also drive the 74139 select inputs, so ROM page
-    p lights the digit whose common cathode ~1Yp pulls low: page 0 = ones
-    digit (rightmost display), 1 = tens, 2 = hundreds, 3 = thousands (always
-    blank for 8-bit values). A10 is the front-panel mode switch: by default
-    A10=1 -> decimal, A10=0 -> hexadecimal; leading zeros blanked in both
-    modes. Pass swap_banks=True to swap which switch position gives which
-    mode. ROM bit -> segment: 6=a 5=b 4=c 3=d 2=e 1=f 0=g 7=dp.
+    The address/segment encoding (digit pages, DEC_HEX bank, leading-zero
+    blanking): ../docs/hardware.md, "The display". swap_banks=True swaps
+    which DEC_HEX switch position gives which mode.
     """
     rom = [0] * 2048
     dec_bank, hex_bank = (1024, 0) if not swap_banks else (0, 1024)

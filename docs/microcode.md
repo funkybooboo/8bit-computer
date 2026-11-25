@@ -25,27 +25,9 @@ simulation of every instruction including JC/JZ flag behavior and the
     ROM2 U52, bit:   7   6   5   4   3   2   1   0
     signal:         EO  SU  BI  OI  CE  CO  J   FI
 
-| signal | drives          | effect while 1                                      |
-|--------|-----------------|------------------------------------------------------|
-| HLT    | clock gating    | stop the clock                                       |
-| MI     | MAR             | load MAR from the bus (low nibble)                   |
-| RI     | RAM             | write the bus into RAM at MAR                        |
-| RO     | RAM             | drive RAM[MAR] onto the bus                          |
-| IO     | IR              | drive the operand nibble onto the bus (high bits 0)  |
-| II     | IR              | load IR from the bus                                |
-| AI     | A register      | load A from the bus                                  |
-| AO     | A register      | drive A onto the bus                                 |
-| EO     | ALU             | drive the ALU sum onto the bus                       |
-| SU     | ALU             | invert B into the adder (subtract)                   |
-| BI     | B register      | load B from the bus                                  |
-| OI     | output register | load the display register from the bus               |
-| CE     | PC              | increment PC                                         |
-| CO     | PC              | drive PC onto the bus                                |
-| J      | PC              | load PC from the bus (low nibble)                    |
-| FI     | flag registers  | latch CF/ZF from the ALU                              |
-
-(The ROM bits are active-high; inverters between the control logic and the
-chips adapt them to the active-low chip inputs.)
+What each line drives, and what it means while high (including the
+inverters that adapt them to the chips' active-low inputs):
+[hardware.md](hardware.md), "The control lines".
 
 ## ROM addressing
 
@@ -75,36 +57,11 @@ there at all.
 
 ## Per-instruction microsteps
 
-Every instruction continues after the fetch like this (unused steps output
-no control lines):
+The generator prints the whole table - every instruction's work
+steps after the fetch, control line by control line (unused steps
+output none):
 
-| insn | step | ROM1 (U47) | ROM2 (U52) | meaning                        |
-|-------|------|------------|-------------|--------------------------------|
-| NOP   | -    | -          | -           | (fetch only)                   |
-| LDA   | T2   | MI, IO     | -           | MAR <- operand                 |
-|       | T3   | RO, AI     | -           | A <- RAM                       |
-| ADD   | T2   | MI, IO     | -           | MAR <- operand                 |
-|       | T3   | RO, BI     | -           | B <- RAM                       |
-|       | T4   | AI         | EO, FI      | A <- A + B, flags              |
-| SUB   | T2   | MI, IO     | -           | MAR <- operand                 |
-|       | T3   | RO, BI     | -           | B <- RAM                       |
-|       | T4   | AI         | EO, SU, FI  | A <- A - B, flags              |
-| STA   | T2   | MI, IO     | -           | MAR <- operand                 |
-|       | T3   | RI, AO     | -           | RAM <- A                       |
-| LDI   | T2   | IO, AI     | -           | A <- operand (zero-extended)  |
-| JMP   | T2   | IO         | J           | PC <- operand                  |
-| JC    | T2   | IO         | J           | PC <- operand, only where CF=1 |
-| JZ    | T2   | IO         | J           | PC <- operand, only where ZF=1 |
-| JNC   | T2   | IO         | J           | PC <- operand, only where CF=0 |
-| JNZ   | T2   | IO         | J           | PC <- operand, only where ZF=0 |
-| ADDI  | T2   | IO         | BI          | B <- operand (zero-extended)  |
-|       | T3   | AI         | EO, FI      | A <- A + B, flags              |
-| SUBI  | T2   | IO         | BI          | B <- operand (zero-extended)  |
-|       | T3   | AI         | EO, SU, FI  | A <- A - B, flags              |
-| DBL   | T2   | AO         | BI          | B <- A                         |
-|       | T3   | AI         | EO, FI      | A <- A + B = 2*A, flags        |
-| OUT   | T2   | AO, OI     | -           | display <- A                   |
-| HLT   | T2   | HLT        | -           | stop the clock                  |
+    tools/genroms.py
 
 NOP is fetch only. Opcodes 9-D (JNC/JNZ/ADDI/SUBI/DBL) are this project's
 additions - the jump rows live in the "other half" of the ROM images (the
@@ -129,10 +86,10 @@ rationale: [additions.md](additions.md), "Added: 8-cycle
 instructions"). ROM rows for steps 5-7 are all zero. The T5/T6 panel LEDs wire from ~Y5/~Y6; T7 is transient
 and gets no LED.
 
-You can watch this table run on the machine: single-step a program
+You can watch the microcode run on the machine: single-step a program
 (STEP_MODE + STEP_PULSE, see [hardware.md](hardware.md)
 "Front panel") and the T0..T6 and control-line LEDs light up exactly
-the rows above, one per microstep. Example programs:
+the generator's rows, one per microstep. Example programs:
 [programs.md](programs.md).
 
 ## Regenerating and injecting the ROMs

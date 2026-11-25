@@ -1,57 +1,14 @@
 #!/usr/bin/env python3
 """
-compile.py - the .hl language: a high-level language for the 8-bit
-computer, compiled to the assembly language (asm.py's target).
+compile.py - the .hl compiler: compiles the high-level language (full
+reference: ../docs/language.md) to the assembly language
+(../docs/assembly-language.md, asm.py's target), then assembles the
+result to the .lst entry table and the .bin image, written beside the
+source. It refuses, at compile time and with a reason, everything the
+hardware cannot do - and nothing is hidden: the generated .asm reads
+like the hand-written gallery did.
 
-The language maps onto what the hardware can do (full reference:
-../docs/language.md). It is deliberately honest about the machine:
-
-  - one 8-bit accumulator, 16 bytes of RAM shared by code and data
-  - arithmetic is +, - and * by a constant (mod 256); the compiler uses
-    DBL and ADD chains for multiplies, never a hidden loop
-  - conditions never become values: they compile directly to SUB + a
-    branch pair, so `and`/`or`/`not` are short-circuit and cost nothing
-    but the branches
-  - comparisons follow the machine's own rule (SUB sets CF=1 iff
-    A >= B, ZF=1 iff A == B); `x >= 128` uses the DBL top-bit test
-  - there are no boolean variables, no arrays, no functions, no
-    recursion - the hardware has no storage for any of them, and the
-    compiler rejects them instead of pretending
-  - the compiler emits the hand-written idioms the gallery grew from:
-    it tracks the accumulator, so `out x` right after `x = ...` costs
-    one byte, `x = x - y` right after `while x >= y` reuses the
-    compare's subtraction, and `x = x * 2 + 1` after `if x >= 128`
-    reuses the test's DBL
-
-Statements:
-
-    var x = 9         # data cell (initializer must be a constant)
-    var y             # data cell, starts 0
-    const limit = 10  # named constant
-    x = expr
-    out expr
-    halt
-    pass              # a NOP - pacing, like the countdown
-    while cond:
-        ...
-        break
-        continue
-    if cond:
-        ...
-    elif cond:
-        ...
-    else:
-        ...
-
-Expressions: numbers (0-255, decimal/0x/0b), variables, constants,
-parentheses, unary -, + - * and rol(e) - the rotate-left-through-carry
-idiom (DBL + JNC + ADDI 1). e * k needs k constant; e * e is rejected
-(the hardware has no multiply - write the shift-add loop, mul.asm).
-Every value is a byte: arithmetic wraps mod 256 and comparisons are
-unsigned byte comparisons.
-
-Examples:
-  compile.py programs/count.hl            # -> count.asm + count.bin
+  compile.py programs/count.hl            # -> count.asm + count.lst + count.bin
   compile.py programs/count.hl --stdout   # print the generated .asm only
 """
 
