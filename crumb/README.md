@@ -10,6 +10,8 @@ this repo (safe direction). `push-to-crumb.sh` pushes them back into the
 game - it refuses to run while CRUMB is open, so close the game first.
 `--dry-run` shows what would move, in either script.
 
+(mise: `mise run crumb-pull` / `crumb-push`.)
+
 `Computer-Mike-Bushell.cru` is the CRUMB creator's own build of Ben
 Eater's 8-bit computer - the authoritative
 reference for the rest of the build; the video and the .cru download

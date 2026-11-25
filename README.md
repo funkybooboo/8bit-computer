@@ -28,8 +28,16 @@ programs").
 
 ## Quick start
 
-The web build runs the machine in a browser - pure HTML, CSS and
-JavaScript, no build step, no backend. From the repo root:
+With [mise](https://mise.jdx.dev/), every workflow is one command -
+`mise tasks` lists the menu. The two starting places:
+
+    mise run web    # the machine in a browser, served and opened
+    mise run test   # every check at once
+
+Without mise, the same commands by hand (all of them documented in
+[docs/tools.md](docs/tools.md)). The web build runs the machine in a
+browser - pure HTML, CSS and JavaScript, no build step, no backend.
+From the repo root:
 
 ```bash
 python3 -m http.server
@@ -37,10 +45,6 @@ python3 -m http.server
 
 Open <http://localhost:8000/web/>. It powers on like the real machine:
 empty RAM (16 NOPs), clock ticking.
-
-With [mise](https://mise.jdx.dev/): `mise run web` serves and opens it in
-one command. The repo's other common workflows are mise tasks too -
-`mise tasks` lists them.
 
 There is exactly one way to load a program, the same way the
 hardware does it: the dipswitches. First build the program's entry

@@ -49,7 +49,7 @@ down the middle, the wire itself drawn running the panel's height.
 
 ## Run it locally
 
-From the repo root:
+mise does both steps: `mise run web`. By hand, from the repo root:
 
     python3 -m http.server
 

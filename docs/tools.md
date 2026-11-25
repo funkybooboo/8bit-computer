@@ -16,6 +16,10 @@ node needed); each build directory holds the tools that belong to it:
 - **programs/** - `build.py` (the gallery's entry listings and images)
   and `verify.py` (the expectations check, below).
 
+Every command in this document is wrapped as a mise task as well -
+`mise tasks` lists the menu; the sections below document the
+underlying commands.
+
 Image files carry the work between the tools and the builds: the assembler
 emits them (raw binary / logisim hex / Intel HEX), EEPROM burners and
 Digital's ROM editor load them, and [../roms/](../roms/README.md) archives
@@ -121,10 +125,6 @@ machine's own ROM contents).
     python3 -m http.server   # from the repo root; open http://localhost:8000/web/
     node web/js/run.mjs programs/count_up.bin    # headless CLI on the same machine model
     python3 programs/verify.py  # every program vs its frozen expectations
-
-mise wraps the repo's common commands as tasks: `mise run web`
-(the serve-and-open above), `mise run test` (every check at once),
-`mise tasks` for the rest.
 
 The web build runs the same control-ROM images the hardware burns, so a
 program behaves there exactly the way it behaves on the machine. What

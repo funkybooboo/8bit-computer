@@ -32,3 +32,6 @@ netlist are in the header comment of netlist.py; the netlist of a
 module is printed with e.g. (from the repo root):
 
     kicad/netlist.py --net kicad/8bit-computer.net --refs U44,U45,U46
+
+(mise: `mise run netlist-kicad`; the Digital side of the comparison is
+`mise run netlist-digital`.)

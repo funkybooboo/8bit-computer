@@ -15,3 +15,7 @@ circuit file itself.
   on demand and launches it (why: [../docs/tools.md](../docs/tools.md),
   "Digital 0.31 notes"). Use the same jar headless with
   `DIGITAL_JAR=~/.cache/digital-patched/Digital.jar digsim ...`.
+
+(mise: `mise run digital` for the GUI, `mise run simulate` for
+headless runs - the `rom`, `netlist-digital` and `netlist-kicad`
+tasks cover the rest of this directory's tools.)
