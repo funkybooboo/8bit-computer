@@ -112,7 +112,7 @@ written assembly: the flags survive jumps and loads.
 | `e * e` | no multiply instruction; write the counting loop ([mul.hl](../programs/mul.hl)) |
 | functions, `call`, recursion | no stack, no return address - see [getting-to-os.md](getting-to-os.md) |
 | arrays, pointers, indexing | no indirect addressing (the MAR cannot be loaded from RAM) |
-| assigning to a `const`, using an undeclared name, non-constant `var` initializers | the language keeps names and data honest |
+| assigning to a `const`, using an undeclared name, non-constant `var` initializers | names and data are checked at compile time |
 | programs whose code + data exceed 16 bytes | RAM is 16 bytes; nothing larger can be entered into the machine |
 | numbers outside 0..255 | a byte is a byte |
 

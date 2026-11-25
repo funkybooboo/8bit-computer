@@ -1,6 +1,6 @@
 # Tools
 
-The software that serves the machine. [../tools/](../tools/) holds the
+The machine's software side. [../tools/](../tools/) holds the
 machine-level tools (they work from any clone - no Digital, no JDK, no
 node needed); each build directory holds the tools that belong to it:
 
@@ -206,7 +206,7 @@ matches the KiCad reference pin for pin; observed with digsim --nets):
   newer Digital release is the fix (a local 74245.dig patch was tried
   and dropped). Program behavior is verified against the frozen
   expected outputs (web/test/verify.py) instead. The display path
-  (MUX_CLK multiplexing) does simulate.
+  (MUX_CLK multiplexing) still simulates correctly.
 - **Driver (core, FIXED HERE)**: the tri-state Driver element (the
   buffer inside the 74245/74189 models and the multiplexer output
   path) turned a high-Z input into a random-noise driven output. At

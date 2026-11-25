@@ -1,7 +1,7 @@
 # roms/ - archived EEPROM images
 
-The EEPROM contents used by the machine - the browsable archive of what
-is burned. Computer.dig carries the same data inline (circuit attribute
+The EEPROM contents the machine runs - archived here for browsing.
+Computer.dig carries the same data inline (circuit attribute
 `romContent`), kept in sync by the tooling.
 
 | file                       | chip (in Computer.dig) | preset            |

@@ -6,7 +6,7 @@ reference: ../docs/language.md) to the assembly language
 result to the .lst entry table and the .bin image, written beside the
 source. It refuses, at compile time and with a reason, everything the
 hardware cannot do - and nothing is hidden: the generated .asm reads
-like the hand-written gallery did.
+like the hand-written programs did.
 
   compile.py programs/count.hl            # -> count.asm + count.lst + count.bin
   compile.py programs/count.hl --stdout   # print the generated .asm only

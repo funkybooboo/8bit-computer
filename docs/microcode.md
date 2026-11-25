@@ -25,9 +25,9 @@ simulation of every instruction including JC/JZ flag behavior and the
     ROM2 U52, bit:   7   6   5   4   3   2   1   0
     signal:         EO  SU  BI  OI  CE  CO  J   FI
 
-What each line drives, and what it means while high (including the
-inverters that adapt them to the chips' active-low inputs):
-[hardware.md](hardware.md), "The control lines".
+What each line drives, and what it means while high:
+[hardware.md](hardware.md), "The control lines" (the inverters that
+adapt them to the chips' active-low inputs included).
 
 ## ROM addressing
 

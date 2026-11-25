@@ -1,23 +1,23 @@
 # web/ - the machine in a browser
 
-The machine emulated in a browser - the repo's emulator (there is no
-separate one): the same machine as [digital/Computer.dig](../digital/Computer.dig),
-running the same ROM images, presented as the machine itself - its
-modules, lamps and switches, laid out as the Digital build lays them
-out - in pure HTML, CSS and JavaScript, no build tools, no frameworks,
+The machine emulated in a browser - the repo's only emulator: the
+same machine as [digital/Computer.dig](../digital/Computer.dig),
+running the same ROM images, drawn as the machine itself - its
+modules, lamps and switches, laid out like the Digital build - in
+pure HTML, CSS and JavaScript, no build tools, no frameworks,
 no network dependencies. A static directory any web server can host.
 
 The app is deliberately nothing more than the machine. It powers on
 with empty RAM (16 NOPs) and the clock running, like the bench machine
-with the power on - and a program gets in exactly one way, the way the
-hardware does it:
+with the power on - and a program is loaded exactly one way, the way
+the hardware does it:
 
 ## Entering a program
 
-The procedure - the dipswitch groups, the readback lamps, the mode
-switch - is the machine's own: [../docs/hardware.md](../docs/hardware.md),
-"Front panel" (the app's footer walks it too). Writing programs is
-the repo's job, not the app's: the sources are
+The procedure - dipswitch groups, readback lamps, mode switch - is
+the machine's: [../docs/hardware.md](../docs/hardware.md),
+"Front panel"; the app's footer has the same steps. Writing programs
+is the repo's job, not the app's: the sources are
 [programs/](../programs/README.md) (the .hl language:
 [docs/language.md](../docs/language.md)), and the listings are one
 command away - `python3 tools/compile.py programs/count.hl` writes
@@ -33,14 +33,14 @@ the Digital build carries and the hardware burns - asserting the
 control word at (step, opcode, CF, ZF) every cycle. Nothing is
 special-cased per instruction: if the microcode is wrong, programs
 fail here exactly the way they fail on the machine. The rest of the
-fidelity story (the two-edge clock, bus discipline, pre-edge
+fidelity story - the two-edge clock, bus discipline, pre-edge
 latching, RESET as wired, the display path, where every control
-wires) is the machine's own documentation -
+wires - is documented in
 [../docs/microcode.md](../docs/microcode.md) and
-[../docs/hardware.md](../docs/hardware.md) - and the design notes at
+[../docs/hardware.md](../docs/hardware.md), with design notes at
 the top of js/machine.js and js/display.js.
 
-The panel carries every lamp the hardware lists and nothing else -
+The panel shows every lamp the hardware has and nothing else -
 no readouts, no conveniences, nothing the machine does not have
 ([../docs/hardware.md](../docs/hardware.md), "Front panel"). The
 arrangement mirrors the Digital build: left column CLOCK, MAR, RAM,

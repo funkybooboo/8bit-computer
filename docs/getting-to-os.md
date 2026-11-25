@@ -123,10 +123,10 @@ ladder - what each level buys". In OS terms:
 - **L3 + interrupts** - preemptive: a timer can take the machine back
   mid-program; beyond L3 in the additions tiers, not part of it.
 
-## Distances, honestly
+## Distances
 
 Same memory gap, same long pole as C
-([getting-to-c.md](getting-to-c.md), "Distances, honestly"); the
+([getting-to-c.md](getting-to-c.md), "Distances"); the
 OS-specific distances:
 
 - The single unlock is the stack: SP + CALL/RET is the one primitive

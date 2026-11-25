@@ -3,8 +3,8 @@
 This machine is Ben Eater's 8-bit breadboard computer
 (https://eater.net/8bit) - his circuit design, built here in Digital from
 his schematics and verified pin-exact against his KiCad project
-([hardware.md](hardware.md)). This document is the delta: what this
-build adds on top of his design - the additions already made, and every
+([hardware.md](hardware.md)). This document covers what this build
+adds on top of his design - the additions already made, and every
 avenue still available, organized by cost, from a new ROM image (zero
 wiring) to a redesign.
 
@@ -165,7 +165,7 @@ the circuit (every "unused" pin claim verified in Computer.dig):
   written in the "LDA: MI,IO / RO,AI" notation ([tools.md](tools.md)) -
   experiments there are painless already.
 
-## Not worth it (honest)
+## Not worth it
 
 - Interrupts/DMA: no devices to interrupt, nothing that needs the
   latency.

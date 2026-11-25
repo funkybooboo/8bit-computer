@@ -2,8 +2,7 @@
 
 One machine, built several ways. This is Ben Eater's 8-bit breadboard
 computer ([eater.net/8bit](https://eater.net/8bit)) - his circuit
-design, plus a few additions of its own
-([docs/additions.md](docs/additions.md)) - wired and verified in a
+design, plus a few additions ([docs/additions.md](docs/additions.md)) - wired and verified in a
 logic simulator, emulated in a browser, checked against the original
 schematics, and one day built for real:
 
@@ -36,11 +35,12 @@ JavaScript, no build step, no backend. From the repo root:
 python3 -m http.server
 ```
 
-Open <http://localhost:8000/web/>. The machine powers on the way the
-bench machine does: empty RAM (16 NOPs), clock ticking.
+Open <http://localhost:8000/web/>. It powers on like the real machine:
+empty RAM (16 NOPs), clock ticking.
 
-A program gets in exactly one way, the way the hardware does it: the
-dipswitches. Build an entry listing for one:
+There is exactly one way to load a program, the same way the
+hardware does it: the dipswitches. First build the program's entry
+listing:
 
 ```bash
 python3 tools/compile.py programs/count.hl   # writes programs/count.lst
@@ -48,7 +48,7 @@ python3 web/build.py                         # ...or the whole gallery
 ```
 
 Enter it on the panel (the procedure: [docs/hardware.md](docs/hardware.md),
-"Front panel" - the app's footer walks it too), press RESET, and
+"Front panel"; the app's footer has the same steps), press RESET, and
 watch the display count. Pick any program from the
 [gallery](programs/README.md), or write your own in the repo's small
 language, [.hl](docs/language.md).

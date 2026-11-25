@@ -1,8 +1,8 @@
 // main.js - the web app: the machine, and only the machine.
 //
 // It powers on like the hardware does: clock running (STEP_MODE AUTO),
-// RAM empty (16 NOPs), the display dark. A program gets in exactly one
-// way - the panel switches, the way the hardware does it:
+// RAM empty (16 NOPs), the display dark. A program is loaded exactly
+// one way - the panel switches, the way the hardware does it:
 //
 //   PROG_ADDR -> PROG (on the MAR), set PROG_ADDR_A + PROG_DATA from a
 //   listing, PROG_WRITE per byte (on the RAM), PROG_ADDR -> RUN, RESET.

@@ -108,7 +108,7 @@ price of C. That price is the point: C exists for the thousand-line
 program no one will hand-assemble into 16 bytes, and that program is
 what forces L3 in the first place.
 
-## Distances, honestly
+## Distances
 
 - C on the current 16-byte machine: impossible, forever.
 - Subset C compiling and running in the simulator: weeks, zero

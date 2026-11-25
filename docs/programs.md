@@ -17,8 +17,8 @@ machine's 16 bytes of RAM (code + data together); the byte counts
 below are the compiler's output - div, gcd, half and mul use 15 of
 the 16, countdown all of it.
 
-The tables are the index. Each program's own story - what it teaches,
-its edge cases, its idiom - is the header comment of its source.
+The tables are the index; each program's header comment says what it
+teaches.
 
 ## Foundations - sequences, state and flags
 
@@ -48,7 +48,7 @@ its edge cases, its idiom - is the header comment of its source.
 | half.hl   | 22 / 2 = 11                                               | search for y with y + y = x      | 15    |
 | lcg.hl    | a pseudorandom shuffle: every byte once per 256 steps    | x = 5x + 1 (mod 256)             | 10    |
 
-## Machine tricks - shifts, flags and the patch lookalike
+## Machine tricks - shifts and flags
 
 | program      | the display shows                                 | the trick                          | bytes |
 |--------------|---------------------------------------------------|-------------------------------------|-------|
