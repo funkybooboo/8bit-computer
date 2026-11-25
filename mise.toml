@@ -3,15 +3,15 @@
 # are shortcuts. `mise tasks` lists them, `mise run <task>` runs one.
 # (mise.local.toml, if you ever create one, is personal and gitignored.)
 
-[tasks.web]
+[tasks.open-web]
 description = "the machine in a browser: serve the repo, open /web/"
 run = "python3 -m http.server & server=$!; sleep 1; xdg-open http://localhost:8000/web/; wait $server"
 
-[tasks.digital]
+[tasks.open-digital]
 description = "the Digital build: launch the GUI with the Driver fix"
 run = "digital/gui"
 
-[tasks.digsim]
+[tasks.simulate-digital]
 description = "headless Digital simulation (args: --dig digital/Computer.dig --list)"
 run = "digital/digsim"
 
@@ -23,15 +23,15 @@ run = "python3 programs/build.py"
 description = "every program vs its frozen expected output - the contract"
 run = "python3 programs/verify.py"
 
-[tasks.compile]
-description = "compile one program (mise run compile programs/count_up.hl)"
+[tasks.compile-program]
+description = "compile one program (mise run compile-program programs/count_up.hl)"
 run = "python3 tools/compile.py"
 
-[tasks.run]
-description = "run one program image headless (mise run run programs/gcd.bin)"
+[tasks.run-program]
+description = "run one program image headless (mise run run-program programs/gcd.bin)"
 run = "node web/js/run.mjs"
 
-[tasks.display]
+[tasks.test-display]
 description = "the display ROM decode vs known patterns"
 run = "node web/test/test_display.mjs"
 
@@ -40,17 +40,17 @@ description = "the archived ROM images match the generator's tables"
 run = "python3 tools/genroms.py --check"
 
 [tasks.test]
-description = "everything: verify + display + check-roms"
-depends = ["verify", "display", "check-roms"]
+description = "everything: verify + test-display + check-roms"
+depends = ["verify", "test-display", "check-roms"]
 
-[tasks.roms]
+[tasks.print-microcode]
 description = "print the instruction/microstep table - the machine's definition"
 run = "python3 tools/genroms.py"
 
-[tasks.crumb-pull]
+[tasks.pull-from-crumb]
 description = "copy the .cru files from the CRUMB install into the repo (safe direction)"
 run = "crumb/pull-from-crumb.sh"
 
-[tasks.crumb-push]
+[tasks.push-to-crumb]
 description = "push the repo's .cru files into CRUMB (close the game first)"
 run = "crumb/push-to-crumb.sh"
