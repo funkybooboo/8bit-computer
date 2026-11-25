@@ -61,7 +61,7 @@ a byte: arithmetic wraps mod 256. `e * k` needs `k` constant - the
 compiler emits the machine's multiply idioms (DBL for `* 2`, ADD chains
 for small factors, shift-add for larger ones); `e * e` is rejected,
 because the hardware has no multiply - write the counting loop
-([mul.hl](../programs/mul.hl)).
+([multiply.hl](../programs/multiply.hl)).
 
 `rol(e)` is the machine's rotate-left-through-carry idiom
 (`DBL + JNC + ADDI 1`, [instruction-set.md](instruction-set.md)) as a
@@ -108,8 +108,8 @@ written assembly: the flags survive jumps and loads.
 | rejected | reason |
 |---|---|
 | `b = x < y` | booleans are not storable - there is no boolean cell; use `if`/`while` |
-| `x // y`, `x % y` | no divide; write the repeated-subtraction loop ([div.hl](../programs/div.hl), [mod.hl](../programs/mod.hl)) |
-| `e * e` | no multiply instruction; write the counting loop ([mul.hl](../programs/mul.hl)) |
+| `x // y`, `x % y` | no divide; write the repeated-subtraction loop ([divide.hl](../programs/divide.hl), [remainder.hl](../programs/remainder.hl)) |
+| `e * e` | no multiply instruction; write the counting loop ([multiply.hl](../programs/multiply.hl)) |
 | functions, `call`, recursion | no stack, no return address - see [getting-to-os.md](getting-to-os.md) |
 | arrays, pointers, indexing | no indirect addressing (the MAR cannot be loaded from RAM) |
 | assigning to a `const`, using an undeclared name, non-constant `var` initializers | names and data are checked at compile time |

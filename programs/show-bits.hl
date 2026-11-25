@@ -1,4 +1,4 @@
-; bits.hl - a byte on the display, one bit at a time
+; show-bits.hl - a byte on the display, one bit at a time
 ; The display shows bytes; this shows the byte's binary representation,
 ; most significant first, the way a serial link sends it. Each lap
 ; rotates the byte left through carry and displays the bit that came

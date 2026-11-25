@@ -1,4 +1,4 @@
-; bothflags.hl - one ADD setting both flags at once: 255 + 1
+; both-flags.hl - one ADD setting both flags at once: 255 + 1
 ; The full adder carries out (CF=1) and the result is zero (ZF=1) in
 ; the same instruction - the only byte whose successor is exactly 0
 ; with a carry. (The .asm original demonstrates JC and JZ both testing

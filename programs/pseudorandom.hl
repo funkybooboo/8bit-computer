@@ -1,4 +1,4 @@
-; lcg.hl - a linear congruential generator: s = 5s + 1, forever
+; pseudorandom.hl - a linear congruential generator: s = 5s + 1, forever
 ; The multiply by 5 compiles to the hardware's ADD chain (ADD s four
 ; times). Full period by Hull-Dobell (a = 5 is 1 mod 4, c = 1 odd),
 ; so the outputs are a permutation of every byte 0..255 - the

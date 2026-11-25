@@ -1,9 +1,0 @@
-; mod.hl - the remainder of 100 / 9 by repeated subtraction
-; The stripped core of div.hl: subtract until x < y; what is left
-; in x IS the remainder.
-var x = 100
-var y = 9
-while x >= y:
-    x = x - y
-out x
-halt

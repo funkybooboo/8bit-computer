@@ -85,12 +85,12 @@ Eater set is 0-8, E, F). An older ROM image burns those opcodes as NOPs.
 - **ADDI / SUBI** - immediate forms of ADD/SUB: the operand nibble (0-15,
   zero-extended) feeds the ALU directly instead of a RAM cell, so loops can
   step and compare against constants without spending a byte of RAM on
-  them (min.hl, step.hl).
+  them (min.hl, count-by-three.hl).
 - **DBL** - doubles A through the ALU (B <- A, then A <- A + B): a
   shift-left-1 instruction, with CF catching the bit shifted out. DBL +
   JNC + ADDI 1 is a rotate-left-through-carry in three instructions
-  (rol.hl, and bits.hl streams a byte's bits through the display with
-  it), and a doubling loop ends itself on the wrap (powers.hl). The
+  (rotate-pattern.hl, and show-bits.hl streams a byte's bits through the display with
+  it), and a doubling loop ends itself on the wrap (powers-of-two.hl). The
   operand nibble is ignored (the assembler emits 0).
 - **OUT** - displays **A**, not the operand. The output module's mode
   switch selects decimal or hex display.
@@ -127,7 +127,7 @@ same document, "Limits".
   down from 0 (countdown.hl starts at 255 = 0 - 1).
 - Flags change only on ADD, SUB, ADDI, SUBI and DBL - nothing else touches
   CF/ZF. A JZ three instructions after a SUB still reads that SUB's result
-  (mul.hl leans on this); but a conditional reading a flag from before
+  (multiply.hl leans on this); but a conditional reading a flag from before
   program start reads whatever the reset left there - put the SUB before
   the first test.
 - **Self-modifying code is legal**: program and data share RAM, and STA

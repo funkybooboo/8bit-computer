@@ -1,4 +1,4 @@
-; half.hl - halve x, without a shift instruction: search for it
+; halve.hl - halve x, without a shift instruction: search for it
 ; There is no right-shift, so find y with y + y = x instead.
 ; The y = 0 reset makes the program re-runnable without re-entering
 ; the image. x must be even.

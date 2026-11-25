@@ -1,4 +1,4 @@
-; div.hl - divide 100 by 9 by repeated subtraction - long division,
+; divide.hl - divide 100 by 9 by repeated subtraction - long division,
 ; visible: each lap subtracts and displays the running remainder;
 ; when x < y the quotient is complete (100/9 = 11, remainder 1).
 ; 15 of 16 bytes - nearly every byte of RAM is working here.

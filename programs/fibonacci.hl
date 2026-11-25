@@ -1,4 +1,4 @@
-; fib.hl - Fibonacci numbers, mod 256, forever
+; fibonacci.hl - Fibonacci numbers, mod 256, forever
 ; Each round: x, y = y, x + y, and the smaller (x) is displayed.
 ; The sequence wraps mod 256 once the sums pass 255.
 var x = 0

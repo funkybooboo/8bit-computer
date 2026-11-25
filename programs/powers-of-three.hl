@@ -1,4 +1,4 @@
-; triple.hl - 3^k mod 256 forever: x = 3x by shift-add (2x + x)
+; powers-of-three.hl - 3^k mod 256 forever: x = 3x by shift-add (2x + x)
 ; The powers of three mod 256 never hit 0 - the cycle returns to 1
 ; after 64 laps.
 var x = 1

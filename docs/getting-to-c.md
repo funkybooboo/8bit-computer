@@ -18,7 +18,7 @@ new hardware at all and can be started now.
 | pointers| addresses that can be computed | operands are 4-bit constants baked into instructions | indirect addressing - the structural gap |
 | memory  | code + globals + stack; the smallest real programs are hundreds of bytes | 16 bytes, shared | 2 orders of magnitude |
 | stack   | every call, every local   | none - no SP, no CALL/RET, no push/pop | SP + CALL/RET |
-| arithmetic | + - * / % all exist | + - in hardware, * / % as loops (mul/div/mod already written) | none, just slow |
+| arithmetic | + - * / % all exist | + - in hardware, * / % as loops (multiply/divide/remainder already written) | none, just slow |
 | bitwise | & \| ^ ~ << >>           | shifts: DBL does << in one instruction (CF = bit out); the rest: none | software emulation (rotate + carry + conditional); correct, ~100s of cycles per byte-op |
 | control flow | if / while / for / functions | JMP JC JZ (+ JNC JNZ added) | functions = stack |
 | output  | putchar                   | OUT           | none |
