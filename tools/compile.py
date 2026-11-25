@@ -4,7 +4,7 @@ compile.py - the .hl compiler: compiles the high-level language (full
 reference: ../docs/language.md) to the assembly language
 (../docs/assembly-language.md, asm.py's target), then assembles the
 result to the .lst entry table and the .bin image, written beside the
-source. It refuses, at compile time and with a reason, everything the
+source. It rejects at compile time, with a reason, everything the
 hardware cannot do - and nothing is hidden: the generated .asm reads
 like the hand-written programs did.
 

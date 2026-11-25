@@ -52,12 +52,12 @@ me" possible (they latch on the clock edge only when enabled).
 data in one address space. Nothing distinguishes them: a byte is an
 instruction only because the program counter points at it when it is
 fetched. The flip side is self-modification - a program can write over
-its own instructions ([programs.md](programs.md), patch.hl) - which is
+its own instructions - which is
 legal because there is no protection, which is the same thing a 1970s CPU
 gave you.
 
 **Fetch, decode, execute.** Every 8 clock cycles the machine does the
-same two-step opening: T0 puts the PC on the bus and latches it into the
+same two-step start: T0 puts the PC on the bus and latches it into the
 MAR; T1 reads the RAM byte at the MAR into the instruction register and
 increments the PC. From then on the instruction's opcode nibble (the top
 4 bits now sitting in the IR) is the machine's *decision*: it selects a
@@ -76,7 +76,7 @@ same instruction, two one-bit side effects: carry (CF) and zero (ZF),
 latched into a flag register. The flags feed the control ROMs' address
 lines, so the *next* instruction can be a different one depending on data
 the machine computed earlier. Conditional jump = data-dependent ROM row =
-branching. That is the hinge that makes it a computer and not a fixed
+branching. That is what makes it a computer and not a fixed
 sequence: with conditional branching, arithmetic, and memory you have
 everything needed to compute anything computable - bounded here only by
 the 16 bytes of RAM.
@@ -116,9 +116,9 @@ a wider address path and it stops being a toy.
 Each in one paragraph; pins and wires in [hardware.md](hardware.md).
 
 - **Clock module** - a clock source and gating logic. It produces the
-  one edge everything steps on, and respects two masters: HLT (a program
-  saying "stop") and the manual STEP_MODE/STEP_PULSE front panel
-  controls. Everything is synchronous to this one edge.
+  one edge everything steps on; two things can interrupt it: HLT (a
+  program saying "stop") and the manual STEP_MODE/STEP_PULSE front
+  panel controls. Everything is synchronous to this one edge.
 - **Program counter (PC)** - a 4-bit counter (74161). It always holds the
   address of the *next* instruction byte; CE increments it at fetch T1,
   J loads it when a jump is taken. It wraps 0..15.
@@ -170,6 +170,6 @@ ADD 5 ("A <- A + M[5]") as the bus sees it (microcode rows in
 | T7 | - | - | transient: resets the step counter |
 
 Then T0 of the next instruction, with the PC already pointing at it.
-Multiply that by any program in [programs.md](programs.md) and that is
+Run any program from [programs.md](programs.md) on top of this and that is
 the machine running: a fixed 8-cycle heartbeat, ROM rows steering one
 bus transfer at a time, forever - until a HLT row gates the clock off.

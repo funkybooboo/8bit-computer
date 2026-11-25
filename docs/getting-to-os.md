@@ -4,8 +4,8 @@ The honest answer first, same shape as the C answer
 ([getting-to-c.md](getting-to-c.md)): **an OS on this machine as it
 stands is impossible, permanently** - an OS is by definition a program
 that stays resident while another program runs, and 16 bytes cannot
-hold both. But the punchline of this doc is that the machine does not
-need a third upgrade program: the upgrades an OS demands are the same
+hold both. But the point of this document is that the machine does not
+need a separate upgrade plan: the upgrades an OS demands are the same
 upgrades C demands. L3 in the C ladder is also the OS threshold. One
 hardware project, three payoffs: C, an OS, and the compiler that
 justifies both.
@@ -52,7 +52,7 @@ Three requirements, and only three:
    print a byte, read a byte.
 
 None of: disks, files, windows, memory protection, multiple users, or
-preemption are required. This is not the bar lowered to fit - it is
+preemption are required. This is not a lowered bar - it is
 what the earliest genuine OSes actually were. The KIM-1 (1975, 1KB
 RAM) shipped with a 2KB ROM monitor: a loop that read a program and
 address, jumped there, and printed its prompt again when the program
@@ -125,7 +125,7 @@ ladder - what each level buys". In OS terms:
 
 ## Distances
 
-Same memory gap, same long pole as C
+Same memory gap, same bottleneck as C
 ([getting-to-c.md](getting-to-c.md), "Distances"); the
 OS-specific distances:
 

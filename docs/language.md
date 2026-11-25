@@ -95,7 +95,7 @@ instead (one byte cheaper than a constant cell for 128).
 | `while x >= y:` | `LDA x, SUB y, JNC exit` |
 | `if x == y:` | `LDA x, SUB y, JNZ else` |
 | `if x >= 128:` | `LDA x, DBL, JNC else` |
-| `while n != 0:` | `LDA n, SUBI 0, JZ exit` (the free TEST instruction) |
+| `while n != 0:` | `LDA n, SUBI 0, JZ exit` (A - 0 is the zero test; no constant cell) |
 | `rol(x)` | `DBL, JNC l, ADDI 1, l:` |
 | `pass` | `NOP` |
 

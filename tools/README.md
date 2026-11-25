@@ -1,6 +1,6 @@
 # tools/ - the machine-level tools
 
-Three scripts, all runnable, all useful to every build of the machine.
+Three scripts, each useful to every build of the machine.
 Tools that serve only one build live beside it: ../digital/ has the
 Digital tools, ../kicad/ has the netlist extractor, ../web/ has the
 web build's scripts. Full usage and workflow:

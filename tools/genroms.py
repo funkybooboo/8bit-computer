@@ -16,7 +16,7 @@ logisim .hex every build loads plus the Intel HEX for EEPROM burners).
 --check verifies that the images archived in ../roms/ are exactly these
 tables, and that the fetch and bus rules hold in every ROM row.
 
-The roms are shared by every build; each build uploads them its own way:
+The roms are shared by every build; each build loads them its own way:
 Digital via digital/rom.py (they are embedded in the .dig), the web
 build by fetching them, the hardware by burning the Intel HEX files.
 

@@ -51,7 +51,7 @@ does not have to be maintained by hand.
 - `.DB value [, value ...]` - emit raw data bytes (constants, variables,
   tables). Values may be numbers 0-255, char literals or labels (label =
   its RAM address). Any byte value is legal, including instruction
-  encodings - a data byte that is never jumped onto is inert.
+  encodings - a data byte is inert unless execution reaches it.
 - `.ORG address` - set the address of the next emitted byte. Forward-only;
   a label on an `.ORG` line lands at the moved-to address. The address must
   be a numeric literal (labels are not known yet when `.ORG` is processed).
@@ -117,6 +117,6 @@ panel's program-entry dipswitches): [hardware.md](hardware.md),
   one statement per line.
 - Name every data constant and reference it by label (`ADD one`), never a
   bare address.
-- Comments explain *why*, not *what* the mnemonic already says.
+- Comments explain *why*, not what the instruction already says.
 - Initialize: do not rely on power-up state; start programs with explicit
   `LDI`/`LDA` initialization of what they use.

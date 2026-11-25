@@ -15,7 +15,7 @@ node needed); each build directory holds the tools that belong to it:
 - **web/** - the web build, plus its test against the expected
   outputs (below).
 
-The image files are the bridge between tools and targets: the assembler
+Image files carry the work between the tools and the builds: the assembler
 emits them (raw binary / logisim hex / Intel HEX), EEPROM burners and
 Digital's ROM editor load them, and [../roms/](../roms/README.md) archives
 the machine's own ROM images.
@@ -157,7 +157,7 @@ hardware.
 Prints every element, every pin, and the members of the net each pin is
 on. Warns about wire endpoints touching the middle of another wire
 (T-junctions are NOT connections in Digital) and about unconnected chip
-pins. Pin geometry is real Digital geometry (In/Out/LED at element pos;
+pins. Pin positions follow Digital's own geometry (In/Out/LED at element pos;
 DIL chips 40 px pitch, left column pins 1..N/2 top-down, right column
 bottom-up; Seven-Seg segment pins on the top/bottom edges) - verified
 against the Digital 0.31 source.

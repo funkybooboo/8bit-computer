@@ -88,7 +88,7 @@ and gets no LED.
 
 You can watch the microcode run on the machine: single-step a program
 (STEP_MODE + STEP_PULSE, see [hardware.md](hardware.md)
-"Front panel") and the T0..T6 and control-line LEDs light up exactly
+"Front panel") and the T0..T6 and control-line LEDs match
 the generator's rows, one per microstep. Example programs:
 [programs.md](programs.md).
 

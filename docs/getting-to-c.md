@@ -74,7 +74,7 @@ debugging.
 L3 is also the OS threshold - the same upgrades that give C its
 stack, memory and pointers give an OS its resident-first-program,
 hand-back and load path ([getting-to-os.md](getting-to-os.md)).
-L3 is the long pole: it reworks the machine's spine - every address path,
+L3 is the bottleneck: it reworks the machine's spine - every address path,
 the instruction format, the step budget, the control word. Practically
 it is "build a second machine using everything learned from the first",
 which is also what Ben Eater's own community builds after the 8-bit
@@ -114,7 +114,7 @@ what forces L3 in the first place.
 - Subset C compiling and running in the simulator: weeks, zero
   hardware (the web build + tier-1 opcodes + the compiler).
 - Subset C running on real (upgraded) hardware: the compiler plus the
-  L3 rebuild - the hardware is the long pole, measured in a real
+  L3 rebuild - the hardware is the real project, measured in a real
   electronics project, not an afternoon.
 - Full standard C (floats, stdio, structs): not the goal on this
   architecture; its I/O is OUT and, someday, IN.

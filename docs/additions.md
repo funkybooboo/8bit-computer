@@ -63,7 +63,7 @@ reload, same microstep budget).
 
 ## Added: the software
 
-The design is hardware: it ships as schematics and EEPROM data. This
+Ben's design is the hardware side: it ships as schematics and EEPROM data. This
 repo adds the machine's whole software side - the machine's own
 definitions, an assembler and disassembler, a cycle-accurate simulator
 that runs the real control-ROM images, the EEPROM tooling with archived
@@ -177,7 +177,7 @@ the circuit (every "unused" pin claim verified in Computer.dig):
   needs tens of kilobytes; cross-compile forever
   ([getting-to-c.md](getting-to-c.md)).
 
-## Highest value next
+## What to do next
 
 1. The IN instruction (needs ROM3 + one 74245) - the machine becomes
    interactive.

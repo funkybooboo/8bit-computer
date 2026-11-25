@@ -15,7 +15,7 @@ web/test/verify.py's expectations table - the contract every build
 of the machine must reproduce. Each program compiles into the
 machine's 16 bytes of RAM (code + data together); the byte counts
 below are the compiler's output - div, gcd, half and mul use 15 of
-the 16, countdown all of it.
+the 16, countdown uses all of them.
 
 The tables are the index; each program's header comment says what it
 teaches.
@@ -55,7 +55,7 @@ teaches.
 | rotate.hl   | a chasing light: 1, 2, 4, ..., 128, 1, ...        | rotate-left through the carry        | 11    |
 | rol.hl      | a bit pattern circling a byte, 8 steps per lap    | the same idiom, wider seed            | 11    |
 | bits.hl     | the byte itself as digits: 1, 0, 1, 1, ...       | the rotate, one bit displayed per lap | 14  |
-| patch.hl    | 7 once, then 9 forever                            | the self-modification demo's OUT stream, by ordinary means | 6 |
+| patch.hl    | 7 once, then 9 forever                            | the self-modification demo's OUT stream, rebuilt with ordinary code | 6 |
 | bothflags.hl| 255, then 0                                       | one ADD setting CF and ZF together  | 10    |
 
 ## Limits - what does not fit, and why
@@ -74,8 +74,8 @@ the full path to C programs: [getting-to-c.md](getting-to-c.md).
   addressing: every LDA/STA operand is a 4-bit constant baked into the
   instruction, and an address cannot be computed at run time. The
   loophole is rewriting an operand's byte in RAM (STA to a code
-  address) - possible one patched instruction at a time, never a
-  computed one; the .hl language forbids it by construction.
+  address) - but only one hand-patched instruction at a time, never a
+  computed address; the .hl language forbids it by construction.
 - **Interactive games, calculators you can feed numbers** - after PROG
   goes to run mode, the data dipswitches are muxed out of the datapath;
   the only run-time inputs are the clock, reset and mode switches.
@@ -88,7 +88,7 @@ the full path to C programs: [getting-to-c.md](getting-to-c.md).
   XOR of several tap bits; same problem as the cellular automata.
   lcg.hl is the arithmetic-only substitute.
 
-On purpose at the limit: countdown.hl uses exactly all 16 bytes; div,
+Pushing the limit on purpose: countdown.hl uses exactly all 16 bytes; div,
 gcd, half and mul use 15 of the 16.
 
 ## Building and loading any program
