@@ -116,8 +116,8 @@ written assembly: the flags survive jumps and loads.
 | programs whose code + data exceed 16 bytes | RAM is 16 bytes; nothing larger can be entered into the machine |
 | numbers outside 0..255 | a byte is a byte |
 
-Self-modifying code (rewriting your own instructions, like the
-historical patch.asm) is not expressible: variables live in data cells,
+Self-modifying code (rewriting your own instructions) is not
+expressible: variables live in data cells,
 the compiler owns the code addresses, and an accidental write over
 your own code is exactly the kind of mistake the language exists to
 prevent.

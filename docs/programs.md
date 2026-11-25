@@ -216,14 +216,13 @@ On purpose at the limit: div.hl and half.hl use exactly all 16 bytes.
 
 ## Building and loading any program
 
-    tools/asm.py programs/count.hl --out prog.hex --lst prog.lst   # assemble
-    tools/asm.py --dis prog.hex                                     # verify
-    node web/js/run.mjs prog.hex                                    # run headless
+    python3 tools/compile.py programs/count.hl   # -> count.asm + count.lst + count.bin
+    node web/js/run.mjs programs/count.bin       # run headless
 
-Load it through the front panel (the procedure and the dipswitch groups:
-[hardware.md](hardware.md), "Front panel"). The listing's ADDR/BYTE
-columns are the dipswitch settings; its bits column is the same thing
-in ones and zeros.
+Load it through the front panel (the procedure and the dipswitch
+groups: [hardware.md](hardware.md), "Front panel"). The listing's bits
+column is the dipswitch settings, in the three groups the switches
+are: address | opcode | operand.
 
 Note: programs that mutate their data bytes (memory.hl, fib.hl, and
 the math group's accumulators, triple.hl's running value) leave that

@@ -78,19 +78,15 @@ computer. L4 does not need L3 to *start* (next section).
 
 ## What can start now, with zero new hardware
 
-1. DONE - **the web build** exists: web/js/machine.js runs any program
-   (self-modifying code included) off the real control-ROM images, and is
-   the compiler's test bench (node web/js/run.mjs for headless runs).
-2. DONE - **the tier-1 opcodes + assembler update**: the
-   compiler target now has inverted jumps and immediates, for free.
-3. DROPPED - **the Digital 0.31 74245 patch**: not pursued; GUI-level
-   runs of Computer.dig wait on a newer Digital release instead.
-4. NEXT - **write the compiler against the web build + asm.py, with the
-   L3 ISA defined on paper first.** The compiler is the biggest software piece of the
-   project and needs no hardware; doing it first also produces, as a
-   side effect, the exact demand list the hardware must satisfy
-   (data-driven hardware design: the compiler tells you what L3 must
-   provide).
+The compiler needs no hardware at all: it can be written against the
+web build (its test bench: web/js/machine.js, headless via
+web/js/run.mjs) and asm.py, with the L3 ISA defined on paper first. It
+is the biggest software piece of the project, and doing it first also
+produces, as a side effect, the exact demand list the hardware must
+satisfy (data-driven hardware design: the compiler tells you what L3
+must provide). The Digital 0.31 74245 patch was investigated and
+dropped ([tools.md](tools.md), "Digital 0.31 notes") - GUI-level runs
+of Computer.dig wait on a newer Digital release.
 
 ## What the first C program will look like
 

@@ -42,30 +42,27 @@ the instruction definition: [instruction-set.md](instruction-set.md).
 Out-of-range operands are errors, not truncations: the operand field is one
 nibble, and larger constants must be built with ADD (see the programming
 rules there). Numeric literals are legal
-anywhere a label is - an address is just a number 0-15 (patch.asm's
-`STA 1` writes to address 1, which happens to be one of its own
-instructions); labels exist so the number does not have to be maintained
-by hand.
+anywhere a label is - an address is just a number 0-15 (`STA 1` can
+write over one of your own instructions); labels exist so the number
+does not have to be maintained by hand.
 
 ## Directives
 
 - `.DB value [, value ...]` - emit raw data bytes (constants, variables,
   tables). Values may be numbers 0-255, char literals or labels (label =
   its RAM address). Any byte value is legal, including instruction
-  encodings - a data byte that is never jumped onto is inert (patch.asm
-  goes further and builds an instruction byte at run time with LDI +
-  ADD).
+  encodings - a data byte that is never jumped onto is inert.
 - `.ORG address` - set the address of the next emitted byte. Forward-only;
   a label on an `.ORG` line lands at the moved-to address. The address must
   be a numeric literal (labels are not known yet when `.ORG` is processed).
-  patch.asm uses it for a real need: placing a data byte at an exact
-  address so a run-time-built instruction byte encodes correctly.
+  Its use: placing a data byte at an exact address, e.g. so an
+  instruction byte built at run time encodes correctly.
 - `name: .EQU value` - define a named constant. Usable anywhere a number
   may appear (instruction operands, `.DB` values); the value must be a
   numeric or char literal resolved immediately (labels are addresses,
-  `.EQU` names are values - they never occupy a RAM byte). min.asm and
-  decrement.asm use `.EQU` for their thresholds; the alternative is a
-  magic number in every instruction.
+  `.EQU` names are values - they never occupy a RAM byte): for
+  hand-written assembly it replaces a magic number repeated in every
+  instruction.
 
 ## Program model and limits
 
@@ -80,7 +77,9 @@ by hand.
 
 ## Example
 
-[../programs/count.asm](../programs/count.asm) - the compiler's output for count.hl - count 0..255 forever:
+count.hl compiled - `count.asm` is the compiler's output, written
+beside the source (a gitignored artifact; `tools/compile.py` or
+`web/build.py` writes it) - count 0..255 forever:
 
         LDI 0        ; A = 0 (the counter)
 loop:   OUT          ; display A
