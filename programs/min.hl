@@ -1,4 +1,7 @@
 ; min.hl - clamp x to the limit: display min(x, limit)
+; The compare against the constant is SUBI limit - a threshold that
+; needs no RAM cell. The compare clobbers A, so both branches re-load
+; what they display.
 const limit = 10
 var x = 25
 if x >= limit:

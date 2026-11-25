@@ -1,4 +1,7 @@
 ; odometer.hl - count 0..99 and roll over, forever
+; The operand field only carries 0-15, so the compare against 100
+; uses a data byte: SUB c100 sets ZF exactly at 100, and the roll-over
+; resets the count to 0.
 var n = 0
 while 1:
     out n

@@ -85,7 +85,7 @@ Eater set is 0-8, E, F). An older ROM image burns those opcodes as NOPs.
 - **ADDI / SUBI** - immediate forms of ADD/SUB: the operand nibble (0-15,
   zero-extended) feeds the ALU directly instead of a RAM cell, so loops can
   step and compare against constants without spending a byte of RAM on
-  them (decrement.hl, min.hl, step.hl).
+  them (min.hl, step.hl).
 - **DBL** - doubles A through the ALU (B <- A, then A <- A + B): a
   shift-left-1 instruction, with CF catching the bit shifted out. DBL +
   JNC + ADDI 1 is a rotate-left-through-carry in three instructions
@@ -108,7 +108,7 @@ Eater set is 0-8, E, F). An older ROM image burns those opcodes as NOPs.
 
 ## Programming rules of the road
 
-Every instruction is exercised by the example gallery - twenty-five
+Every instruction is exercised by the example gallery - twenty-three
 programs in three groups, each with its expected display:
 [programs.md](programs.md). What that does not fit on this machine, and
 why (cellular automata, arrays, interactive games, nested loops): the

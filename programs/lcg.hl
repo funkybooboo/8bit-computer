@@ -1,6 +1,8 @@
 ; lcg.hl - a linear congruential generator: s = 5s + 1, forever
 ; The multiply by 5 compiles to the hardware's ADD chain (ADD s four
-; times). Every seed gives the same cycle.
+; times). Full period by Hull-Dobell (a = 5 is 1 mod 4, c = 1 odd),
+; so the outputs are a permutation of every byte 0..255 - the
+; closest thing to randomness this machine can make without XOR.
 var s = 1
 while 1:
     s = s * 5 + 1

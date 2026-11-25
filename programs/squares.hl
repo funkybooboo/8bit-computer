@@ -1,4 +1,6 @@
 ; squares.hl - the perfect squares, mod 256: s += the next odd number
+; 1 + 3 + 5 + ... = n^2: adding successive odd numbers makes the
+; squares; wraps to 0 exactly at 16^2.
 var s = 0
 var odd = 1
 while 1:
