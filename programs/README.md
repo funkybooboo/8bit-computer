@@ -14,5 +14,6 @@ each source, and `tools/compile.py` writes any of them on demand:
     node web/js/run.mjs programs/count.bin    # or open http://localhost:8000/web/
 
 Each program's expected output is frozen in
-[web/test/verify.py](../web/test/verify.py) (halt status, OUT count,
-first 32 OUT values) - every build of the machine must reproduce it.
+[web/test/verify.py](../web/test/verify.py) - the contract every build
+of the machine must reproduce ([../docs/tools.md](../docs/tools.md),
+"Running programs").

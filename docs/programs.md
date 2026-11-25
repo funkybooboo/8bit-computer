@@ -10,9 +10,10 @@ kept beside each source for inspection); the instructions:
 machine: the web build and its test ([tools.md](tools.md),
 "Running programs").
 
-Every program's expected OUT stream and halt status is frozen in
-web/test/verify.py's expectations table (20,000-cycle cap), and every
-build of the machine must reproduce it exactly. Each program compiles
+Every program's expected output is frozen in
+web/test/verify.py's expectations table - the contract every build
+of the machine must reproduce ([tools.md](tools.md), "Running
+programs"). Each program compiles
 into the machine's 16 bytes of RAM (code + data together); the byte
 counts below are the compiler's output - div, gcd, half and mul use 15
 of the 16.

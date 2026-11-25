@@ -104,10 +104,9 @@ way: a program entered through the switches, the gating, the clock
     python3 web/test/verify.py      # every gallery program on js/machine.js
     node web/test/test_display.mjs  # the display ROM decode vs known patterns
 
-Correctness of the machine is defined by the expectations frozen in
-[test/verify.py](test/verify.py)'s table - for every program, the halt
-status, the OUT count, and the first 32 OUT values - and each build
-must reproduce them exactly.
+Correctness is defined by the frozen expectations in
+[test/verify.py](test/verify.py) - the contract every build must
+reproduce ([../docs/tools.md](../docs/tools.md), "Running programs").
 
 ## What is here
 

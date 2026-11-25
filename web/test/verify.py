@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """
-verify.py - run every program on the web build and check it against the
-expected outputs.
+verify.py - run every program on the web build and check it against
+the expectations table below (per program: the halt status, the OUT
+count within the cap, the first 32 OUT values). What "correct" means,
+and the rules for changing this table: docs/tools.md, "Running
+programs".
 
-Correctness of an implementation is defined by the gallery: the table
-below records, for every program in ../../programs/, the halt status, the
-total OUT count within the cap, and the first 32 OUT values. Any build of
-the machine that deviates in any of these fails. The OUT sequences were
-frozen from the 2026-10-24 simulator/web agreement; the counts were
-re-frozen at the 2026-10-27 .hl migration (the compiler's loops cost a
-different number of cycles per OUT than the hand-written ones - same
-values, same order - so the cap admits a different number of them; the
-sequences themselves are byte-for-byte unchanged, verified by comparing
-every .hl against its .asm predecessor before the .asm sources were
-retired). Update the table only deliberately, when a program's intended
-behavior changes.
+The OUT sequences were frozen from the 2026-10-24 simulator/web
+agreement; the counts were re-frozen at the 2026-10-27 .hl migration
+(the compiler's loops cost a different number of cycles per OUT than
+the hand-written ones - same values, same order - so the cap admits a
+different number of them; the sequences themselves are byte-for-byte
+unchanged, verified by comparing every .hl against its .asm
+predecessor before the .asm sources were retired).
 
 Usage:
   python3 web/test/verify.py
