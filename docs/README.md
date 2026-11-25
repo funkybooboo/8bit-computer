@@ -11,7 +11,7 @@ point here.
 | language.md       | The .hl high-level language, compiled to the assembly language  |
 | microcode.md      | The control unit: 16 control signals, two ROMs, microsteps      |
 | assembly-language.md | The assembly language and its assembler                       |
-| programs.md       | The program gallery, the practical set, the limits              |
+| programs.md       | The program gallery, the limits                                        |
 | tools.md          | The toolchain: verify, build, program, run                       |
 | additions.md      | Additions to Ben Eater's computer: made and possible              |
 | getting-to-c.md   | How far the machine is from running C programs                   |

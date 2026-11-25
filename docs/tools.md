@@ -95,16 +95,9 @@ also defined in this file; the web build's twin is web/js/hex.js.
 Compiles [language.md](language.md) - the high-level language - to the
 assembly language, validates the result by assembling it, and writes
 three files beside the source: the .asm (for inspection, gitignored),
-the .lst - the front-panel entry table, the dipswitch bit groups for
-every address - and the .bin, the bare 16-byte machine image. The
-language covers the whole machine (every opcode is reachable from
-some construct) and refuses at compile time what the hardware
-cannot do: e * e, division, boolean values, functions, arrays,
-programs that do not fit the 16 bytes. The compiler emits the
-hand-written idioms the gallery grew from - accumulator tracking makes `out x` after
-`x = ...` one byte, `x = x - y` after `while x >= y` reuse the
-compare's subtraction, `x >= 128` is the DBL top-bit test - so the
-generated assembly reads like the hand-written programs did.
+the .lst - the front-panel entry table - and the .bin, the bare
+16-byte machine image. What compiles to what, and what the language
+refuses (at compile time, with a reason): [language.md](language.md).
 
 ## asm.py - assembler / disassembler
 
@@ -115,10 +108,9 @@ generated assembly reads like the hand-written programs did.
 Two-pass assembler for the one-byte instruction format
 ([opcode:4][operand:4]); language reference:
 [assembly-language.md](assembly-language.md). Rejects anything the
-hardware cannot encode. The listing shows each byte in hex and in ones
-and zeros as the three hardware groups - RAM address | opcode | operand -
-which are also the dipswitch groups for program entry. The default image
-format is `raw` - bare binary, the .bin. Image formats are
+hardware cannot encode. The listing and its dipswitch groups:
+[assembly-language.md](assembly-language.md), "Example". The default
+image format is `raw` - bare binary, the .bin. Image formats are
 `genroms.py`'s (raw / logisim / intel; the last two exist for the
 machine's own ROM contents).
 

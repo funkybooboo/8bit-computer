@@ -11,10 +11,7 @@ game - it refuses to run while CRUMB is open, so close the game first.
 `--dry-run` shows what would move, in either script.
 
 `Computer-Mike-Bushell.cru` is the CRUMB creator's own build of Ben
-Eater's 8-bit computer (from his video
-[Building Ben Eater's 8-bit computer... in a breadboard simulator](
-https://www.youtube.com/watch?v=KYTkgplXpXE); the .cru save is linked in
-that video's description) - the authoritative
-reference for the rest of the build. His clock module: astable =
-1k + 50k + 1M pot + 1uF; debounce monostable = 1M + 0.45uF.
-Attribution lives in the repo-level [Credits](../README.md#credits).
+Eater's 8-bit computer - the authoritative
+reference for the rest of the build (the video and the .cru download:
+the repo-level [Credits](../README.md#credits)). His clock module:
+astable = 1k + 50k + 1M pot + 1uF; debounce monostable = 1M + 0.45uF.
