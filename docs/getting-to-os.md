@@ -112,27 +112,26 @@ the way a paper plane is the same shape as a 747.
 
 ## Where OS capability lands on the ladder
 
-The milestones map onto the same ladder as
-[getting-to-c.md](getting-to-c.md), "The ladder - what each level
-buys":
+The levels themselves: [getting-to-c.md](getting-to-c.md), "The
+ladder - what each level buys". In OS terms:
 
-| the machine | OS status |
-|-------------|-----------|
-| L0-L2 + the 64-byte tier | impossible - the OS and a program still cannot coexist; the human is the firmware and the whole chain |
-| L3 | writable: a ROM-resident monitor, programs loaded into SRAM, CALL/RET hand-back, the syscall table - a KIM-1-class OS on day one |
-| L3 + IN | conversational: the OS reads at run time; a program can be typed in, run, replaced - CP/M-class usage |
-| L3 + interrupts | preemptive: a timer can take the machine back mid-program; this is *beyond* L3 in the additions tiers, not part of it |
+- **L3** - writable: a ROM-resident monitor, programs loaded into
+  SRAM, CALL/RET hand-back, the syscall table - a KIM-1-class OS on
+  day one.
+- **L3 + IN** - conversational: the OS reads at run time; a program
+  can be typed in, run, replaced - CP/M-class usage.
+- **L3 + interrupts** - preemptive: a timer can take the machine back
+  mid-program; beyond L3 in the additions tiers, not part of it.
 
 ## Distances, honestly
 
-- An OS on the current 16-byte machine: impossible, forever - same
-  two orders of magnitude as C, because it is the same memory gap.
+Same memory gap, same long pole as C
+([getting-to-c.md](getting-to-c.md), "Distances, honestly"); the
+OS-specific distances:
+
 - The single unlock is the stack: SP + CALL/RET is the one primitive
   that separates an OS from a program; everything else on the list is
   elaboration of it.
-- A KIM-1-class monitor at L3: a few hundred bytes of L3 assembly,
-  once the L3 hardware exists - the hardware is the long pole, not the
-  OS, exactly as with C.
 - Preemption: the furthest milestone, and genuinely new hardware
   (interrupt pin, third ROM, saved PC) - cooperative first, as the
   8-bit era did.

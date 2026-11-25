@@ -14,15 +14,19 @@ new hardware at all and can be started now.
 | C needs | the standard's requirement | this machine | the gap |
 |---------|---------------------------|--------------|---------|
 | char    | 8 bits                    | 8 bits       | none |
-| int     | at least 16 bits          | 8-bit ALU    | doable as byte pairs - needs ADC (carry-in chaining; see additions.md, "New chips") |
+| int     | at least 16 bits          | 8-bit ALU    | doable as byte pairs - needs ADC (carry-in chaining) |
 | pointers| addresses that can be computed | operands are 4-bit constants baked into instructions | indirect addressing - the structural gap |
 | memory  | code + globals + stack; the smallest real programs are hundreds of bytes | 16 bytes, shared | 2 orders of magnitude |
-| stack   | every call, every local   | none - no SP, no CALL/RET, no push/pop | SP + CALL/RET (additions.md, "New chips") |
+| stack   | every call, every local   | none - no SP, no CALL/RET, no push/pop | SP + CALL/RET |
 | arithmetic | + - * / % all exist | + - in hardware, * / % as loops (mul/div/mod already written) | none, just slow |
 | bitwise | & \| ^ ~ << >>           | shifts: DBL does << in one instruction (CF = bit out); the rest: none | software emulation (rotate + carry + conditional); correct, ~100s of cycles per byte-op |
-| control flow | if / while / for / functions | JMP JC JZ (+ JNC JNZ added, additions.md, "Added: five opcodes") | functions = stack |
+| control flow | if / while / for / functions | JMP JC JZ (+ JNC JNZ added) | functions = stack |
 | output  | putchar                   | OUT           | none |
-| input   | getchar                   | none at run time | the IN instruction (additions.md, "New chips") |
+| input   | getchar                   | none at run time | the IN instruction |
+
+The new chips named in the gap column (ADC, SP + CALL/RET, the IN
+instruction) are specified in [additions.md](additions.md), "New
+chips"; the inverted jumps: same document, "Added: five opcodes".
 
 The compiler itself runs on the host - cross-compilation, like every
 8-bit microcomputer of the era. This machine will never self-host a
