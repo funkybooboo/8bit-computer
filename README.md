@@ -23,8 +23,9 @@ Every build runs the same control-ROM images ([roms/](roms/README.md),
 generated from one place: [tools/genroms.py](tools/genroms.py)) and
 the same program gallery ([programs/](programs/README.md)). Each
 program's expected output is frozen in
-[web/test/verify.py](web/test/verify.py), so every build can be
-checked against the same answers.
+[web/test/verify.py](web/test/verify.py) - the contract every build
+is checked against ([docs/tools.md](docs/tools.md), "Running
+programs").
 
 ## Quick start
 
@@ -39,21 +40,18 @@ Open <http://localhost:8000/web/>. The machine powers on the way the
 bench machine does: empty RAM (16 NOPs), clock ticking.
 
 A program gets in exactly one way, the way the hardware does it: the
-dipswitches. So first, build an entry listing to read the bytes from:
+dipswitches. Build an entry listing for one:
 
 ```bash
 python3 tools/compile.py programs/count.hl   # writes programs/count.lst
 python3 web/build.py                         # ...or the whole gallery
 ```
 
-`count.lst` is the dipswitch entry table: one line per address, with
-the bits grouped the way the switches are - address, opcode, operand.
-Enter it on the panel (the app's footer walks the procedure), press
-RESET, and watch the display count.
-
-Anything else works the same way: pick a program from the
+Enter it on the panel (the procedure: [docs/hardware.md](docs/hardware.md),
+"Front panel" - the app's footer walks it too), press RESET, and
+watch the display count. Pick any program from the
 [gallery](programs/README.md), or write your own in the repo's small
-language, [.hl](docs/language.md), and enter that.
+language, [.hl](docs/language.md).
 
 (Append `?smoke=1` to the URL to run the app's built-in self-check.)
 
@@ -73,19 +71,10 @@ language, [.hl](docs/language.md), and enter that.
 
 ## Documentation
 
-| document | domain |
-|----------|--------|
-| [architecture.md](docs/architecture.md) | How the parts make a computer - the theory |
-| [hardware.md](docs/hardware.md) | Every part and every wire |
-| [instruction-set.md](docs/instruction-set.md) | The machine language |
-| [language.md](docs/language.md) | The .hl high-level language |
-| [microcode.md](docs/microcode.md) | The control signals and ROMs |
-| [assembly-language.md](docs/assembly-language.md) | The assembly language and assembler |
-| [programs.md](docs/programs.md) | The program gallery and the machine's limits |
-| [tools.md](docs/tools.md) | The toolchain |
-| [additions.md](docs/additions.md) | Additions to Ben Eater's computer: made and possible |
-| [getting-to-c.md](docs/getting-to-c.md) | The staged path to running C |
-| [getting-to-os.md](docs/getting-to-os.md) | The staged path to running an OS |
+[docs/](docs/README.md) - one document per domain: the architecture,
+the hardware, the instruction set, both languages, the microcode, the
+program gallery, the tools, the additions, and the staged paths to C
+and an OS.
 
 ## Credits
 
@@ -107,9 +96,8 @@ Other projects this one stands on or learned from:
   derived from its code.
 - [Mike Bushell](https://www.youtube.com/watch?v=KYTkgplXpXE) - the
   creator of CRUMB. His complete build of Ben's computer in CRUMB
-  ([Building Ben Eater's 8-bit computer... in a breadboard simulator](
-  https://www.youtube.com/watch?v=KYTkgplXpXE); the .cru save is linked
-  in that video's description) is committed at
+  ("Building Ben Eater's 8-bit computer... in a breadboard simulator";
+  the .cru save is linked in the video's description) is committed at
   [crumb/Computer-Mike-Bushell.cru](crumb/Computer-Mike-Bushell.cru)
   and used as the authoritative in-game reference for the
   [crumb/](crumb/) build, including his verified 555 timing values.
