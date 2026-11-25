@@ -6,9 +6,9 @@ assembles to the `.lst` entry table and the `.bin` image the machine
 runs - the full chain, with who produces what, is in
 [tools.md](tools.md), "The build chain". One command does all of it:
 
-    python3 tools/compile.py programs/count.hl
-    # -> programs/count.asm (inspection) + programs/count.lst (the
-    #    dipswitch entry table) + programs/count.bin (the machine image)
+    python3 tools/compile.py programs/count_up.hl
+    # -> programs/count_up.asm (inspection) + programs/count_up.lst (the
+    #    dipswitch entry table) + programs/count_up.bin (the machine image)
 
 The language is a thin, honest layer over the machine
 ([instruction-set.md](instruction-set.md) is the ground truth). It

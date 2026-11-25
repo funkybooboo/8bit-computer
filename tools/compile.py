@@ -8,8 +8,8 @@ source. It rejects at compile time, with a reason, everything the
 hardware cannot do - and nothing is hidden: the generated .asm reads
 like the hand-written programs did.
 
-  compile.py programs/count.hl            # -> count.asm + count.lst + count.bin
-  compile.py programs/count.hl --stdout   # print the generated .asm only
+  compile.py programs/count_up.hl          # -> count_up.asm + count_up.lst + count_up.bin
+  compile.py programs/count_up.hl --stdout   # print the generated .asm only
 """
 
 import argparse

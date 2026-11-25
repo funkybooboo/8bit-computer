@@ -24,13 +24,13 @@ teaches.
 
 | program       | the display shows                                  | instructions exercised       | bytes |
 |---------------|-----------------------------------------------------|------------------------------|-------|
-| count.hl     | 0, 1, ..., 255, 0, ... forever (the 8-bit wrap)    | LDA OUT ADDI STA JMP         | 6     |
-| count-by-three.hl | 0, 3, 6, ..., every byte once per 256 laps         | the same shape as count.hl   | 6     |
-| countdown.hl | 255, 254, ..., 0, then halt                         | LDA SUBI OUT NOP JZ JMP HLT STA | 16 |
+| count_up.hl  | 0, 1, ..., 255, 0, ... forever (the 8-bit wrap)    | LDA OUT ADDI STA JMP         | 6     |
+| count_by_three.hl | 0, 3, 6, ..., every byte once per 256 laps         | the same shape as count_up.hl | 6     |
+| count_down.hl | 255, 254, ..., 0, then halt                         | LDA SUBI OUT NOP JZ JMP HLT STA | 16 |
 | fibonacci.hl  | Fibonacci mod 256, forever                           | LDA OUT ADD STA JMP          | 12    |
-| overflow.hl  | 0, 60, 120, 180, 240, then halt on the wrap          | LDA OUT ADD SUB JC JMP HLT STA | 10 |
-| larger.hl    | the larger of two data bytes                         | LDA SUB JNC JMP OUT HLT      | 11    |
-| absolute-difference.hl | the absolute difference |9 - 14| = 5        | LDA SUB JNC JMP OUT HLT      | 11    |
+| detect_overflow.hl | 0, 60, 120, 180, 240, then halt on the wrap      | LDA OUT ADD SUB JC JMP HLT STA | 10 |
+| max.hl       | the larger of two data bytes (max(x, y))             | LDA SUB JNC JMP OUT HLT      | 11    |
+| abs_diff.hl  | the absolute difference |9 - 14| = 5                 | LDA SUB JNC JMP OUT HLT      | 11    |
 | min.hl       | min(x, 10): the threshold guard (x=25 -> 10)        | LDA SUBI JNC LDI JMP OUT HLT | 10    |
 | odometer.hl  | 0, 1, ..., 99, 0, ... a two-digit odometer          | LDA OUT ADDI SUB JNZ LDI JMP STA | 12 |
 
@@ -43,8 +43,8 @@ teaches.
 | remainder.hl | the remainder: 100 mod 9 = 1                             | repeated subtraction, stripped   | 10    |
 | gcd.hl    | gcd(252, 105) = 21                                        | subtractive Euclid               | 15    |
 | squares.hl| 1, 4, 9, ..., 225, then mod 256                            | sum of odd numbers               | 10    |
-| powers-of-two.hl | 1, 2, 4, ..., 128, then halt exactly on the wrap      | doubling (DBL), self-stopping   | 10    |
-| powers-of-three.hl | 3, 9, 27, 81, 243, ... the powers of three          | shift-and-add (ADD + ADD)        | 7     |
+| powers_of_two.hl | 1, 2, 4, ..., 128, then halt exactly on the wrap   | doubling (DBL), self-stopping   | 10    |
+| powers_of_three.hl | 3, 9, 27, 81, 243, ... the powers of three       | shift-and-add (ADD + ADD)        | 7     |
 | halve.hl     | 22 / 2 = 11                                               | search for y with y + y = x      | 15    |
 | pseudorandom.hl | a shuffle of every byte once per 256 steps             | x = 5x + 1 (mod 256)             | 10    |
 
@@ -52,11 +52,11 @@ teaches.
 
 | program      | the display shows                                 | the trick                          | bytes |
 |--------------|---------------------------------------------------|-------------------------------------|-------|
-| rotate-bit.hl     | a chasing light: 1, 2, 4, ..., 128, 1, ...        | rotate-left through the carry        | 11    |
-| rotate-pattern.hl | a bit pattern circling a byte, 8 steps per lap    | the same idiom, wider seed            | 11    |
-| show-bits.hl     | the byte itself as digits: 1, 0, 1, 1, ...       | the rotate, one bit displayed per lap | 14  |
+| rotate_bit.hl     | a chasing light: 1, 2, 4, ..., 128, 1, ...        | rotate-left through the carry        | 11    |
+| rotate_pattern.hl | a bit pattern circling a byte, 8 steps per lap    | the same idiom, wider seed            | 11    |
+| show_bits.hl     | the byte itself as digits: 1, 0, 1, 1, ...       | the rotate, one bit displayed per lap | 14  |
 | patch.hl    | 7 once, then 9 forever                            | the self-modification demo's OUT stream, rebuilt with ordinary code | 6 |
-| both-flags.hl| 255, then 0                                       | one ADD setting CF and ZF together  | 10    |
+| set_both_flags.hl | 255, then 0                                    | one ADD setting CF and ZF together  | 10    |
 
 ## Limits - what does not fit, and why
 
@@ -68,7 +68,7 @@ the full path to C programs: [getting-to-c.md](getting-to-c.md).
 - **Conway's Game of Life, even 1-D cellular automata (rule 90/110)** -
   the update rule XORs neighboring bits, and the ALU only adds and
   subtracts. Building XOR from arithmetic needs per-bit products (AND),
-  and one cell's update alone would eat the whole RAM. rotate-bit.hl is the
+  and one cell's update alone would eat the whole RAM. rotate_bit.hl is the
   one bit-op within reach: a rotate-left through the carry.
 - **Arrays, lookup tables, indexed anything** - there is no indirect
   addressing: every LDA/STA operand is a 4-bit constant baked into the
@@ -88,13 +88,13 @@ the full path to C programs: [getting-to-c.md](getting-to-c.md).
   XOR of several tap bits; same problem as the cellular automata.
   pseudorandom.hl is the arithmetic-only substitute.
 
-Pushing the limit on purpose: countdown.hl uses exactly all 16 bytes; divide,
+Pushing the limit on purpose: count_down.hl uses exactly all 16 bytes; divide,
 gcd, halve and multiply use 15 of the 16.
 
 ## Building and loading any program
 
-    python3 tools/compile.py programs/count.hl   # -> count.asm + count.lst + count.bin
-    node web/js/run.mjs programs/count.bin       # run headless
+    python3 tools/compile.py programs/count_up.hl   # -> count_up.asm + count_up.lst + count_up.bin
+    node web/js/run.mjs programs/count_up.bin       # run headless
 
 Load it through the front panel (the procedure and the dipswitch
 groups: [hardware.md](hardware.md), "Front panel"). The listing's bits
@@ -102,5 +102,5 @@ column is the dipswitch settings, in the three groups the switches
 are: address | opcode | operand.
 
 Note: programs that mutate their data bytes (fibonacci.hl, the math group's
-accumulators, powers-of-three.hl's running value) leave that state in RAM -
+accumulators, powers_of_three.hl's running value) leave that state in RAM -
 re-enter the image to restart them from their initial values.

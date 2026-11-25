@@ -1,4 +1,4 @@
-; rotate-bit.hl - rotate a bit left through carry: 1, 2, 4, ..., 128, 1
+; rotate_bit.hl - rotate a bit left through carry: 1, 2, 4, ..., 128, 1
 ; The rotate idiom: DBL shifts (CF = the bit that fell off the top),
 ; JNC skips the fixup when nothing fell off, ADDI 1 wraps the
 ; carried bit into bit 0. With seed 1 a single light chases around

@@ -77,7 +77,7 @@ does not have to be maintained by hand.
 
 ## Example
 
-count.hl compiled - `count.asm` is the compiler's output, written
+count_up.hl compiled - `count_up.asm` is the compiler's output, written
 beside the source (a gitignored artifact; `tools/compile.py` or
 `web/build.py` writes it) - count 0..255 forever:
 

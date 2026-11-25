@@ -1,4 +1,4 @@
-; countdown.hl - count down from 255 to 0, then halt
+; count_down.hl - count down from 255 to 0, then halt
 ; The 255 comes from an underflow: 0 - 1 wraps to 255, so the start
 ; value never has to be stored (operand fields only carry 0-15, so 255
 ; cannot come from an instruction anyway). The pass (NOP) is pacing:

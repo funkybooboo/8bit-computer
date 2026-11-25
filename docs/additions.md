@@ -148,7 +148,7 @@ the circuit (every "unused" pin claim verified in Computer.dig):
      instead (one gate + a control line) enables 16-bit arithmetic as
      byte pairs chained through CF.
    - **Real shifts**: rotate-through-carry exists as software
-     (rotate-bit.hl); hardware shifts want an ALU output mux.
+     (rotate_bit.hl); hardware shifts want an ALU output mux.
    - **Bitwise AND/OR/XOR**: the 7486 XOR gates already exist in the ALU
      but are wired as SU's invert-B path, not a data path. Real bitwise
      ops want a second result source + control lines - ROM3 territory.

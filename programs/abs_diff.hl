@@ -1,4 +1,4 @@
-; absolute-difference.hl - the absolute difference |x - y|
+; abs_diff.hl - the absolute difference |x - y| (u8::abs_diff)
 ; The textbook use of a borrow flag: one subtraction both computes the
 ; difference and picks its direction (the compiler reuses the compare's
 ; subtraction for the output). |9 - 14| = 5.

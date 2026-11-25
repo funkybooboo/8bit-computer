@@ -43,7 +43,7 @@ hardware does it: the dipswitches. First build the program's entry
 listing:
 
 ```bash
-python3 tools/compile.py programs/count.hl   # writes programs/count.lst
+python3 tools/compile.py programs/count_up.hl   # writes programs/count_up.lst
 python3 web/build.py                         # ...or the whole gallery
 ```
 

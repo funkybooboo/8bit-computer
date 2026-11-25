@@ -9,9 +9,9 @@ Language: ../docs/assembly-language.md. Instructions:
 ../docs/instruction-set.md. The opcode numbers come from genroms.py -
 the machine's definition, shared with the microcode.
 
-  asm.py programs/count.asm                       # listing to stdout
-  asm.py programs/count.asm --out count.bin --lst count.lst
-  asm.py --dis count.bin                          # disassemble an image
+  asm.py programs/count_up.asm                   # listing to stdout
+  asm.py programs/count_up.asm --out count_up.bin --lst count_up.lst
+  asm.py --dis count_up.bin                      # disassemble an image
 """
 
 import argparse

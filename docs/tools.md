@@ -89,8 +89,8 @@ also defined in this file; the web build's twin is web/js/hex.js.
 
 ## compile.py - the .hl compiler
 
-    tools/compile.py programs/count.hl        # -> count.asm + count.lst + count.bin
-    tools/compile.py programs/count.hl --stdout    # the generated .asm only
+    tools/compile.py programs/count_up.hl     # -> count_up.asm + count_up.lst + count_up.bin
+    tools/compile.py programs/count_up.hl --stdout    # the generated .asm only
 
 Compiles [language.md](language.md) - the high-level language - to the
 assembly language, validates the result by assembling it, and writes
@@ -101,8 +101,8 @@ refuses (at compile time, with a reason): [language.md](language.md).
 
 ## asm.py - assembler / disassembler
 
-    tools/asm.py programs/count.asm                       # listing to stdout
-    tools/asm.py programs/count.asm --out p.bin --lst p.lst   # image + listing
+    tools/asm.py programs/count_up.asm                   # listing to stdout
+    tools/asm.py programs/count_up.asm --out p.bin --lst p.lst   # image + listing
     tools/asm.py --dis p.bin                              # disassemble an image
 
 Two-pass assembler for the one-byte instruction format
@@ -118,7 +118,7 @@ machine's own ROM contents).
 
     python3 web/build.py     # write the .lst entry tables + .bin images (hand entry, the headless runner)
     python3 -m http.server   # from the repo root; open http://localhost:8000/web/
-    node web/js/run.mjs programs/count.bin    # headless CLI on the same machine model
+    node web/js/run.mjs programs/count_up.bin    # headless CLI on the same machine model
     python3 web/test/verify.py  # every program vs its frozen expectations
 
 The web build runs the same control-ROM images the hardware burns, so a

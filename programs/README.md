@@ -10,8 +10,8 @@ serves plus the compiled .asm and the .lst dipswitch entry table beside
 each source, and `tools/compile.py` writes any of them on demand:
 
     python3 web/build.py                       # all program images, for the web app
-    tools/compile.py programs/count.hl        # one program: .asm + .lst + .bin
-    node web/js/run.mjs programs/count.bin    # or open http://localhost:8000/web/
+    tools/compile.py programs/count_up.hl     # one program: .asm + .lst + .bin
+    node web/js/run.mjs programs/count_up.bin  # or open http://localhost:8000/web/
 
 Each program's expected output is frozen in
 [web/test/verify.py](../web/test/verify.py) - the contract every build

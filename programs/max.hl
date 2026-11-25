@@ -1,4 +1,4 @@
-; larger.hl - display the larger of two data bytes
+; max.hl - display the larger of two data bytes (max(x, y))
 ; SUB sets CF=1 when there is no borrow, i.e. when A >= B, so a
 ; comparison costs one subtraction - no compare instruction needed.
 ; Change the two data bytes and re-enter to take the other branch

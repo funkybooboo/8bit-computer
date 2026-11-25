@@ -1,5 +1,5 @@
-; rotate-pattern.hl - rotate a pattern left through carry: 0b1011 circling
-; The same idiom as rotate-bit.hl with a wider seed: x >= 128 is the DBL
+; rotate_pattern.hl - rotate a pattern left through carry: 0b1011 circling
+; The same idiom as rotate_bit.hl with a wider seed: x >= 128 is the DBL
 ; top-bit test, x * 2 + 1 is the rotate. The pattern is back where
 ; it started after 8 laps.
 var x = 0b1011
